@@ -29,7 +29,7 @@ the project will buy.
 | File | Responsibility |
 |---|---|
 | [../.gitignore](../.gitignore) | Excludes venv, `.env`, caches (`.manzil_cache/`, `chroma_db/`), pyc, OS noise. |
-| [../requirements.txt](../requirements.txt) | Pinned versions for **every** runtime dep including the ones used later (`langgraph`, `chromadb`) so all teammates' envs match from day 1. |
+| [../requirements.txt](../requirements.txt) | Pinned versions for every Phase 0–2 runtime dep. **`chromadb` is commented out** and deferred to Phase 3 — its build pulls `cmake` which on some Windows/msys2 Python builds fails an SSL cert verify during a bootstrap download. We install it fresh when Phase 3 actually needs it. |
 | [../.env.example](../.env.example) | Template for `GEMINI_API_KEY`, `MANZIL_USE_CACHE`, `MANZIL_DEMO_MODE`, `MANZIL_CACHE_DIR`. |
 | `manzil/__init__.py` | Package marker, exposes `__version__`. |
 | `manzil/{recommender,agents,tools,graph,memory}/__init__.py` | Sub-package markers. |
@@ -93,7 +93,7 @@ MANZIL_DEMO_MODE=1 streamlit run ui/app.py
 | Risk | Likelihood | Plan B |
 |---|---|---|
 | Gemini model IDs differ from `gemini-2.5-flash[-lite]` | Medium | Swap the `Model` enum values in [../manzil/llm.py](../manzil/llm.py); cache layer is model-agnostic. |
-| `chromadb` install is heavy / fails on Windows | Medium | Defer to Phase 3 install — comment it out of `requirements.txt` for now and re-add at Phase 3 start. |
+| ~~`chromadb` install is heavy / fails on Windows~~ — **realized** in this build; resolved by deferral | — | Already commented out in `requirements.txt`; we add it back at the start of Phase 3 (alongside the RAG corpus work). If the SSL error reproduces then, install pre-built CMake separately so chromadb's build doesn't need to bootstrap-download it. |
 | `google-generativeai` SDK has had breaking renames | Low | Wrap the SDK call in `manzil/llm.py:_ensure_client()`; if rename, fix in one place. |
 
 ## Owner split

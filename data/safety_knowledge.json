@@ -1,0 +1,59 @@
+{
+  "_meta": {
+    "last_updated": "2026-04-30",
+    "notes": "Phase-1 baseline. Hospital and police-post entries are point-of-reference, not exhaustive. Verify in-trip."
+  },
+  "destinations": {
+    "hunza-karimabad": {
+      "altitude_m": 2470,
+      "noc_required": false,
+      "nearest_hospital": {"name": "Aga Khan Medical Centre, Aliabad", "distance_km": 8, "level": "primary"},
+      "nearest_police":   {"name": "Karimabad Police Post",            "distance_km": 1, "level": "post"},
+      "general_safety_notes": "Stable, well-trafficked. Standard mountain hazards (rockfall, weather)."
+    },
+    "skardu": {
+      "altitude_m": 2228,
+      "noc_required": false,
+      "nearest_hospital": {"name": "DHQ Hospital Skardu",              "distance_km": 0, "level": "tertiary-regional"},
+      "nearest_police":   {"name": "Skardu City Police Station",       "distance_km": 0, "level": "station"},
+      "general_safety_notes": "Larger town. Deosai sub-trip requires acclimatization (4,114 m)."
+    },
+    "naran": {
+      "altitude_m": 2415,
+      "noc_required": false,
+      "nearest_hospital": {"name": "RHC Naran",                        "distance_km": 0, "level": "primary"},
+      "nearest_police":   {"name": "Naran Police Post",                "distance_km": 0, "level": "post"},
+      "general_safety_notes": "Saif-ul-Malook (3,224 m) and Lulusar (3,410 m) are common day trips — watch altitude on kids."
+    },
+    "fairy-meadows": {
+      "altitude_m": 3300,
+      "noc_required": false,
+      "nearest_hospital": {"name": "BHU Tato",                         "distance_km": 6, "level": "basic-health-unit"},
+      "nearest_police":   {"name": "Raikot Bridge Police Post",        "distance_km": 18, "level": "post"},
+      "general_safety_notes": "High exposure. The jeep track from Raikot Bridge is famously narrow; only experienced drivers. No road-vehicle access to the meadows themselves; final segment is on foot."
+    },
+    "murree": {
+      "altitude_m": 2291,
+      "noc_required": false,
+      "nearest_hospital": {"name": "DHQ Hospital Murree",              "distance_km": 0, "level": "secondary"},
+      "nearest_police":   {"name": "Murree City Police Station",       "distance_km": 0, "level": "station"},
+      "general_safety_notes": "Most developed of the five. Standard urban-tourism risks; winter snow chaos common."
+    }
+  },
+  "altitude_thresholds_m": {
+    "kids_under_10":         3000,
+    "kids_10_to_18":         4000,
+    "general_adult":         4500,
+    "elderly_over_60":       3500,
+    "any_with_acclimatization_day": 4500
+  },
+  "noc_zones_for_foreigners": [
+    "khunjerab", "deosai-foreigner-restricted", "shimshal", "broghil"
+  ],
+  "altitude_acclimatization_rules": {
+    "if_altitude_above_3000m_and_kids_under_10": "block",
+    "if_altitude_above_3500m_and_elderly":       "block",
+    "if_altitude_above_4500m_without_buffer_day": "block",
+    "buffer_day_definition": "at least one overnight in the 2,200–3,000 m band before going higher"
+  }
+}

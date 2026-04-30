@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "currency": "PKR",
+    "last_updated": "2026-04-30",
+    "notes": "Phase-1 baseline. Numbers compiled from PIA, Daewoo, NATCO, and 2024–2025 traveller reports. Tune in Phase 5 against survey results.",
+    "season_definition": {
+      "high": [6, 7, 8],
+      "shoulder": [4, 5, 9, 10],
+      "low": [1, 2, 3, 11, 12]
+    }
+  },
+  "lodging_per_night": {
+    "gilgit-baltistan": {
+      "high":     {"low": 2500, "mid": 6500,  "high": 18000},
+      "shoulder": {"low": 1800, "mid": 5000,  "high": 14000},
+      "low":      {"low": 1500, "mid": 4000,  "high": 11000}
+    },
+    "khyber-pakhtunkhwa": {
+      "high":     {"low": 2200, "mid": 5500,  "high": 14000},
+      "shoulder": {"low": 1500, "mid": 4000,  "high": 11000},
+      "low":      {"low": 1200, "mid": 3200,  "high": 9000}
+    },
+    "punjab": {
+      "high":     {"low": 2000, "mid": 5000,  "high": 13000},
+      "shoulder": {"low": 1500, "mid": 4000,  "high": 11000},
+      "low":      {"low": 1200, "mid": 3200,  "high": 9000}
+    }
+  },
+  "food_per_person_per_day": {
+    "low": 800,
+    "mid": 1800,
+    "high": 4500
+  },
+  "activities_per_day": {
+    "low": 500,
+    "mid": 1500,
+    "high": 4000
+  },
+  "transport": {
+    "karachi": {
+      "hunza-karimabad": {"road": 12000, "air": 35000, "hybrid": 28000},
+      "skardu":          {"road": 14000, "air": 38000, "hybrid": 30000},
+      "naran":           {"road":  9000, "air": 26000, "hybrid": 21000},
+      "fairy-meadows":   {"road": 13000, "air": 36000, "hybrid": 29000},
+      "murree":          {"road":  7500, "air": 22000, "hybrid": 16000}
+    },
+    "lahore": {
+      "hunza-karimabad": {"road":  8500, "air": 32000, "hybrid": 24000},
+      "skardu":          {"road": 10000, "air": 35000, "hybrid": 26000},
+      "naran":           {"road":  4500, "air": 22000, "hybrid": 14000},
+      "fairy-meadows":   {"road":  9500, "air": 33000, "hybrid": 25000},
+      "murree":          {"road":  3500, "air": 18000, "hybrid": 11000}
+    },
+    "islamabad": {
+      "hunza-karimabad": {"road":  6500, "air": 28000, "hybrid": 19000},
+      "skardu":          {"road":  8000, "air": 30000, "hybrid": 21000},
+      "naran":           {"road":  3000, "air": 18000, "hybrid":  9000},
+      "fairy-meadows":   {"road":  7500, "air": 29000, "hybrid": 20000},
+      "murree":          {"road":  1500, "air":  8000, "hybrid":  4000}
+    }
+  },
+  "buffer_pct": 0.10
+}

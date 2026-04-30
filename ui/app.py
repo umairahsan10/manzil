@@ -5,11 +5,9 @@ Run from the project root:
 
     streamlit run ui/app.py
 
-In Phase 0 this is a healthcheck-only page proving:
-    - schemas import cleanly
-    - the LLM client can reach Gemini (or replay from cache)
-    - the Open-Meteo wrapper can reach the API (or replay from cache)
-    - the cache flags are wired correctly
+This file is the landing page (env state + 3 healthchecks). The Plan page is
+auto-discovered from `ui/pages/plan.py` by Streamlit's multipage system and
+appears in the sidebar.
 """
 
 from __future__ import annotations
@@ -38,7 +36,11 @@ st.set_page_config(page_title="Manzil", page_icon="🏔️", layout="wide")
 st.title("Manzil")
 st.caption(
     f"Multi-agent travel planner for northern Pakistan · v{__version__} · "
-    "Phase 0 — Foundations"
+    "Phase 1 — Thin Vertical Slice"
+)
+st.write(
+    "Pick **Plan** from the left sidebar to start a trip. This page shows "
+    "the system healthchecks — useful when something is misbehaving."
 )
 
 # ---------------------------------------------------------------------------
@@ -100,12 +102,8 @@ with col_weather:
     else:
         st.error(f"FAILED — {msg}")
 
-# ---------------------------------------------------------------------------
-# Footer
-# ---------------------------------------------------------------------------
-
 st.divider()
 st.caption(
-    "Next: Phase 1 wires the form, stub recommender, and one real agent end-to-end. "
-    "If any healthcheck above is red we should fix it before continuing."
+    "Phase 1 status: form → 3 stub candidates → debate → winner page. "
+    "Phase 2 will replace the stub recommender with the real CBR pipeline."
 )

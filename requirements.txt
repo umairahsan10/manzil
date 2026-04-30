@@ -15,8 +15,11 @@ streamlit==1.39.0
 folium==0.17.0
 streamlit-folium==0.23.1
 
-# Vector store / RAG (used from Phase 3 — installed early so envs match)
-chromadb==0.5.15
+# Vector store / RAG (used from Phase 3 — DEFERRED to Phase 3 install).
+# chromadb pulls onnxruntime which on some Windows / msys2 Python builds fails
+# with an SSL cert error during the cmake bootstrap. We'll install it at the
+# start of Phase 3 once we actually need it.
+# chromadb==0.5.15
 
 # Agent graph (used from Phase 1 — installed early)
 langgraph==0.2.39

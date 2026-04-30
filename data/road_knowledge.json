@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "last_updated": "2026-04-30",
+    "notes": "Phase-1 baseline for the 5 destinations. Pass closures from NHA/FWO public bulletins; landslide risk from KKH 2022–2025 reporting.",
+    "month_index": "0=Jan ... 11=Dec"
+  },
+  "passes": {
+    "babusar": {
+      "name": "Babusar Pass",
+      "altitude_m": 4173,
+      "open_months":         [false, false, false, false, false, true, true, true, true, true, false, false],
+      "closure_risk_by_month": {"5": 0.30, "6": 0.05, "7": 0.05, "8": 0.10, "9": 0.20, "10": 0.40},
+      "notes": "Closes by snow Oct/Nov; reopens late May / early June depending on melt."
+    },
+    "khunjerab": {
+      "name": "Khunjerab Pass",
+      "altitude_m": 4693,
+      "open_months":         [false, false, false, true, true, true, true, true, true, true, true, false],
+      "closure_risk_by_month": {"3": 0.40, "4": 0.10, "5": 0.05, "6": 0.05, "7": 0.05, "8": 0.05, "9": 0.05, "10": 0.20, "11": 0.50},
+      "notes": "Pakistan–China border. Officially closed in deepest winter; weather closures common."
+    },
+    "lowari": {
+      "name": "Lowari Tunnel",
+      "altitude_m": 3118,
+      "open_months":         [true, true, true, true, true, true, true, true, true, true, true, true],
+      "closure_risk_by_month": {"0": 0.10, "1": 0.10, "2": 0.05, "11": 0.10},
+      "notes": "Tunnel since 2017 — year-round in principle; occasional closure in heavy snow."
+    },
+    "deosai": {
+      "name": "Deosai Plain",
+      "altitude_m": 4114,
+      "open_months":         [false, false, false, false, false, true, true, true, true, false, false, false],
+      "closure_risk_by_month": {"5": 0.50, "6": 0.10, "7": 0.05, "8": 0.10, "9": 0.40},
+      "notes": "Highest plateau; only navigable mid-summer."
+    }
+  },
+  "segments": {
+    "karachi__hunza-karimabad":   {"distance_km": 1900, "drive_time_hours": 28.0, "via": ["lahore", "islamabad", "kkh"], "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "karachi__skardu":            {"distance_km": 2200, "drive_time_hours": 36.0, "via": ["lahore", "islamabad", "naran", "babusar", "kkh"], "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "karachi__naran":             {"distance_km": 1500, "drive_time_hours": 22.0, "via": ["lahore", "islamabad", "kaghan"], "landslide_risk_by_month": {"6": 0.10, "7": 0.30, "8": 0.30, "9": 0.10}},
+    "karachi__fairy-meadows":     {"distance_km": 1850, "drive_time_hours": 27.0, "via": ["islamabad", "kkh", "raikot-bridge"], "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "karachi__murree":            {"distance_km": 1300, "drive_time_hours": 18.0, "via": ["lahore", "islamabad"], "landslide_risk_by_month": {"7": 0.10, "8": 0.10}},
+
+    "lahore__hunza-karimabad":    {"distance_km": 1300, "drive_time_hours": 20.0, "via": ["islamabad", "kkh"],                       "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "lahore__skardu":             {"distance_km": 1500, "drive_time_hours": 26.0, "via": ["islamabad", "naran", "babusar", "kkh"], "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "lahore__naran":              {"distance_km":  700, "drive_time_hours": 12.0, "via": ["islamabad", "kaghan"],                    "landslide_risk_by_month": {"6": 0.10, "7": 0.30, "8": 0.30, "9": 0.10}},
+    "lahore__fairy-meadows":      {"distance_km": 1250, "drive_time_hours": 19.0, "via": ["islamabad", "kkh", "raikot-bridge"],     "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "lahore__murree":             {"distance_km":  330, "drive_time_hours":  5.5, "via": ["islamabad"],                              "landslide_risk_by_month": {"7": 0.05, "8": 0.05}},
+
+    "islamabad__hunza-karimabad": {"distance_km":  900, "drive_time_hours": 14.0, "via": ["kkh"],                                    "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "islamabad__skardu":          {"distance_km": 1100, "drive_time_hours": 20.0, "via": ["naran", "babusar", "kkh"],               "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "islamabad__naran":           {"distance_km":  290, "drive_time_hours":  6.5, "via": ["kaghan"],                                 "landslide_risk_by_month": {"6": 0.10, "7": 0.30, "8": 0.30, "9": 0.10}},
+    "islamabad__fairy-meadows":   {"distance_km":  850, "drive_time_hours": 13.0, "via": ["kkh", "raikot-bridge"],                  "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "islamabad__murree":          {"distance_km":   65, "drive_time_hours":  2.0, "via": ["expressway"],                             "landslide_risk_by_month": {"7": 0.05, "8": 0.05}},
+
+    "hunza-karimabad__skardu":    {"distance_km":  220, "drive_time_hours":  7.0, "via": ["kkh", "skardu-road"],                     "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "hunza-karimabad__fairy-meadows": {"distance_km": 110, "drive_time_hours": 4.5, "via": ["kkh", "raikot-bridge"],                "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}},
+    "naran__hunza-karimabad":     {"distance_km":  330, "drive_time_hours":  9.5, "via": ["babusar", "kkh"],                         "landslide_risk_by_month": {"6": 0.10, "7": 0.30, "8": 0.30, "9": 0.10}},
+    "naran__skardu":              {"distance_km":  470, "drive_time_hours": 13.0, "via": ["babusar", "kkh", "skardu-road"],         "landslide_risk_by_month": {"6": 0.20, "7": 0.40, "8": 0.40, "9": 0.20}}
+  },
+  "humane_drive_max_hours_per_day": 10
+}
