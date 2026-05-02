@@ -1,7 +1,7 @@
 {
   "_meta": {
     "last_updated": "2026-04-30",
-    "notes": "Phase-1 baseline. Hospital and police-post entries are point-of-reference, not exhaustive. Verify in-trip."
+    "notes": "Phase-2 baseline. Hospital and police-post entries are point-of-reference, not exhaustive. Verify in-trip."
   },
   "destinations": {
     "hunza-karimabad": {
@@ -38,6 +38,69 @@
       "nearest_hospital": {"name": "DHQ Hospital Murree",              "distance_km": 0, "level": "secondary"},
       "nearest_police":   {"name": "Murree City Police Station",       "distance_km": 0, "level": "station"},
       "general_safety_notes": "Most developed of the five. Standard urban-tourism risks; winter snow chaos common."
+    },
+    "gilgit": {
+      "altitude_m": 1500,
+      "noc_required": false,
+      "nearest_hospital": {"name": "DHQ Hospital Gilgit",              "distance_km": 0, "level": "tertiary-regional"},
+      "nearest_police":   {"name": "Gilgit Sadar Police Station",      "distance_km": 0, "level": "station"},
+      "general_safety_notes": "Regional capital. Best medical access in GB. Acclimatization stop before higher destinations."
+    },
+    "passu": {
+      "altitude_m": 2500,
+      "noc_required": false,
+      "nearest_hospital": {"name": "Aga Khan Medical Centre, Gulmit",   "distance_km": 12, "level": "primary"},
+      "nearest_police":   {"name": "Gulmit Police Post",               "distance_km": 12, "level": "post"},
+      "general_safety_notes": "Glacier-adjacent — guided treks only. KKH segment north of Hunza is landslide-prone in monsoon."
+    },
+    "attabad": {
+      "altitude_m": 2470,
+      "noc_required": false,
+      "nearest_hospital": {"name": "Aga Khan Medical Centre, Gulmit",   "distance_km": 6, "level": "primary"},
+      "nearest_police":   {"name": "Gulmit Police Post",               "distance_km": 6, "level": "post"},
+      "general_safety_notes": "Lakeside. Wear life jackets for boat rides; lake-effect cold even in summer."
+    },
+    "khaplu": {
+      "altitude_m": 2600,
+      "noc_required": false,
+      "nearest_hospital": {"name": "Khaplu Civil Hospital",            "distance_km": 1, "level": "primary"},
+      "nearest_police":   {"name": "Khaplu Police Station",            "distance_km": 1, "level": "station"},
+      "general_safety_notes": "Remote. Hushe Valley sub-trips can push above 4,000 m — proper acclimatization required."
+    },
+    "swat-kalam": {
+      "altitude_m": 2050,
+      "noc_required": false,
+      "nearest_hospital": {"name": "RHC Kalam",                        "distance_km": 0, "level": "primary"},
+      "nearest_police":   {"name": "Kalam Police Station",             "distance_km": 0, "level": "station"},
+      "general_safety_notes": "Generally stable. Mountain road from Mingora can be slow during peak season; flooding risk in the Swat River during monsoon."
+    },
+    "shogran": {
+      "altitude_m": 2362,
+      "noc_required": false,
+      "nearest_hospital": {"name": "RHC Balakot",                      "distance_km": 35, "level": "primary"},
+      "nearest_police":   {"name": "Kiwai Police Post",                "distance_km": 8, "level": "post"},
+      "general_safety_notes": "Drive to Shogran from Kiwai is a steep jeep track — local 4x4 only. Siri Paye plateau adds another 600m gain."
+    },
+    "neelum": {
+      "altitude_m": 1981,
+      "noc_required": true,
+      "nearest_hospital": {"name": "RHC Athmuqam",                     "distance_km": 0, "level": "primary"},
+      "nearest_police":   {"name": "Athmuqam Police Station",          "distance_km": 0, "level": "station"},
+      "general_safety_notes": "Border zone. NOC required for foreign travellers. Sporadic security advisories near the LoC; check current bulletins."
+    },
+    "deosai": {
+      "altitude_m": 4114,
+      "noc_required": false,
+      "nearest_hospital": {"name": "DHQ Hospital Skardu",              "distance_km": 80, "level": "tertiary-regional"},
+      "nearest_police":   {"name": "Skardu City Police Station",       "distance_km": 80, "level": "station"},
+      "general_safety_notes": "Extreme altitude exposure (4,114 m). Acclimatization at Skardu (2,228 m) for at least one night before driving up. Tent-only; weather can turn quickly."
+    },
+    "chitral": {
+      "altitude_m": 1500,
+      "noc_required": false,
+      "nearest_hospital": {"name": "DHQ Hospital Chitral",             "distance_km": 0, "level": "tertiary-regional"},
+      "nearest_police":   {"name": "Chitral City Police Station",      "distance_km": 0, "level": "station"},
+      "general_safety_notes": "Stable city base. Sub-trips into the Kalash valleys are safe but remote — keep a buffer day for road conditions."
     }
   },
   "altitude_thresholds_m": {
@@ -48,7 +111,7 @@
     "any_with_acclimatization_day": 4500
   },
   "noc_zones_for_foreigners": [
-    "khunjerab", "deosai-foreigner-restricted", "shimshal", "broghil"
+    "khunjerab", "deosai-foreigner-restricted", "shimshal", "broghil", "neelum"
   ],
   "altitude_acclimatization_rules": {
     "if_altitude_above_3000m_and_kids_under_10": "block",

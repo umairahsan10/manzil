@@ -146,18 +146,59 @@ if submitted:
 # ---------------------------------------------------------------------------
 
 
+def _strip_relaxation_note(rationale: str) -> tuple[str | None, str]:
+    """Returns (note_or_none, stripped_rationale)."""
+    if not rationale.startswith("⚠"):
+        return None, rationale
+    parts = rationale.split("\n\n", 1)
+    note = parts[0].lstrip("⚠ ").strip()
+    rest = parts[1] if len(parts) == 2 else ""
+    return note, rest
+
+
 def _render_candidate_cards(candidates: list[RouteCandidate]):
+    if not candidates:
+        st.warning(
+            "No feasible routes for these constraints — even after relaxation. "
+            "Try a different month, a higher difficulty tolerance, or a bigger budget."
+        )
+        return
+
+    # Relaxation banner — shown once if any candidate has a relaxation note
+    notes = []
+    for c in candidates:
+        note, _ = _strip_relaxation_note(c.rationale)
+        if note:
+            notes.append(note)
+    if notes:
+        # All candidates share the same note in this run, so just show the first
+        st.info(notes[0])
+
     st.subheader("Three candidate routes")
-    cols = st.columns(3)
+    n_cols = max(1, min(3, len(candidates)))
+    cols = st.columns(n_cols)
     for i, c in enumerate(candidates):
-        with cols[i]:
+        with cols[i % n_cols]:
             st.markdown(f"#### {c.label}")
             st.markdown("**Stops:** " + " → ".join(c.destinations))
             st.metric("Estimated cost (PKR)", f"{c.estimated_cost:,}")
             st.caption(f"{c.days} days · ₨{c.estimated_cost // max(1, c.days):,}/day")
-            axes = " · ".join(f"{k}: {v}" for k, v in c.diversity_axes.items())
-            st.caption(axes)
-            st.write(c.rationale)
+
+            # Diversity axes as small badge-y chips
+            chips = " · ".join(
+                f"`{k}`: **{v}**" for k, v in c.diversity_axes.items()
+            )
+            st.markdown(chips)
+
+            # CBR + content scores
+            st.caption(
+                f"CBR fit {c.cbr_score:.2f} · style fit {c.content_score:.2f}"
+            )
+
+            # Strip the relaxation prefix from the rationale we show inline
+            _, body = _strip_relaxation_note(c.rationale)
+            if body:
+                st.write(body)
 
 
 def _render_winner(result: DebateResult, candidates: list[RouteCandidate]):
