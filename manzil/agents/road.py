@@ -1,107 +1,179 @@
 """
-RoadAgent — Phase 1 stub.
+RoadAgent — Phase 3 real agent.
 
-Deterministic only. Computes aggregate drive-time across the route's
-segments using `data/road_knowledge.json`. No LLM. No vetos in Phase 1.
+Deterministic analysis:
+    - Looks up each pass on the route in road_knowledge.json
+    - Computes drive-time per day from the distance matrix
+    - Aggregates landslide risk for the chosen month
 
-Phase 3 promotes this to a full agent: pass-closure vetoes, landslide-risk
-weighting, humane-driving caps, and an LLM-generated argument.
+Hard blockers:
+    - Veto if any pass on the route has open_months[month-1] == False
+    - Veto if any single day's drive exceeds 12 hours (humane-driving rule)
+
+Score:
+    - Linear from average drive-time per day and aggregate landslide risk
+
+LLM argument:
+    - Emphasizes "smooth highway segments" / "well-paved KKH"
+    - Concerns surface "monsoon landslide history" / "long Day 3 drive"
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+import statistics
+from typing import Any, Dict, List, Optional
 
 from manzil.agents.base import BaseAgent
-from manzil.data_loader import load_road_knowledge
 from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery
+from manzil.tools import route_calc
 
 
 class RoadAgent(BaseAgent):
     name = "RoadAgent"
-    uses_llm = False
+    uses_llm = True
 
     def _analyze(
         self, candidate: RouteCandidate, query: UserQuery
     ) -> Dict[str, Any]:
-        rk = load_road_knowledge()
-        segments = rk.get("segments", {})
-        leg_lookup = self._leg_keys(query.origin_city, candidate.destinations)
+        origin = query.origin_city.lower()
+        month = query.travel_month
 
-        legs = []
-        total_drive_h = 0.0
-        max_leg_h = 0.0
-        missing = []
-        for key in leg_lookup:
-            seg = segments.get(key)
-            if seg is None:
-                missing.append(key)
-                continue
-            legs.append({"leg": key, "hours": seg.get("drive_time_hours", 0.0)})
-            total_drive_h += float(seg.get("drive_time_hours", 0.0))
-            max_leg_h = max(max_leg_h, float(seg.get("drive_time_hours", 0.0)))
+        # Passes on the route
+        passes = route_calc.passes_on_route(origin, candidate.destinations)
+
+        # Segment details
+        segments = route_calc.route_segments(origin, candidate.destinations)
+
+        # Drive time per day (total / days, plus max single leg)
+        total_drive_h = route_calc.total_drive_time(origin, candidate.destinations)
+        avg_drive_per_day = total_drive_h / max(1, candidate.days)
+        max_leg_h = route_calc.max_single_leg_drive_time(origin, candidate.destinations)
+
+        # Landslide risk
+        max_landslide_risk = route_calc.landslide_risk_for_month(
+            origin, candidate.destinations, month
+        )
+
+        # Missing segments?
+        missing = [s["leg_key"] for s in segments if s.get("missing")]
 
         return {
-            "legs": legs,
+            "travel_month": month,
             "total_drive_hours": round(total_drive_h, 1),
+            "avg_drive_per_day_hours": round(avg_drive_per_day, 1),
             "max_single_leg_hours": round(max_leg_h, 1),
+            "max_landslide_risk": round(max_landslide_risk, 2),
+            "passes": passes,
+            "segments": segments,
             "missing_segments": missing,
-            "humane_max_hours_per_day": rk.get("humane_drive_max_hours_per_day", 10),
         }
 
-    def _check_blocker(self, analysis, candidate, query) -> Optional[str]:
-        return None  # Phase 3 adds pass-closure + drive-time vetoes
+    def _check_blocker(
+        self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
+    ) -> Optional[str]:
+        month_idx = query.travel_month - 1  # 0-based
 
-    def _score(self, analysis, candidate, query) -> float:
-        # 10 with zero road; -1 per 6 hours of total driving; floor at 1.
-        total_h = analysis.get("total_drive_hours", 0.0)
-        return max(1.0, 10.0 - total_h / 6.0)
+        # Check pass closures
+        for p in analysis.get("passes", []):
+            open_months = p.get("open_months", [])
+            if month_idx < len(open_months) and not open_months[month_idx]:
+                return (
+                    f"{p.get('name', p['pass_id'])} is closed in "
+                    f"month {query.travel_month}."
+                )
 
-    def _canned_argument(
-        self, analysis, score, candidate, query
-    ) -> LLMArgumentPayload:
-        total_h = analysis.get("total_drive_hours", 0.0)
-        max_h = analysis.get("max_single_leg_hours", 0.0)
-        reasons = []
-        concerns = []
-
-        if total_h <= 12:
-            reasons.append(
-                f"Light total driving ({total_h:.0f} h) keeps the trip relaxed."
+        # Humane driving: any single leg > 12 hours?
+        max_leg = analysis.get("max_single_leg_hours", 0.0)
+        if max_leg > 12.0:
+            return (
+                f"Longest driving leg is {max_leg:.1f} h, exceeding the "
+                f"12-hour humane-driving limit."
             )
-        elif total_h <= 24:
-            reasons.append(
-                f"Reasonable total driving ({total_h:.0f} h) for the destinations."
-            )
+
+        return None
+
+    def _score(
+        self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
+    ) -> float:
+        avg_drive = analysis.get("avg_drive_per_day_hours", 0.0)
+        landslide_risk = analysis.get("max_landslide_risk", 0.0)
+        missing = analysis.get("missing_segments", [])
+
+        # Penalize avg drive time: -1 per 3 hours, max penalty 6
+        drive_penalty = min(6.0, avg_drive / 3.0)
+
+        # Penalize landslide risk: up to 3 points
+        landslide_penalty = landslide_risk * 3.0
+
+        # Missing knowledge penalty
+        missing_penalty = 2.0 if missing else 0.0
+
+        score = 10.0 - drive_penalty - landslide_penalty - missing_penalty
+        return max(0.0, min(10.0, score))
+
+    def _confidence(
+        self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
+    ) -> float:
+        missing = analysis.get("missing_segments", [])
+        if missing:
+            return 0.6
+        return 1.0
+
+    def _build_argue_prompt(
+        self,
+        analysis: Dict[str, Any],
+        score: float,
+        candidate: RouteCandidate,
+        query: UserQuery,
+    ) -> str:
+        lines = [
+            f"Candidate: {candidate.label}",
+            f"Destinations: {' -> '.join(candidate.destinations)}",
+            f"Origin: {query.origin_city}",
+            f"Trip days: {candidate.days}; travel month: {analysis['travel_month']}",
+            f"RoadAgent deterministic score: {score:.1f}/10",
+            "",
+            "Route analysis:",
+            f"- Total drive time: {analysis['total_drive_hours']:.1f} h",
+            f"- Average per day: {analysis['avg_drive_per_day_hours']:.1f} h",
+            f"- Max single leg: {analysis['max_single_leg_hours']:.1f} h",
+            f"- Peak landslide risk this month: {analysis['max_landslide_risk']:.0%}",
+        ]
+
+        passes = analysis.get("passes", [])
+        if passes:
+            lines.append("- Passes on route:")
+            for p in passes:
+                month_idx = query.travel_month - 1
+                open_months = p.get("open_months", [])
+                status = (
+                    "OPEN"
+                    if month_idx < len(open_months) and open_months[month_idx]
+                    else "CLOSED"
+                )
+                lines.append(
+                    f"  * {p.get('name', p['pass_id'])} "
+                    f"(alt {p.get('altitude_m', '?')} m) — {status}"
+                )
         else:
-            concerns.append(
-                f"Heavy total driving ({total_h:.0f} h) compresses sightseeing time."
-            )
+            lines.append("- No major mountain passes on this route.")
 
-        if max_h >= 12:
-            concerns.append(
-                f"Longest single leg ~{max_h:.0f} h — consider splitting the day."
-            )
-        else:
-            reasons.append(
-                f"No single leg above {max_h:.0f} h — within humane-driving limits."
-            )
+        missing = analysis.get("missing_segments", [])
+        if missing:
+            lines.append(f"- WARNING: Missing road data for segments: {', '.join(missing)}")
 
-        if analysis.get("missing_segments"):
-            concerns.append(
-                "Route knowledge incomplete for one or more legs; verify locally."
-            )
-
-        return LLMArgumentPayload(reasons=reasons[:3], concerns=concerns[:3])
-
-    @staticmethod
-    def _leg_keys(origin: str, destinations) -> list:
-        keys = []
-        prev = origin.lower()
-        for dest in destinations:
-            keys.append(f"{prev}__{dest}")
-            prev = dest
-        return keys
+        lines.extend(
+            [
+                "",
+                "Produce a JSON object with exactly two keys:",
+                '  "reasons":  1-3 short bullets (<=25 words each) supporting this candidate',
+                "              from a road-quality / drive-time perspective.",
+                '  "concerns": 1-3 short bullets (<=25 words each) flagging road risks.',
+                "",
+                "Cite the data above. Do not invent road conditions. Reply with ONLY the JSON.",
+            ]
+        )
+        return "\n".join(lines)
 
 
 __all__ = ["RoadAgent"]

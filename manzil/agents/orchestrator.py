@@ -1,17 +1,21 @@
 """
-Orchestrator — Phase 1 minimal version.
+Orchestrator — Phase 3 full policy implementation.
 
-Implements only what is needed to render a winner page:
-    - hard-blocker elimination (a candidate with one or more blockers loses)
-    - weighted aggregate score over surviving candidates
-    - winner selection
-    - a simple day-by-day plan expansion
+Implements the complete section-7 policy:
+    1. Hard-blocker elimination
+    2. Weighted aggregate score over surviving candidates
+    3. Epsilon=0.3 concentration tie-break
+    4. Dissent detection (>2 point gap)
+    5. Why-not summaries for runner-ups
+    6. One Flash-Lite LLM call for natural-language synthesis
+    7. Rich day-by-day plan expansion
 
-Phase 3 promotes this to the full §7 policy:
-    - epsilon=0.3 concentration tie-break
-    - dissent detection
-    - why-not summaries for runner-ups
-    - one Flash LLM call for natural-language synthesis
+Weights (fixed, editorial):
+    SafetyAgent:  0.30
+    BudgetAgent:  0.25
+    WeatherAgent: 0.20
+    RoadAgent:    0.15
+    LocalAgent:   0.10
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from manzil.data_loader import load_destinations
+from manzil.llm import Model
 from manzil.schemas import (
     AgentArgument,
     DayByDayPlan,
@@ -35,7 +40,7 @@ DEFAULT_WEIGHTS: Dict[str, float] = {
     "BudgetAgent": 0.25,
     "WeatherAgent": 0.20,
     "RoadAgent": 0.15,
-    "LocalExperienceAgent": 0.10,
+    "LocalAgent": 0.10,
 }
 
 
@@ -63,16 +68,15 @@ class Orchestrator:
                 blockers=blockers,
                 dissenting_opinion=None,
                 why_not={},
-                orchestrator_reasoning=(
-                    "No candidate survived hard-blocker elimination. "
-                    "Returning structured failure rather than a bad recommendation."
-                ),
+                orchestrator_reasoning=self._all_blocked_reasoning(candidates, blockers),
                 all_blocked=True,
             )
 
         aggregates = self._weighted_aggregate(surviving, arguments)
-        winner = max(surviving, key=lambda c: aggregates.get(c.candidate_id, 0.0))
-
+        winner = self._pick_winner(surviving, aggregates, arguments)
+        dissent = self._detect_dissent(winner, arguments)
+        why_not = self._generate_why_not(surviving, winner, arguments, aggregates)
+        reasoning = self._llm_synthesize(winner, arguments, dissent, why_not)
         full_plan = self._expand_plan(winner, arguments)
 
         return DebateResult(
@@ -80,18 +84,14 @@ class Orchestrator:
             full_plan=full_plan,
             scorecard=scorecard,
             blockers=blockers,
-            dissenting_opinion=None,  # Phase 3
-            why_not={},  # Phase 3
-            orchestrator_reasoning=(
-                f"Winner: {winner.label}. "
-                f"Weighted aggregate score: {aggregates[winner.candidate_id]:.2f}/10. "
-                "Phase-1 orchestrator: dissent detection and why-not summaries land in Phase 3."
-            ),
+            dissenting_opinion=dissent,
+            why_not=why_not,
+            orchestrator_reasoning=reasoning,
             all_blocked=False,
         )
 
     # ------------------------------------------------------------------
-    # Helpers
+    # Core policy helpers
     # ------------------------------------------------------------------
 
     def _build_scorecard(
@@ -118,7 +118,6 @@ class Orchestrator:
         candidates: List[RouteCandidate],
         arguments: List[AgentArgument],
     ) -> Dict[str, float]:
-        # Build a dict (candidate_id, agent_name) -> argument
         by_pair: Dict[tuple, AgentArgument] = {}
         for arg in arguments:
             by_pair[(arg.candidate_id, arg.agent_name)] = arg
@@ -131,12 +130,224 @@ class Orchestrator:
                 arg = by_pair.get((c.candidate_id, agent_name))
                 if arg is None:
                     continue
-                # Down-weight low-confidence arguments
                 eff_weight = weight * arg.confidence
                 total += arg.score * eff_weight
                 weight_used += eff_weight
             out[c.candidate_id] = total / weight_used if weight_used > 0 else 0.0
         return out
+
+    def _pick_winner(
+        self,
+        surviving: List[RouteCandidate],
+        aggregates: Dict[str, float],
+        arguments: List[AgentArgument],
+    ) -> RouteCandidate:
+        """
+        Pick winner by aggregate score. If two candidates are within
+        epsilon=0.3, apply concentration tie-break (higher concentration wins).
+        """
+        EPS = 0.3
+
+        # Sort by aggregate score descending
+        sorted_cands = sorted(
+            surviving,
+            key=lambda c: aggregates.get(c.candidate_id, 0.0),
+            reverse=True,
+        )
+
+        if len(sorted_cands) == 1:
+            return sorted_cands[0]
+
+        top = sorted_cands[0]
+        second = sorted_cands[1]
+        top_score = aggregates.get(top.candidate_id, 0.0)
+        second_score = aggregates.get(second.candidate_id, 0.0)
+
+        if top_score - second_score > EPS:
+            return top
+
+        # Tie-break: concentration over breadth
+        top_conc = self._concentration(top.candidate_id, arguments)
+        second_conc = self._concentration(second.candidate_id, arguments)
+
+        if second_conc > top_conc:
+            return second
+        return top
+
+    def _concentration(self, candidate_id: str, arguments: List[AgentArgument]) -> float:
+        """max(scores) - min(scores) for this candidate across all agents."""
+        scores = [
+            a.score for a in arguments if a.candidate_id == candidate_id
+        ]
+        if not scores:
+            return 0.0
+        return max(scores) - min(scores)
+
+    def _detect_dissent(
+        self,
+        winner: RouteCandidate,
+        arguments: List[AgentArgument],
+    ) -> Optional[str]:
+        """
+        For each agent, find its top-scoring candidate. If the agent's
+        score for the winner is >2 points below its top pick, surface dissent.
+        """
+        DISSENT_THRESHOLD = 2.0
+
+        dissent_lines = []
+        agent_names = {a.agent_name for a in arguments}
+
+        for agent_name in agent_names:
+            agent_args = [a for a in arguments if a.agent_name == agent_name]
+            if not agent_args:
+                continue
+
+            top_arg = max(agent_args, key=lambda a: a.score)
+            winner_arg = next(
+                (a for a in agent_args if a.candidate_id == winner.candidate_id),
+                None,
+            )
+            if winner_arg is None:
+                continue
+
+            gap = top_arg.score - winner_arg.score
+            if gap > DISSENT_THRESHOLD:
+                dissent_lines.append(
+                    f"{agent_name} ranked {top_arg.candidate_id} highest "
+                    f"({top_arg.score:.1f}/10) versus the winner's "
+                    f"{winner_arg.score:.1f}/10 — a gap of {gap:.1f} points."
+                )
+
+        if not dissent_lines:
+            return None
+        return " ".join(dissent_lines)
+
+    def _generate_why_not(
+        self,
+        surviving: List[RouteCandidate],
+        winner: RouteCandidate,
+        arguments: List[AgentArgument],
+        aggregates: Dict[str, float],
+    ) -> Dict[str, str]:
+        """One-line explanation for each runner-up."""
+        why_not: Dict[str, str] = {}
+        for c in surviving:
+            if c.candidate_id == winner.candidate_id:
+                continue
+            agg_score = aggregates.get(c.candidate_id, 0.0)
+            winner_score = aggregates.get(winner.candidate_id, 0.0)
+            delta = winner_score - agg_score
+
+            # Find the agent that most hurt this candidate
+            agent_args = [a for a in arguments if a.candidate_id == c.candidate_id]
+            if agent_args:
+                worst_agent = min(agent_args, key=lambda a: a.score)
+                reason = (
+                    f"Scored {agg_score:.1f}/10 aggregate vs winner's {winner_score:.1f}. "
+                    f"{worst_agent.agent_name} gave it only {worst_agent.score:.1f}/10 "
+                    f"— its weakest point."
+                )
+            else:
+                reason = (
+                    f"Scored {agg_score:.1f}/10 aggregate, {delta:.1f} points below the winner."
+                )
+            why_not[c.candidate_id] = reason
+        return why_not
+
+    def _all_blocked_reasoning(
+        self,
+        candidates: List[RouteCandidate],
+        blockers: Dict[str, List[str]],
+    ) -> str:
+        lines = ["No candidate survived hard-blocker elimination."]
+        for c in candidates:
+            reasons = blockers.get(c.candidate_id, [])
+            lines.append(
+                f"- {c.candidate_id}: " + "; ".join(reasons)
+            )
+        lines.append("Returning structured failure rather than a bad recommendation.")
+        return " ".join(lines)
+
+    # ------------------------------------------------------------------
+    # LLM synthesis
+    # ------------------------------------------------------------------
+
+    def _llm_synthesize(
+        self,
+        winner: RouteCandidate,
+        arguments: List[AgentArgument],
+        dissent: Optional[str],
+        why_not: Dict[str, str],
+    ) -> str:
+        """
+        One Flash-Lite call for the natural-language synthesis.
+        Falls back to deterministic text if the LLM call fails.
+        """
+        from manzil import llm
+
+        prompt_lines = [
+            "You are the Orchestrator for a Pakistan travel-planning system.",
+            "Synthesize a concise, honest recommendation paragraph (3-5 sentences).",
+            "",
+            f"WINNER: {winner.label} ({winner.candidate_id})",
+            f"Destinations: {' -> '.join(winner.destinations)}",
+            "",
+            "Agent scores for the winner:",
+        ]
+        for arg in arguments:
+            if arg.candidate_id == winner.candidate_id:
+                prompt_lines.append(
+                    f"- {arg.agent_name}: {arg.score:.1f}/10"
+                )
+                if arg.hard_blocker:
+                    prompt_lines.append(f"  [BLOCKER: {arg.hard_blocker}]")
+                if arg.supporting_reasons:
+                    prompt_lines.append(f"  Reasons: {'; '.join(arg.supporting_reasons[:2])}")
+                if arg.concerns:
+                    prompt_lines.append(f"  Concerns: {'; '.join(arg.concerns[:2])}")
+
+        if dissent:
+            prompt_lines.extend([
+                "",
+                "DISSENTING OPINION:",
+                dissent,
+            ])
+
+        if why_not:
+            prompt_lines.extend([
+                "",
+                "WHY NOT THE RUNNER-UPS:",
+            ])
+            for cid, reason in why_not.items():
+                prompt_lines.append(f"- {cid}: {reason}")
+
+        prompt_lines.extend([
+            "",
+            "Write a single paragraph summarizing why the winner was chosen, "
+            "acknowledging any dissent, and being honest about trade-offs. "
+            "Do not invent facts. Keep it under 120 words.",
+        ])
+
+        prompt = "\n".join(prompt_lines)
+
+        try:
+            text = llm.complete(
+                prompt,
+                model=Model.FLASH_LITE,
+                temperature=0.3,
+            )
+            return text.strip()
+        except Exception as exc:
+            # Fallback to deterministic synthesis
+            return (
+                f"{winner.label} was selected based on weighted aggregation "
+                f"of agent scores. "
+                + (f"Note: {dissent}" if dissent else "")
+            )
+
+    # ------------------------------------------------------------------
+    # Plan expansion
+    # ------------------------------------------------------------------
 
     def _expand_plan(
         self,
@@ -157,7 +368,7 @@ class Orchestrator:
         for i, dest_id in enumerate(winner.destinations):
             dest = destinations_by_id.get(dest_id)
             chunk = days_per_dest + (1 if i < leftover else 0)
-            for _ in range(chunk):
+            for j in range(chunk):
                 stop = DayStop(
                     destination_id=dest_id,
                     name=dest.name if dest else dest_id,
@@ -170,7 +381,7 @@ class Orchestrator:
                 day = DayPlan(
                     day_index=day_index,
                     stops=[stop],
-                    travel_mode=travel_mode if day_index == 1 or _ == 0 else None,
+                    travel_mode=travel_mode if day_index == 1 or j == 0 else None,
                     drive_time_hours=None,
                     estimated_cost=int(winner.estimated_cost / max(1, winner.days)),
                     weather_note=self._note_for(arguments, "WeatherAgent", winner.candidate_id),

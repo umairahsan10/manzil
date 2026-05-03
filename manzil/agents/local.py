@@ -1,103 +1,169 @@
 """
-LocalExperienceAgent — Phase 1 stub.
+LocalExperienceAgent — Phase 3 real agent (RAG-grounded).
 
-Deterministic only. Scores by overlap between the user's `style_tags`
-and the destinations' `activity_tags`. No RAG. No LLM. Never blocks.
+Deterministic analysis:
+    - Queries the RAG index via manzil.tools.rag.retrieve(destination_id, query_text, k=5)
+    - Aggregates retrieved chunks
+    - Scores by retrieval relevance + cultural-alignment against query.style_tags
 
-Phase 3 promotes this to a RAG-grounded agent over `data/local_corpus/`
-with refusal on empty retrieval.
+Hard blockers:
+    - NEVER blocks — Local Experience is enrichment, not safety.
+
+Score:
+    - Average retrieval relevance + cultural-alignment score.
+    - If retrieval is empty for any destination, score that segment 0 and lower confidence.
+
+LLM argument:
+    - Quotes/paraphrases from retrieved chunks (food spots, viewpoints, photography hours).
+    - If retrieval is empty, surfaces the gap honestly:
+      "We don't have curated local content for X yet."
+    - NEVER hallucinates places not in retrieved chunks.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from manzil.agents.base import BaseAgent
-from manzil.data_loader import load_destinations
 from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery
+from manzil.tools import rag
 
 
 class LocalExperienceAgent(BaseAgent):
-    name = "LocalExperienceAgent"
-    uses_llm = False
+    name = "LocalAgent"
+    uses_llm = True
 
     def _analyze(
         self, candidate: RouteCandidate, query: UserQuery
     ) -> Dict[str, Any]:
-        destinations_by_id = load_destinations()
         user_styles = {s.lower() for s in query.style_tags}
-
         per_dest = []
-        all_overlap = set()
+        any_empty = False
+        total_relevance = 0.0
+        total_chunks = 0
+
         for dest_id in candidate.destinations:
-            dest = destinations_by_id.get(dest_id)
-            if dest is None:
-                per_dest.append({"id": dest_id, "matched_tags": []})
+            # Build a query text from style tags
+            query_text = " ".join(query.style_tags) if query.style_tags else "local experiences food viewpoints culture"
+            chunks = rag.retrieve(dest_id, query_text, k=5)
+
+            if not chunks:
+                any_empty = True
+                per_dest.append(
+                    {
+                        "id": dest_id,
+                        "chunks": [],
+                        "chunk_count": 0,
+                        "avg_relevance": 0.0,
+                        "style_alignment": 0.0,
+                    }
+                )
                 continue
-            tags = {t.lower() for t in dest.activity_tags}
-            overlap = sorted(tags & user_styles)
-            all_overlap.update(overlap)
+
+            # Compute avg relevance (lower distance = higher relevance)
+            avg_dist = sum(c["distance"] for c in chunks) / len(chunks)
+            relevance = max(0.0, 1.0 - avg_dist)  # normalize roughly 0-1
+
+            # Style alignment: count style tag mentions in chunks
+            chunk_text = " ".join(c["text"].lower() for c in chunks)
+            matched_styles = [s for s in user_styles if s in chunk_text]
+            alignment = len(matched_styles) / max(1, len(user_styles)) if user_styles else 0.5
+
             per_dest.append(
                 {
                     "id": dest_id,
-                    "name": dest.name,
-                    "all_tags": sorted(tags),
-                    "matched_tags": overlap,
+                    "chunks": [
+                        {"text": c["text"][:300], "source": c["source"], "distance": round(c["distance"], 3)}
+                        for c in chunks
+                    ],
+                    "chunk_count": len(chunks),
+                    "avg_relevance": round(relevance, 3),
+                    "style_alignment": round(alignment, 3),
+                    "matched_styles": matched_styles,
                 }
             )
+
+            total_relevance += relevance
+            total_chunks += 1
+
+        avg_relevance = total_relevance / max(1, total_chunks)
 
         return {
             "user_style_tags": sorted(user_styles),
             "per_destination": per_dest,
-            "aggregate_match_count": len(all_overlap),
-            "aggregate_matched_tags": sorted(all_overlap),
+            "avg_relevance": round(avg_relevance, 3),
+            "any_empty_retrieval": any_empty,
         }
 
-    def _check_blocker(self, analysis, candidate, query) -> Optional[str]:
-        return None  # Local experience never blocks (Readme §6)
+    def _check_blocker(
+        self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
+    ) -> Optional[str]:
+        return None  # Local experience never blocks
 
-    def _score(self, analysis, candidate, query) -> float:
+    def _score(
+        self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
+    ) -> float:
         per_dest = analysis.get("per_destination", [])
         if not per_dest:
             return 5.0
-        total_matches = sum(len(d.get("matched_tags", [])) for d in per_dest)
-        avg = total_matches / len(per_dest)
-        # Map: 0 matches → 4.0, 1 match → 6.0, 2 → 8.0, 3+ → 10.0
-        return min(10.0, 4.0 + 2.0 * avg)
 
-    def _canned_argument(
-        self, analysis, score, candidate, query
-    ) -> LLMArgumentPayload:
-        matched = analysis.get("aggregate_matched_tags", [])
-        per_dest = analysis.get("per_destination", [])
+        scores = []
+        for d in per_dest:
+            rel = d.get("avg_relevance", 0.0)
+            align = d.get("style_alignment", 0.0)
+            # Combine relevance and alignment
+            s = (rel * 5.0) + (align * 5.0)
+            scores.append(min(10.0, max(0.0, s)))
 
-        reasons = []
-        concerns = []
-        if matched:
-            reasons.append(
-                "Route activity profile aligns with your styles: "
-                + ", ".join(matched[:4])
-                + "."
-            )
-        else:
-            concerns.append(
-                "No direct overlap between your style tags and the destinations' "
-                "activity profile — the trip may feel less personalized."
-            )
+        return sum(scores) / len(scores)
 
-        if len(per_dest) >= 3:
-            concerns.append(
-                "Three+ destinations means less time at each — pick favourites."
-            )
-        elif len(per_dest) == 1:
-            reasons.append(
-                "Single base — easier to find genuine local experiences than a hopping itinerary."
-            )
+    def _confidence(
+        self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
+    ) -> float:
+        if analysis.get("any_empty_retrieval", False):
+            return 0.5
+        return 1.0
 
-        if not reasons and not concerns:
-            reasons.append("Standard mix of local experiences available for this route.")
+    def _build_argue_prompt(
+        self,
+        analysis: Dict[str, Any],
+        score: float,
+        candidate: RouteCandidate,
+        query: UserQuery,
+    ) -> str:
+        lines = [
+            f"Candidate: {candidate.label}",
+            f"Destinations: {' -> '.join(candidate.destinations)}",
+            f"User style tags: {', '.join(analysis['user_style_tags']) or 'none'}",
+            f"LocalAgent deterministic score: {score:.1f}/10",
+            "",
+        ]
 
-        return LLMArgumentPayload(reasons=reasons[:3], concerns=concerns[:3])
+        for d in analysis.get("per_destination", []):
+            lines.append(f"--- {d['id']} ---")
+            if d.get("chunk_count", 0) == 0:
+                lines.append("NO curated local content retrieved for this destination.")
+            else:
+                lines.append(f"Retrieved {d['chunk_count']} chunks. " f"Relevance: {d['avg_relevance']}, Alignment: {d['style_alignment']}")
+                for c in d.get("chunks", []):
+                    lines.append(f"  [{c['source']}] {c['text'][:200]}...")
+
+        lines.extend(
+            [
+                "",
+                "Produce a JSON object with exactly two keys:",
+                '  "reasons":  1-3 short bullets (<=25 words each) supporting this candidate',
+                "              from a local-experience perspective. Quote or paraphrase retrieved chunks.",
+                '  "concerns": 1-3 short bullets (<=25 words each) noting gaps or risks.',
+                "",
+                "CRITICAL RULES:",
+                "- If retrieval is empty for a destination, say so honestly: "
+                "'We don't have curated local content for X yet.'",
+                "- NEVER mention a place, restaurant, or viewpoint that is not in the retrieved chunks above.",
+                "- Do not hallucinate. Reply with ONLY the JSON.",
+            ]
+        )
+        return "\n".join(lines)
 
 
 __all__ = ["LocalExperienceAgent"]

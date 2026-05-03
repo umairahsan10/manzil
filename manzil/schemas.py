@@ -93,6 +93,30 @@ class UserQuery(BaseModel):
     difficulty_tolerance: int = Field(ge=1, le=5)
     preferred_destinations: List[str] = Field(default_factory=list)
     hard_constraints: List[str] = Field(default_factory=list)
+    is_foreign_traveller: bool = False
+    elderly_in_group: bool = False
+
+
+# ---------------------------------------------------------------------------
+# Disruption — used by the replanning mechanism
+# ---------------------------------------------------------------------------
+
+
+class Disruption(BaseModel):
+    """A mid-trip disruption that triggers replanning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: str = Field(
+        ...,
+        pattern="^(road_closed|budget_cut|weather_event|flight_cancelled)$",
+    )
+    # Parameters vary by kind:
+    day_index: Optional[int] = None          # which day the disruption hits
+    pct_cut: Optional[float] = None          # for budget_cut (e.g. 15 means -15%)
+    pass_id: Optional[str] = None            # for road_closed (e.g. "babusar")
+    destination_id: Optional[str] = None     # for weather_event / flight_cancelled
+    description: str = ""                    # human-readable summary
 
 
 # ---------------------------------------------------------------------------
@@ -280,4 +304,5 @@ __all__ = [
     "WeatherData",
     "CostBreakdown",
     "LLMArgumentPayload",
+    "Disruption",
 ]

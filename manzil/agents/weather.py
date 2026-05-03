@@ -14,14 +14,39 @@ seasonal model lands in Phase 3.
 
 from __future__ import annotations
 
+import json
 import statistics
 from datetime import date, timedelta
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from manzil.agents.base import BaseAgent
 from manzil.data_loader import load_destinations
-from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery
+from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery, WeatherData
 from manzil.tools import cache, weather_api
+
+_SEASONAL_WEATHER_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "seasonal_weather.json"
+
+
+def _load_seasonal_weather() -> Dict[str, Any]:
+    if not _SEASONAL_WEATHER_PATH.exists():
+        return {}
+    with _SEASONAL_WEATHER_PATH.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _seasonal_data_for_destination(dest_id: str, month: int) -> Optional[Dict[str, Any]]:
+    """Return seasonal weather dict for a destination and month (1-12)."""
+    data = _load_seasonal_weather()
+    dest_data = data.get("destinations", {}).get(dest_id)
+    if dest_data is None:
+        return None
+    idx = month - 1
+    return {
+        "avg_high_c": dest_data["avg_high_c"][idx],
+        "avg_low_c": dest_data["avg_low_c"][idx],
+        "avg_precip_mm": dest_data["avg_precip_mm"][idx],
+    }
 
 _MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
@@ -37,7 +62,8 @@ class WeatherAgent(BaseAgent):
         self, candidate: RouteCandidate, query: UserQuery
     ) -> Dict[str, Any]:
         destinations_by_id = load_destinations()
-        start = self._forecast_start_for_query(query)
+        use_seasonal = self._should_use_seasonal(query)
+        start = self._forecast_start_for_query(query, use_seasonal)
         days_per_dest = max(1, candidate.days // max(1, len(candidate.destinations)))
         days_per_dest = min(days_per_dest, 7)  # cap per-destination forecast
 
@@ -47,52 +73,96 @@ class WeatherAgent(BaseAgent):
             if dest is None:
                 per_dest[dest_id] = {"error": f"unknown destination id {dest_id!r}"}
                 continue
-            try:
-                wd = weather_api.get_forecast(
-                    dest.coords[0],
-                    dest.coords[1],
-                    start,
-                    days_per_dest,
-                    destination_id=dest_id,
-                )
-            except (weather_api.WeatherError, cache.CacheMiss) as exc:
+
+            if use_seasonal:
+                # Use seasonal model
+                seasonal = _seasonal_data_for_destination(dest_id, query.travel_month)
+                if seasonal is None:
+                    per_dest[dest_id] = {
+                        "name": dest.name,
+                        "altitude_m": dest.altitude_m,
+                        "error": "no seasonal data available",
+                    }
+                    continue
+
+                avg_high = seasonal["avg_high_c"]
+                avg_low = seasonal["avg_low_c"]
+                total_precip = seasonal["avg_precip_mm"] * days_per_dest
+                # Estimate wet days from monthly precip
+                wet_days = 2 if seasonal["avg_precip_mm"] > 50 else (1 if seasonal["avg_precip_mm"] > 20 else 0)
+                peak_precip_prob = 70 if seasonal["avg_precip_mm"] > 80 else (40 if seasonal["avg_precip_mm"] > 30 else 10)
+
                 per_dest[dest_id] = {
                     "name": dest.name,
                     "altitude_m": dest.altitude_m,
-                    "error": str(exc),
+                    "avg_high_c": _r1(avg_high),
+                    "avg_low_c": _r1(avg_low),
+                    "total_precip_mm": _r1(total_precip),
+                    "peak_precip_prob_pct": _r0(peak_precip_prob),
+                    "wet_days_count": wet_days,
+                    "summary": (
+                        f"Seasonal norm for {_MONTH_NAMES[query.travel_month - 1]}: "
+                        f"avg high {avg_high}°C, avg low {avg_low}°C, "
+                        f"~{seasonal['avg_precip_mm']} mm precip/month"
+                    ),
+                    "season_open_in_travel_month": dest.season_open[query.travel_month - 1],
+                    "data_source": "seasonal_model",
                 }
-                continue
+            else:
+                # Use live forecast
+                try:
+                    wd = weather_api.get_forecast(
+                        dest.coords[0],
+                        dest.coords[1],
+                        start,
+                        days_per_dest,
+                        destination_id=dest_id,
+                    )
+                except (weather_api.WeatherError, cache.CacheMiss) as exc:
+                    per_dest[dest_id] = {
+                        "name": dest.name,
+                        "altitude_m": dest.altitude_m,
+                        "error": str(exc),
+                    }
+                    continue
 
-            avg_high = _avg(wd.daily_temp_max_c)
-            avg_low = _avg(wd.daily_temp_min_c)
-            total_precip = sum(wd.daily_precip_mm)
-            peak_precip_prob = (
-                max(wd.daily_precip_prob) if wd.daily_precip_prob else 0.0
+                avg_high = _avg(wd.daily_temp_max_c)
+                avg_low = _avg(wd.daily_temp_min_c)
+                total_precip = sum(wd.daily_precip_mm)
+                peak_precip_prob = (
+                    max(wd.daily_precip_prob) if wd.daily_precip_prob else 0.0
+                )
+                wet_days = sum(1 for p in wd.daily_precip_prob if p >= 60.0)
+
+                per_dest[dest_id] = {
+                    "name": dest.name,
+                    "altitude_m": dest.altitude_m,
+                    "avg_high_c": _r1(avg_high),
+                    "avg_low_c": _r1(avg_low),
+                    "total_precip_mm": _r1(total_precip),
+                    "peak_precip_prob_pct": _r0(peak_precip_prob),
+                    "wet_days_count": wet_days,
+                    "summary": wd.summary,
+                    "season_open_in_travel_month": dest.season_open[query.travel_month - 1],
+                    "data_source": "live_forecast",
+                }
+
+        note = (
+            "Using live Open-Meteo forecast."
+            if not use_seasonal
+            else (
+                "Travel month is beyond Open-Meteo's 16-day horizon; "
+                "using seasonal climate normals instead."
             )
-            wet_days = sum(1 for p in wd.daily_precip_prob if p >= 60.0)
-
-            per_dest[dest_id] = {
-                "name": dest.name,
-                "altitude_m": dest.altitude_m,
-                "avg_high_c": _r1(avg_high),
-                "avg_low_c": _r1(avg_low),
-                "total_precip_mm": _r1(total_precip),
-                "peak_precip_prob_pct": _r0(peak_precip_prob),
-                "wet_days_count": wet_days,
-                "summary": wd.summary,
-                "season_open_in_travel_month": dest.season_open[query.travel_month - 1],
-            }
+        )
 
         return {
             "travel_month": query.travel_month,
             "travel_month_name": _MONTH_NAMES[query.travel_month - 1],
-            "forecast_start": start.isoformat(),
+            "forecast_start": start.isoformat() if not use_seasonal else "N/A (seasonal)",
             "per_destination": per_dest,
-            "note": (
-                "Open-Meteo's free forecast horizon is 16 days; we use a near-term "
-                "proxy when the travel month is further out. A seasonal model is "
-                "scheduled for Phase 3."
-            ),
+            "note": note,
+            "using_seasonal": use_seasonal,
         }
 
     def _check_blocker(
@@ -205,14 +275,24 @@ class WeatherAgent(BaseAgent):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _forecast_start_for_query(query: UserQuery) -> date:
+    def _should_use_seasonal(query: UserQuery) -> bool:
         """
-        For Phase 1: always use tomorrow as the forecast start. Open-Meteo
-        only gives 16 forward days, so requesting "2026-07-15" as a start
-        when today is 2026-04-30 would return zero data. The agent's
-        analysis surfaces this via the `note` field; Phase 3 swaps in a
-        seasonal model for distant travel months.
+        Use seasonal model if the travel month is not the current month
+        or the next month (Open-Meteo horizon is ~16 days).
         """
+        today = date.today()
+        current_month = today.month
+        next_month = current_month + 1 if current_month < 12 else 1
+        return query.travel_month not in (current_month, next_month)
+
+    @staticmethod
+    def _forecast_start_for_query(query: UserQuery, use_seasonal: bool = False) -> date:
+        """
+        Return the forecast start date. If using seasonal model, this is
+        not used for API calls but we return a placeholder for consistency.
+        """
+        if use_seasonal:
+            return date.today()
         return date.today() + timedelta(days=1)
 
 

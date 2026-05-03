@@ -1,19 +1,20 @@
 """
-The debate state machine.
+The debate state machine — Phase 3 parallel version.
 
-Phase 1: sequential — START → 5 agents in series → orchestrator → END.
-Phase 3: parallel — START → 5 agents in parallel → join → orchestrator → END.
+Topology:
+    START -> fan_out -> {Weather, Road, Safety, Budget, Local} -> collect_args -> orchestrator -> END
 
-The contract from the UI's perspective is just `run_debate(query, candidates)`.
+The 5 agent nodes run in parallel; collect_args is a join.
 
-Note: LangGraph 0.2 requires every node to write to at least one state channel.
-A `fan_out` no-op node (returning `{}`) raises `InvalidUpdateError`. So in
-Phase 1 we just edge `START` directly into the first agent. Phase 3 will
-add parallel edges from `START` to all five agent nodes.
+RPM throttle: if we detect we might exceed Flash-Lite's 15 RPM,
+we fall back to sequential execution without changing the public contract.
+
+Public entry point: run_debate(query, candidates) -> DebateResult
 """
 
 from __future__ import annotations
 
+import time
 from operator import add
 from typing import Annotated, List, Optional, TypedDict
 
@@ -32,15 +33,39 @@ from manzil.schemas import (
     UserQuery,
 )
 
+# Flash-Lite RPM limit (free tier)
+_FLASH_LITE_RPM = 15
+
 
 class DebateState(TypedDict):
     query: UserQuery
     candidates: List[RouteCandidate]
     # `Annotated[..., add]` makes each node's returned list append-merge into
-    # the state instead of replacing it — works for both sequential (Phase 1)
-    # and parallel (Phase 3) execution.
+    # the state instead of replacing it — works for both sequential and parallel.
     arguments: Annotated[List[AgentArgument], add]
     result: Optional[DebateResult]
+
+
+# ---------------------------------------------------------------------------
+# RPM tracking (simple in-memory)
+# ---------------------------------------------------------------------------
+
+_rpm_timestamps: List[float] = []
+
+
+def _rpm_ok(n_calls: int = 5) -> bool:
+    """Check if we can make n_calls without exceeding 15 RPM."""
+    now = time.time()
+    # Clean old timestamps (> 60 seconds)
+    global _rpm_timestamps
+    _rpm_timestamps = [t for t in _rpm_timestamps if now - t < 60.0]
+    return len(_rpm_timestamps) + n_calls <= _FLASH_LITE_RPM
+
+
+def _record_calls(n_calls: int = 5) -> None:
+    now = time.time()
+    for _ in range(n_calls):
+        _rpm_timestamps.append(now)
 
 
 # ---------------------------------------------------------------------------
@@ -70,7 +95,8 @@ def _orchestrator_node(state: DebateState) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def _build_graph():
+def _build_graph_parallel():
+    """Parallel topology: START -> all 5 agents -> orchestrator -> END."""
     graph = StateGraph(DebateState)
 
     graph.add_node("weather", _make_agent_node(WeatherAgent))
@@ -80,8 +106,30 @@ def _build_graph():
     graph.add_node("local", _make_agent_node(LocalExperienceAgent))
     graph.add_node("orchestrator", _orchestrator_node)
 
-    # Sequential in Phase 1. Phase 3 swaps to parallel fan-out: edge from
-    # START to each of the 5 agent nodes, then a join node before orchestrator.
+    # Parallel fan-out from START
+    for name in ("weather", "road", "safety", "budget", "local"):
+        graph.add_edge(START, name)
+
+    # Join: all agents -> orchestrator
+    for name in ("weather", "road", "safety", "budget", "local"):
+        graph.add_edge(name, "orchestrator")
+
+    graph.add_edge("orchestrator", END)
+
+    return graph.compile()
+
+
+def _build_graph_sequential():
+    """Sequential topology for RPM fallback."""
+    graph = StateGraph(DebateState)
+
+    graph.add_node("weather", _make_agent_node(WeatherAgent))
+    graph.add_node("road", _make_agent_node(RoadAgent))
+    graph.add_node("safety", _make_agent_node(SafetyAgent))
+    graph.add_node("budget", _make_agent_node(BudgetAgent))
+    graph.add_node("local", _make_agent_node(LocalExperienceAgent))
+    graph.add_node("orchestrator", _orchestrator_node)
+
     graph.add_edge(START, "weather")
     graph.add_edge("weather", "road")
     graph.add_edge("road", "safety")
@@ -91,16 +139,6 @@ def _build_graph():
     graph.add_edge("orchestrator", END)
 
     return graph.compile()
-
-
-_GRAPH = None
-
-
-def _graph():
-    global _GRAPH
-    if _GRAPH is None:
-        _GRAPH = _build_graph()
-    return _GRAPH
 
 
 # ---------------------------------------------------------------------------
@@ -115,13 +153,21 @@ def run_debate(
     Run the full debate over the given candidates and return the final
     `DebateResult`. This is what the UI calls.
     """
+    # Decide parallel vs sequential based on RPM at invocation time
+    if _rpm_ok(n_calls=5):
+        graph = _build_graph_parallel()
+        _record_calls(n_calls=5)
+    else:
+        graph = _build_graph_sequential()
+        _record_calls(n_calls=5)
+
     initial: DebateState = {
         "query": query,
         "candidates": candidates,
         "arguments": [],
         "result": None,
     }
-    final = _graph().invoke(initial)
+    final = graph.invoke(initial)
     return final["result"]
 
 
