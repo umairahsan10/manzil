@@ -55,12 +55,6 @@ def _sample_int_range(rng: random.Random, rng_pair: List[int]) -> int:
     return rng.randint(lo, hi)
 
 
-def _sample_int_band(rng: random.Random, band: List[int]) -> int:
-    """Uniform within [lo, hi] for budget-style ranges."""
-    lo, hi = band
-    return rng.randint(lo, hi)
-
-
 def _sample_styles(
     rng: random.Random, weights: Dict[str, float], n_min: int = 1, n_max: int = 3
 ) -> List[str]:
@@ -189,7 +183,7 @@ def _generate_for_persona(
         attempts += 1
         group_size = _sample_int_range(rng, persona["group_size_range"])
         group_composition = rng.choice(persona["group_compositions"])
-        budget = _sample_int_band(rng, persona["budget_band_pkr"])
+        budget = _sample_int_range(rng, persona["budget_band_pkr"])
         days = _sample_int_range(rng, persona["days_band"])
         travel_month = int(_sample_categorical(rng, persona["travel_month_distribution"]))
         travel_mode = _sample_categorical(rng, persona["travel_mode_distribution"])

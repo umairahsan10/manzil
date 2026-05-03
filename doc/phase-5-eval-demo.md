@@ -1,26 +1,27 @@
-# Phase 5 — Evaluation, Demo Mode, Polish
+# Phase 5 — Evaluation & Demo Mode
 
-> **Estimated:** Weeks 12–16.
+> **Estimated:** Weeks 12–14.
 > **Owner-lead:** Person 1 owns the offline RS evaluation; Person 3 owns
-> demo-mode hardening and the survey logistics; whole team owns the report.
+> demo-mode hardening and the RAG curation pass; Person 2 reviews
+> scenario outcomes. Final report and submission are handled in
+> [phase-6-report.md](phase-6-report.md).
 
 ## Goal
 
-Three-track evaluation produces tables for the report. Demo mode is bulletproof.
-The 12 scenario tests run in CI (or a make target). The user satisfaction
-survey is run and analyzed. The final report is drafted, the presentation is
-rehearsed, and the project is submitted.
+Two-track evaluation produces tables for the report. Demo mode is bulletproof.
+The 12 scenario tests run in CI (or a make target). The final RAG curation
+pass closes any gaps surfaced during real usage.
 
 ## Why this phase
 
 A working demo is necessary but not sufficient. The grader needs evidence
-that the system **generalizes** beyond the queries we hand-picked, that it
-**doesn't crash** under edge cases, and that **real users** found it useful.
-Without those, the project is a tech demo, not a project.
+that the system **generalizes** beyond the queries we hand-picked and that
+it **doesn't crash** under edge cases. Without those, the project is a
+tech demo, not a project.
 
-This phase is also where we acknowledge limitations honestly — the section-12
-"Honest Acknowledgments" of the readme are converted into measurable claims
-in the report.
+This phase is also where we acknowledge limitations honestly — the
+section-12 "Honest Acknowledgments" of the readme are converted into
+measurable claims used in the Phase-6 report.
 
 ## Inputs / preconditions
 
@@ -30,21 +31,26 @@ in the report.
 
 ## Deliverables
 
-### Three-track evaluation (Person 1 + Person 3)
+### Two-track evaluation (Person 1 + Person 3)
+
+The proposal commits to **two evaluation tracks** (PDF §7): offline ranking
+metrics on the case base, and 12 hand-crafted scenario tests on the full
+agent pipeline. We do not run a third user-satisfaction track — it was out
+of scope per the proposal.
 
 #### Track 1 — Offline RS metrics (Person 1)
 
 | File | Responsibility |
 |---|---|
-| `eval/ranking_metrics.py` | Implement `precision_at_k`, `recall_at_k`, `ndcg`. |
-| `eval/run_recommender_eval.py` | 80/20 split on the case base. For each held-out case, run the recommender on the same `UserQuery` and check whether the actual chosen route appears in the top-3. |
-| Configurations compared | (a) CBR-only, (b) content-only, (c) hybrid (`α=0.6`), (d) hybrid + diversity selection. Each row of the output table is one configuration; columns are P@1, P@3, R@3, NDCG@3. |
+| `eval/ranking_metrics.py` | Implement `precision_at_k`, `recall_at_k`, `ndcg_at_k`, and `mrr`. |
+| `eval/run_recommender_eval.py` | 80/20 split on the case base. For each held-out case, run the recommender on the same `UserQuery` and check whether the actual chosen route appears in the top-5. |
+| Configurations compared (PDF §7) | (a) **filter-only**, (b) **filter + content**, (c) **filter + CBR**, (d) **full hybrid** (filter + content + CBR with α=0.6 + MMR diversity). Each row of the output table is one configuration; columns are **P@5**, **R@5**, **NDCG@5**, **MRR**. |
 | `eval/relaxation_eval.py` | Fixture of 20 deliberately over-constrained queries. Asserts: relaxation always fires, the surfaced relaxation note is non-empty, never returns more than 3 alternatives, and the result still respects the *hard* (non-soft) constraints. |
 
 These eval scripts make **zero LLM calls** — they only exercise the
 recommender. So they run cheaply and repeatedly during tuning.
 
-#### Track 2 — Agent scenario tests (Person 1 + Person 3)
+#### Track 2 — Agent scenario tests (Person 1 + Person 2 + Person 3)
 
 | File | Cases |
 |---|---|
@@ -67,13 +73,19 @@ The 12 scenarios:
 | 11 | Replan: original winner + landslide on day 3 | Replan returns a different `winner.candidate_id` |
 | 12 | All-blocked → user shown structured failure | UI test (Selenium-free; render the page and assert the failure block is in the HTML) |
 
-#### Track 3 — User satisfaction survey (Person 1 + Person 3)
+### Ethics measurements (Person 1)
 
-| Asset | Plan |
+The proposal (PDF §7) commits to measuring two ethical concerns beyond
+the safety-veto mechanism that's already built into the Safety Agent:
+synthetic-data bias and popularity bias. These are cheap to measure and
+the numbers go straight into the Phase-6 report.
+
+| File | Responsibility |
 |---|---|
-| `eval/survey/template.md` | A 5-minute Google Form. 10 classmates × 1 query each. Likert scales: clarity (1–5), perceived usefulness (1–5), trust in safety advice (1–5), would-use (yes/no), open-ended "what was missing." |
-| `eval/survey/results.csv` | Anonymized responses. |
-| `eval/survey/analysis.ipynb` | Bar charts + qualitative theme summary. Goes into the report as Section X.X. |
+| `eval/ethics_eval.py` | (1) **Per-persona diversity:** for each of the 6 personas, run 25 sampled queries and report the standard deviation of the diversity-axis distribution across returned candidates. A persona that always gets the same axis profile is a red flag for synthetic-data bias. (2) **Recommendation frequency per destination:** count how often each destination appears in the winning candidate across the full eval sweep; report the Gini coefficient. A high Gini means the system over-recommends a few popular destinations. |
+| `eval/results/ethics.txt` | Output of the above; goes into the Phase-6 report's "Honest Acknowledgments" section verbatim. |
+
+These checks make zero LLM calls — they only exercise the recommender.
 
 ### Demo mode hardening (Person 3)
 
@@ -90,83 +102,46 @@ The 12 scenarios:
 | Curate | Hand-write or hand-pick ~20 chunks for the gap destinations. Re-build the index. |
 | Verify | The Local Agent's "no curated content" message should now be rare (under 5% of debates on the scenario suite). |
 
-### Final report (Whole team)
-
-| Section | Owner |
-|---|---|
-| Introduction + problem statement | Person 3 |
-| Recommender architecture + offline metrics | Person 1 |
-| Agent architecture + scenario tests | Person 2 |
-| Memory loop + survey results | Person 1 + Person 3 |
-| Honest acknowledgments | Whole team |
-| Future work / startup case | Whole team |
-
-The report draws **directly** from the readme's section 12 ("Honest
-Acknowledgments") — synthetic data limits, RAG hallucination risk, mocked
-live data, persona embed assumptions. We don't hide these; we measure
-them where we can.
-
-### Presentation rehearsal (Whole team, week 15–16)
-
-- 8–10 minute live demo following the 6 steps from section 8 of the readme,
-  always run with `MANZIL_DEMO_MODE=1`.
-- Cover: problem → 3 candidates → debate animation → winner with scorecard
-  + dissent → replan side-by-side → feedback loop → eval tables.
-- Two backup queries pre-seeded in case the first one runs into something
-  unexpected.
-
 ## Order of work
 
 ### Week 12 — Recommender eval (Person 1)
 
-1. Day 1: `eval/ranking_metrics.py` (P@K, R@K, NDCG)
+1. Day 1: `eval/ranking_metrics.py` (P@K, R@K, NDCG@K, MRR)
 2. Day 2: `eval/run_recommender_eval.py`, 80/20 split harness
 3. Day 3: Run all 4 configurations, produce the table
 4. Day 4: `eval/relaxation_eval.py` + run on 20 over-constrained queries
-5. Day 5: Tune `α` (hybrid mix) and `λ` (diversity) on the dev split
+5. Day 5: Tune `α` (hybrid mix) and `λ` (diversity) on the dev split;
+   `eval/ethics_eval.py` (per-persona diversity + popularity Gini)
 
-### Week 13 — Scenario tests + survey
+### Week 13 — Scenario tests + fuzz tests
 
 1. Day 1–2: 12 scenario tests in `tests/test_scenarios.py`
-2. Day 3: LLM output schema fuzz tests (replay deliberately malformed cached
-   responses, verify retry-once-then-fallback)
-3. Day 4: Survey design, push to classmates
-4. Day 5: Collate first responses, iterate on the form if needed
+2. Day 3: LLM output schema fuzz tests (replay deliberately malformed
+   cached responses, verify retry-once-then-fallback)
+3. Day 4–5: Iterate on any failing scenario; tune thresholds
 
 ### Week 14 — Curation + demo mode
 
 1. Day 1–2: RAG corpus curation pass (Person 3)
 2. Day 3: `scripts/seed_caches.py` walk-through
 3. Day 4: `eval/demo_mode_check.py` + a clean-room demo-mode run
-4. Day 5: Final survey results in; analysis notebook
-
-### Week 15 — Report
-
-1. Day 1–3: First draft, all sections
-2. Day 4: Internal review, revise
-3. Day 5: Demo rehearsal #1 (record it)
-
-### Week 16 — Submission
-
-1. Day 1: Final revisions on the report
-2. Day 2: Demo rehearsal #2
-3. Day 3: Submit. Defend.
+4. Day 5: Final eval results frozen; hand-off to Phase 6
 
 ## Acceptance criteria
 
-- The hybrid+diversity config beats CBR-only and content-only on **at least
-  two** of {P@1, P@3, NDCG@3}. Honest if it doesn't on the third —
-  acknowledge in the report.
+- The full hybrid+diversity config (config d) beats the simpler configs
+  on **at least two** of {P@5, R@5, NDCG@5, MRR}. Honest if it doesn't
+  on the others — acknowledge in the Phase-6 report.
 - Relaxation eval: 20/20 over-constrained queries return at least one
   candidate with a non-empty relaxation note.
 - 12/12 scenario tests pass.
-- Survey returns ≥10 valid responses; mean usefulness rating ≥3.5/5;
-  qualitative themes summarized in 3–5 bullet points.
+- Ethics eval produces `eval/results/ethics.txt`: per-persona diversity
+  reported for all 6 personas, popularity Gini reported. (No threshold —
+  these are honest-reporting numbers, not pass/fail.)
 - `MANZIL_DEMO_MODE=1 streamlit run ui/app.py` runs the full 6-step demo
   flow with **zero** outbound network calls (verify by setting offline
   firewall rule or `iptables -A OUTPUT -p tcp --dport 443 -j DROP`).
 - `eval/demo_mode_check.py` reports all expected cache keys present.
-- Report draft ≥ 80% complete by end of week 15.
 
 ## Verification
 
@@ -174,6 +149,7 @@ them where we can.
 # Track 1
 python eval/run_recommender_eval.py --split 0.8 --seed 42 > eval/results/ranking.txt
 python eval/relaxation_eval.py > eval/results/relaxation.txt
+python eval/ethics_eval.py > eval/results/ethics.txt
 
 # Track 2
 pytest tests/test_scenarios.py -v
@@ -190,36 +166,35 @@ MANZIL_DEMO_MODE=1 streamlit run ui/app.py
 
 | Risk | Likelihood | Plan B |
 |---|---|---|
-| Hybrid+diversity does *not* beat CBR-only on the metrics | Medium | Honest reporting. The diversity selection trades raw ranking accuracy for argument quality — that's a feature, not a bug, and the report should articulate it. |
-| Survey participation < 10 | Medium | Lean on Person 3's classmates network; offer to help them with their projects in exchange. Report uses what we got. |
+| Hybrid+diversity does *not* beat the simpler configs on the metrics | Medium | Honest reporting. The diversity selection trades raw ranking accuracy for argument quality — that's a feature, not a bug, and the report should articulate it. |
 | Demo-mode walk-through reveals an un-seeded path | Medium | `eval/demo_mode_check.py` fails the build; iterate `seed_caches.py` until clean. |
 | `gemini-2.5-flash[-lite]` deprecated mid-phase | Low | Update `Model` enum in `manzil/llm.py`; re-warm caches. |
-| Last-week stress finds a real bug | High | Have a tight rollback path: every commit is on a branch, the demo-mode cache is committed to git so a working demo is always one `git checkout` away. |
+| Scenario thresholds too strict; legitimate winners marked failures | Medium | Loosen the assertions to property-based forms (e.g., "at least one candidate" rather than "the winner") and document the relaxation in the report. |
 
 ## Owner split
 
 | Track | Person 1 | Person 2 | Person 3 |
 |---|---|---|---|
-| Week 12 | recommender eval (full) | scenario test review | survey design + RAG triage |
-| Week 13 | scenario tests | LLM fuzz tests | survey field + collate |
-| Week 14 | survey analysis | demo-mode check | RAG curation + cache seed |
-| Week 15 | report sections | report sections | report sections + rehearsal |
-| Week 16 | revisions | revisions | revisions + final demo |
+| Week 12 | recommender eval (full) | scenario test design review | RAG triage |
+| Week 13 | scenario tests | LLM fuzz tests | scenario test UI smoke |
+| Week 14 | (idle, prep Phase 6) | demo-mode check | RAG curation + cache seed |
 
 ## What this phase intentionally **leaves for the startup version**
 
-These appear in the report's "Future work" section, not the project:
+These appear in the report's "Future work" section, not the project (PDF §5.2):
 
-- Real-time monitoring during the trip (push notifications, location-based alerts)
+- Live road/weather/security feeds
 - Booking integration (hotels, flights, transport)
-- Live road-condition feeds (NHA partnership)
-- Live security advisories
-- Foreign-tourist mode + NOC application support
 - Mobile app
-- Payment integration
+- Foreign-tourist mode + NOC application support
 - Multi-language UI (Urdu, regional languages)
-- Group collaboration on a single trip
 - User-tunable agent priority weights
 
-Trying to do any of these in the project version produces something bad at
-both. Acknowledge them, scope them out, move on.
+Trying to do any of these in the project version produces something bad
+at both. Acknowledge them, scope them out, move on.
+
+## What this phase does **not** do
+
+- Final report writing (Phase 6)
+- Demo rehearsal #1 / #2 (Phase 6)
+- Submission (Phase 6)

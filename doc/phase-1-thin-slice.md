@@ -137,7 +137,7 @@ pytest tests/ -v
 - Orchestrator dissent detection, why-not, LLM synthesis (Phase 3)
 - LangGraph parallel fan-out (Phase 3)
 - Map widget, scorecard heatmap, debate trace animation (Phase 4)
-- Replanning, feedback loop (Phase 4)
+- Replanning (Phase 3), feedback loop (Phase 4)
 - Evaluation, demo mode hardening (Phase 5)
 
 If anyone is tempted to pull these forward, the answer is **no**. The point

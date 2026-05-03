@@ -14,8 +14,7 @@ Public API is unchanged from Phase 1: `recommend(query) -> List[RouteCandidate]`
 
 from __future__ import annotations
 
-import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 from manzil.data_loader import (
     load_case_base,
@@ -33,8 +32,6 @@ from manzil.schemas import (
     TravelMode,
     UserQuery,
 )
-
-log = logging.getLogger(__name__)
 
 
 def recommend(query: UserQuery) -> List[RouteCandidate]:

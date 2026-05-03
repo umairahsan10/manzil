@@ -130,6 +130,22 @@ START → fan_out → {Weather, Road, Safety, Budget, Local} → collect_args �
 
 The 5 agent nodes run in parallel; `collect_args` is a join.
 
+### Replanning (Person 2)
+
+Per the proposal (PDF §6, P4), replanning ships with the Multi-Agent
+System. The logic lives here in Phase 3; the user-facing side-by-side
+comparison UI ships in Phase 4.
+
+| File | Responsibility |
+|---|---|
+| `manzil/schemas.py` | Add the `Disruption` Pydantic model: `kind` ∈ {`road_closed`, `budget_cut`, `weather_event`, `flight_cancelled`}, plus parameters (`day_index`, `pct_cut`, `pass_id`, etc.). |
+| `manzil/replan.py` | `replan(original_query, disruption) -> DebateResult`. Constructs a modified `UserQuery` (e.g., adds the closed pass to a hard-constraint list, trims the budget, shifts dates around a weather event), re-runs the recommender, re-runs the debate, returns the new `DebateResult`. The original is preserved by the caller. |
+
+Why a full re-run rather than incremental adjustment: the debate is cheap
+(~16 calls, mostly cached), and small disruptions can have large
+consequences (a closed pass eliminates whole routes), so a full re-run
+produces more honest results than a patched-up original.
+
 ### Tests
 
 | File | Cases |
@@ -141,6 +157,7 @@ The 5 agent nodes run in parallel; `collect_args` is a join.
 | `tests/test_budget_agent.py` | 50% over budget → blocker. Within budget → high score. |
 | `tests/test_local_agent.py` | RAG returns empty for a destination → graceful degrade, confidence drops, no hallucinated content in reasons. |
 | `tests/test_graph_parallel.py` | Time the graph with 5 agents that each `time.sleep(0.5)`; total runtime < 1 second proves parallelism. |
+| `tests/test_replan.py` | Original query → run debate → inject `Disruption(kind="road_closed", day_index=3)` → assert `replan()` returns a `DebateResult` whose `winner.candidate_id` differs from the original (or `all_blocked=True` with a reason citing the closed segment). |
 
 ## Order of work
 
@@ -157,14 +174,15 @@ The 5 agent nodes run in parallel; `collect_args` is a join.
 3. Day 4: Local Experience Agent (RAG-grounded, refusal on empty)
 4. Day 5: Local Agent tests, sanity-check on retrieved chunks
 
-### Week 8 — Orchestrator + LangGraph parallelism
+### Week 8 — Orchestrator + LangGraph parallelism + Replanning
 
 1. Day 1–2: Orchestrator policy (aggregation, blocker elimination,
    tie-break, dissent, why-not)
 2. Day 3: LLM synthesis call (`_llm_synthesize`), `_expand_plan` for
    day-by-day plan output
 3. Day 4: LangGraph parallel fan-out + RPM throttle
-4. Day 5: All-blocked failure mode + scenario test sweep
+4. Day 5: All-blocked failure mode; replanning logic (`Disruption`
+   schema + `manzil/replan.py`); scenario test sweep
 
 ## Acceptance criteria
 
@@ -184,6 +202,9 @@ The 5 agent nodes run in parallel; `collect_args` is a join.
   empty retrieval and asserts the resulting reasons say "no curated
   content".
 - All Phase-3 tests green; coverage on `manzil/agents/` ≥ 75%.
+- `replan()` invoked with a `road_closed` disruption on a sample query
+  returns a `DebateResult` whose winner differs from the original (or
+  `all_blocked=True` if no surviving route exists).
 
 ## Verification
 
@@ -225,8 +246,8 @@ streamlit run ui/app.py
 ## What this phase does **not** do
 
 - Map widget, scorecard heatmap, debate trace animation (Phase 4)
-- Replanning under disruption (Phase 4)
+- Side-by-side replanning UI (Phase 4)
 - Memory/feedback loop (Phase 4)
 - Offline ranking evaluation (Phase 5)
-- User satisfaction survey (Phase 5)
 - Demo mode hardening (Phase 5)
+- Final report (Phase 6)

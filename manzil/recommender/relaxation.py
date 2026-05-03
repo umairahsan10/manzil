@@ -29,22 +29,18 @@ BUDGET_BUMP = 0.15  # 15%
 class RelaxationStep:
     query: UserQuery
     note: str
-    notes: List[str]  # all changes applied vs the original
 
 
 def relax(original: UserQuery) -> Iterator[RelaxationStep]:
     """Yields successive cumulative relaxations of `original`."""
-    notes: List[str] = []
-
     # Step 1 — bump budget
     bumped_budget = int(original.budget_pkr * (1 + BUDGET_BUMP))
-    notes_1 = notes + [
+    notes_1 = [
         f"increased budget by {int(BUDGET_BUMP * 100)}% (PKR {bumped_budget:,})"
     ]
     yield RelaxationStep(
         query=original.model_copy(update={"budget_pkr": bumped_budget}),
         note=_compose_note(notes_1),
-        notes=notes_1,
     )
 
     # Step 2 — also drop a day (only if days >= 3, our schema's lower bound is 2)
@@ -58,7 +54,6 @@ def relax(original: UserQuery) -> Iterator[RelaxationStep]:
                 }
             ),
             note=_compose_note(notes_2),
-            notes=notes_2,
         )
 
     # Step 3 — also raise difficulty tolerance (only if < 5)
@@ -80,7 +75,6 @@ def relax(original: UserQuery) -> Iterator[RelaxationStep]:
                 }
             ),
             note=_compose_note(notes_3),
-            notes=notes_3,
         )
 
 

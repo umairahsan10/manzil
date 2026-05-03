@@ -30,9 +30,16 @@ That rule is what keeps it clean and smooth.
 | 0 | Foundations & Spine | 1 | Whole team | [phase-0-foundations.md](phase-0-foundations.md) |
 | 1 | Thin Vertical Slice | 2–3 | Person 3 (Integration) | [phase-1-thin-slice.md](phase-1-thin-slice.md) |
 | 2 | Real Recommender | 4–5 | Person 1 (RS Lead) | [phase-2-recommender.md](phase-2-recommender.md) |
-| 3 | Full Agent Cast + Orchestrator | 6–8 | Person 2 (Agent Lead) | [phase-3-agents-orchestrator.md](phase-3-agents-orchestrator.md) |
-| 4 | UI Polish + Replanning + Memory | 9–11 | Person 3 | [phase-4-ui-replanning-memory.md](phase-4-ui-replanning-memory.md) |
-| 5 | Evaluation, Demo Mode, Polish | 12–16 | Person 1 + Whole team | [phase-5-eval-demo.md](phase-5-eval-demo.md) |
+| 3 | Full Agent Cast + Orchestrator + Replanning | 6–8 | Person 2 (Agent Lead) | [phase-3-agents-orchestrator.md](phase-3-agents-orchestrator.md) |
+| 4 | UI Polish + Memory Loop | 9–11 | Person 3 | [phase-4-ui-replanning-memory.md](phase-4-ui-replanning-memory.md) |
+| 5 | Evaluation & Demo Mode | 12–14 | Person 1 + Person 3 | [phase-5-eval-demo.md](phase-5-eval-demo.md) |
+| 6 | Final Report & Submission | 15–16 | Whole team | [phase-6-report.md](phase-6-report.md) |
+
+> Aligned with the project proposal (PDF §6). The PDF lays out 7 calendar
+> phases over 15 days; we keep the same scope but split implementation into
+> 7 doc-phases (0–6) over a longer course-pace timeline so each one ends
+> in a runnable system. Phase 0 (Foundations) and Phase 1 (Thin Slice)
+> are doc-only — the PDF subsumes them under "Setup & Data Collection".
 
 ## Team roles (carry through every phase)
 

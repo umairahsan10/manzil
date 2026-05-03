@@ -1,0 +1,5112 @@
+[
+  {
+    "case_id": "couple-honeymoon-109fd8ee",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 329724,
+      "days": 10,
+      "travel_month": 10,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-13aec376",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 246180,
+      "days": 5,
+      "travel_month": 5,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-24108e9a",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 358358,
+      "days": 9,
+      "travel_month": 4,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "khaplu",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "air",
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 5.0,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-2b2bb8e9",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 452051,
+      "days": 7,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "attabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-31d4ee09",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 461380,
+      "days": 5,
+      "travel_month": 10,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-35145890",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 280025,
+      "days": 5,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 3.6,
+    "feedback_tags": [
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-3e00980e",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 193970,
+      "days": 9,
+      "travel_month": 6,
+      "travel_mode_pref": "air",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "neelum",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "air",
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-4447ceab",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 323244,
+      "days": 5,
+      "travel_month": 10,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-4588fc1b",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 360949,
+      "days": 6,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-5299e505",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 469041,
+      "days": 10,
+      "travel_month": 9,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "skardu"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-56ce4b42",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 218551,
+      "days": 8,
+      "travel_month": 6,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-59fefbbc",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 221380,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "air",
+      "origin_city": "lahore",
+      "style_tags": [
+        "relaxation",
+        "cultural"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-7781321e",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 332154,
+      "days": 8,
+      "travel_month": 10,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "attabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-7bf7e1d3",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 466039,
+      "days": 7,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-8471b4b0",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 214470,
+      "days": 7,
+      "travel_month": 5,
+      "travel_mode_pref": "air",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-8d38bbd8",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 262578,
+      "days": 10,
+      "travel_month": 9,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "swat-kalam",
+      "neelum"
+    ],
+    "travel_modes": [
+      "air",
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.9,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-9cf20859",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 284363,
+      "days": 9,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "attabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-9e3c5a88",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 497267,
+      "days": 7,
+      "travel_month": 10,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "relaxation"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "skardu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-ac2a4f71",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 440765,
+      "days": 5,
+      "travel_month": 4,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "relaxation"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "neelum"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-ad371d9e",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 472598,
+      "days": 7,
+      "travel_month": 5,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-b43bd27f",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 388684,
+      "days": 7,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-c7e53bbb",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 285691,
+      "days": 5,
+      "travel_month": 10,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "skardu"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-c8040fb7",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 364842,
+      "days": 9,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "relaxation"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-f5141058",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 455501,
+      "days": 8,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "couple-honeymoon-fada98f5",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 386021,
+      "days": 9,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "hunza-karimabad",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "couple-honeymoon",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-12a1fe7d",
+    "query": {
+      "group_size": 4,
+      "group_composition": "mixed",
+      "budget_pkr": 131831,
+      "days": 8,
+      "travel_month": 5,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "skardu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-193e638d",
+    "query": {
+      "group_size": 4,
+      "group_composition": "mixed",
+      "budget_pkr": 219947,
+      "days": 7,
+      "travel_month": 7,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "skardu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-2332a50e",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 194412,
+      "days": 10,
+      "travel_month": 6,
+      "travel_mode_pref": "air",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "chitral"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-27046f25",
+    "query": {
+      "group_size": 6,
+      "group_composition": "mixed",
+      "budget_pkr": 219843,
+      "days": 7,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "history"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-31227592",
+    "query": {
+      "group_size": 6,
+      "group_composition": "friends",
+      "budget_pkr": 102192,
+      "days": 10,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 3.9,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-3818cfd3",
+    "query": {
+      "group_size": 3,
+      "group_composition": "mixed",
+      "budget_pkr": 140213,
+      "days": 7,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 3.8,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-389641dd",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 198878,
+      "days": 12,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "hunza-karimabad",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-41dc1c60",
+    "query": {
+      "group_size": 5,
+      "group_composition": "mixed",
+      "budget_pkr": 159552,
+      "days": 11,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-5a2837b2",
+    "query": {
+      "group_size": 4,
+      "group_composition": "mixed",
+      "budget_pkr": 130149,
+      "days": 9,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "gilgit",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 5.0,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-61ea2f30",
+    "query": {
+      "group_size": 5,
+      "group_composition": "friends",
+      "budget_pkr": 170931,
+      "days": 6,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-6c776e95",
+    "query": {
+      "group_size": 3,
+      "group_composition": "mixed",
+      "budget_pkr": 117294,
+      "days": 10,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "chitral",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-705fddf5",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 206099,
+      "days": 11,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "chitral",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.9,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-720b274b",
+    "query": {
+      "group_size": 6,
+      "group_composition": "mixed",
+      "budget_pkr": 110237,
+      "days": 10,
+      "travel_month": 5,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "history"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "khaplu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.9,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-86879aa9",
+    "query": {
+      "group_size": 4,
+      "group_composition": "mixed",
+      "budget_pkr": 120078,
+      "days": 9,
+      "travel_month": 9,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-88ffbd40",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 172135,
+      "days": 7,
+      "travel_month": 6,
+      "travel_mode_pref": "air",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-8d388327",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 192690,
+      "days": 7,
+      "travel_month": 4,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 3.8,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-8eaa5841",
+    "query": {
+      "group_size": 6,
+      "group_composition": "mixed",
+      "budget_pkr": 119558,
+      "days": 8,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "skardu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 3.8,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-9aba0f15",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 162835,
+      "days": 7,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.8,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-aaf407f7",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 118430,
+      "days": 9,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-ab545a15",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 196549,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "history"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-ae62990c",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 180698,
+      "days": 11,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-b2414482",
+    "query": {
+      "group_size": 6,
+      "group_composition": "mixed",
+      "budget_pkr": 136064,
+      "days": 6,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "history"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-c3f725fe",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 199113,
+      "days": 6,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-edaf3766",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 154773,
+      "days": 12,
+      "travel_month": 5,
+      "travel_mode_pref": "air",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "swat-kalam",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "air",
+      "air",
+      "air"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "cultural-explorer-fa8dae42",
+    "query": {
+      "group_size": 6,
+      "group_composition": "mixed",
+      "budget_pkr": 149236,
+      "days": 6,
+      "travel_month": 8,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "history",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "cultural-explorer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-0ff0a55c",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 261597,
+      "days": 4,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "shogran"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-1fd5a423",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 231447,
+      "days": 4,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "family"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-2834e4c0",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 345487,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "neelum"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-2c8d0e44",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 293903,
+      "days": 4,
+      "travel_month": 8,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "naran"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.8,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-2d174fc9",
+    "query": {
+      "group_size": 3,
+      "group_composition": "family",
+      "budget_pkr": 259655,
+      "days": 7,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "shogran",
+      "naran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-458f1f19",
+    "query": {
+      "group_size": 4,
+      "group_composition": "family",
+      "budget_pkr": 237983,
+      "days": 6,
+      "travel_month": 8,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "naran",
+      "murree"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-46c8adfe",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 212225,
+      "days": 7,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "neelum"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.6,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-58007c02",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 301039,
+      "days": 7,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "family"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "shogran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-6105716b",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 241863,
+      "days": 7,
+      "travel_month": 8,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "naran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-680bac63",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 249579,
+      "days": 6,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "family",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-722764e6",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 266120,
+      "days": 5,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "naran",
+      "neelum"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.9,
+    "feedback_tags": [
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-7354ea6f",
+    "query": {
+      "group_size": 3,
+      "group_composition": "family",
+      "budget_pkr": 159774,
+      "days": 5,
+      "travel_month": 8,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "neelum",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.9,
+    "feedback_tags": [
+      "too-rushed"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-7922bac2",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 263638,
+      "days": 4,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "naran"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.6,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-7de31a51",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 348778,
+      "days": 4,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "murree"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-9424aed5",
+    "query": {
+      "group_size": 3,
+      "group_composition": "family",
+      "budget_pkr": 182533,
+      "days": 5,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "murree",
+      "swat-kalam"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "too-rushed",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-9c7c7377",
+    "query": {
+      "group_size": 4,
+      "group_composition": "family",
+      "budget_pkr": 194392,
+      "days": 8,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "relaxation"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "murree",
+      "neelum"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-9f4c3b79",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 247986,
+      "days": 5,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "naran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "too-rushed",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-a34b6cf6",
+    "query": {
+      "group_size": 5,
+      "group_composition": "family",
+      "budget_pkr": 338268,
+      "days": 5,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "murree",
+      "shogran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "too-rushed",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-aa0b7b14",
+    "query": {
+      "group_size": 4,
+      "group_composition": "family",
+      "budget_pkr": 131635,
+      "days": 7,
+      "travel_month": 4,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "swat-kalam",
+      "neelum"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-c85aca46",
+    "query": {
+      "group_size": 3,
+      "group_composition": "family",
+      "budget_pkr": 270941,
+      "days": 7,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "shogran",
+      "murree"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-d4f8fd72",
+    "query": {
+      "group_size": 3,
+      "group_composition": "family",
+      "budget_pkr": 275161,
+      "days": 8,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "shogran",
+      "naran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-d6d7b3b8",
+    "query": {
+      "group_size": 6,
+      "group_composition": "family",
+      "budget_pkr": 338866,
+      "days": 4,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "family",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "murree"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.9,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-e4429ebb",
+    "query": {
+      "group_size": 4,
+      "group_composition": "family",
+      "budget_pkr": 222099,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "family",
+        "relaxation",
+        "photography"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "shogran",
+      "neelum"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "kid-friendly"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-ec856f37",
+    "query": {
+      "group_size": 4,
+      "group_composition": "family",
+      "budget_pkr": 264701,
+      "days": 4,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family",
+        "relaxation"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "naran"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.4,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "family-with-kids-f53d4330",
+    "query": {
+      "group_size": 3,
+      "group_composition": "family",
+      "budget_pkr": 228643,
+      "days": 8,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "family"
+      ],
+      "difficulty_tolerance": 1,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "murree",
+      "naran"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "family-with-kids",
+    "rating": 3.7,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-00e85ece",
+    "query": {
+      "group_size": 2,
+      "group_composition": "friends",
+      "budget_pkr": 96930,
+      "days": 8,
+      "travel_month": 8,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "trekking",
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "passu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-118a9d29",
+    "query": {
+      "group_size": 4,
+      "group_composition": "solo",
+      "budget_pkr": 84890,
+      "days": 9,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "trekking"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-1b66b5a9",
+    "query": {
+      "group_size": 3,
+      "group_composition": "solo",
+      "budget_pkr": 92018,
+      "days": 10,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "fairy-meadows",
+      "deosai"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-21e8ac68",
+    "query": {
+      "group_size": 3,
+      "group_composition": "solo",
+      "budget_pkr": 94814,
+      "days": 11,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-2369b584",
+    "query": {
+      "group_size": 3,
+      "group_composition": "solo",
+      "budget_pkr": 125435,
+      "days": 11,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "passu",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-3602f8ac",
+    "query": {
+      "group_size": 2,
+      "group_composition": "solo",
+      "budget_pkr": 120589,
+      "days": 11,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "trekking"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 3.9,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-59e4b671",
+    "query": {
+      "group_size": 1,
+      "group_composition": "friends",
+      "budget_pkr": 65075,
+      "days": 12,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "trekking"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "hunza-karimabad",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 5.0,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-5be6128e",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 114987,
+      "days": 8,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "trekking"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-629c2ae3",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 63617,
+      "days": 6,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "trekking"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-88bd6407",
+    "query": {
+      "group_size": 3,
+      "group_composition": "solo",
+      "budget_pkr": 90512,
+      "days": 6,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-8a63f881",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 85112,
+      "days": 8,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-922fe15a",
+    "query": {
+      "group_size": 2,
+      "group_composition": "solo",
+      "budget_pkr": 69305,
+      "days": 5,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "trekking"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "deosai"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "too-rushed",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-951f58d0",
+    "query": {
+      "group_size": 3,
+      "group_composition": "solo",
+      "budget_pkr": 94335,
+      "days": 7,
+      "travel_month": 8,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "deosai",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-96a402f2",
+    "query": {
+      "group_size": 2,
+      "group_composition": "solo",
+      "budget_pkr": 100857,
+      "days": 11,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-9a1de644",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 96048,
+      "days": 8,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure",
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-ab73295b",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 112923,
+      "days": 6,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "trekking"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-b386f7a4",
+    "query": {
+      "group_size": 4,
+      "group_composition": "solo",
+      "budget_pkr": 91029,
+      "days": 7,
+      "travel_month": 9,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "deosai"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-bb026576",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 90982,
+      "days": 7,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-c5e7ce8a",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 65695,
+      "days": 12,
+      "travel_month": 7,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "deosai",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 5.0,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-d777a477",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 94973,
+      "days": 10,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-dc5c0eed",
+    "query": {
+      "group_size": 4,
+      "group_composition": "solo",
+      "budget_pkr": 66175,
+      "days": 6,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure",
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-dc96925e",
+    "query": {
+      "group_size": 4,
+      "group_composition": "solo",
+      "budget_pkr": 121993,
+      "days": 11,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "passu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-dfed2c43",
+    "query": {
+      "group_size": 2,
+      "group_composition": "friends",
+      "budget_pkr": 76704,
+      "days": 5,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "too-rushed",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-e0c53cb8",
+    "query": {
+      "group_size": 2,
+      "group_composition": "solo",
+      "budget_pkr": 109009,
+      "days": 7,
+      "travel_month": 7,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "trekking"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "hardcore-mountaineer-f6e07cc0",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 123699,
+      "days": 6,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "trekking",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "hardcore-mountaineer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-1dad09b2",
+    "query": {
+      "group_size": 2,
+      "group_composition": "friends",
+      "budget_pkr": 155607,
+      "days": 9,
+      "travel_month": 5,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "attabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-24a35cf2",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 129080,
+      "days": 7,
+      "travel_month": 9,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "deosai",
+      "passu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-278ed00d",
+    "query": {
+      "group_size": 3,
+      "group_composition": "couple",
+      "budget_pkr": 122739,
+      "days": 7,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-3c19e71d",
+    "query": {
+      "group_size": 4,
+      "group_composition": "couple",
+      "budget_pkr": 119807,
+      "days": 9,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "hunza-karimabad",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-49bc473f",
+    "query": {
+      "group_size": 3,
+      "group_composition": "couple",
+      "budget_pkr": 196200,
+      "days": 10,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 3.9,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-5bc440f1",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 139817,
+      "days": 6,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 3.7,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-5cae9610",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 111947,
+      "days": 8,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-6553867d",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 169878,
+      "days": 8,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "attabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-6c9f82b9",
+    "query": {
+      "group_size": 2,
+      "group_composition": "friends",
+      "budget_pkr": 193611,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure",
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-7de1bdfe",
+    "query": {
+      "group_size": 4,
+      "group_composition": "couple",
+      "budget_pkr": 210238,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 3.8,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-8b621d41",
+    "query": {
+      "group_size": 3,
+      "group_composition": "couple",
+      "budget_pkr": 219273,
+      "days": 9,
+      "travel_month": 10,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "attabad"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "photographer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-90882eaf",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 117936,
+      "days": 9,
+      "travel_month": 5,
+      "travel_mode_pref": "air",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "passu"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "photographer",
+    "rating": 3.7,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-a5d04d53",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 125915,
+      "days": 6,
+      "travel_month": 11,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-a93b12cd",
+    "query": {
+      "group_size": 2,
+      "group_composition": "couple",
+      "budget_pkr": 218765,
+      "days": 10,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure",
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-aca5e2fd",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 179579,
+      "days": 10,
+      "travel_month": 11,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad",
+      "passu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-afa415e5",
+    "query": {
+      "group_size": 4,
+      "group_composition": "couple",
+      "budget_pkr": 169245,
+      "days": 10,
+      "travel_month": 5,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-c34b9fbb",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 213247,
+      "days": 10,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-c478f6f1",
+    "query": {
+      "group_size": 3,
+      "group_composition": "couple",
+      "budget_pkr": 184177,
+      "days": 6,
+      "travel_month": 11,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "adventure",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "passu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-c5ce099c",
+    "query": {
+      "group_size": 2,
+      "group_composition": "friends",
+      "budget_pkr": 203926,
+      "days": 8,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "adventure"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "fairy-meadows",
+      "passu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "photographer",
+    "rating": 4.8,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-c958e75e",
+    "query": {
+      "group_size": 4,
+      "group_composition": "couple",
+      "budget_pkr": 192345,
+      "days": 6,
+      "travel_month": 11,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.8,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-d21c82f8",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 169682,
+      "days": 8,
+      "travel_month": 10,
+      "travel_mode_pref": "air",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "fairy-meadows"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "photographer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-dc4ad56b",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 201715,
+      "days": 9,
+      "travel_month": 11,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "attabad",
+      "hunza-karimabad",
+      "passu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-def57689",
+    "query": {
+      "group_size": 4,
+      "group_composition": "couple",
+      "budget_pkr": 174923,
+      "days": 6,
+      "travel_month": 4,
+      "travel_mode_pref": "air",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 2,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "attabad"
+    ],
+    "travel_modes": [
+      "air",
+      "air"
+    ],
+    "persona": "photographer",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-e25d36eb",
+    "query": {
+      "group_size": 3,
+      "group_composition": "friends",
+      "budget_pkr": 121836,
+      "days": 9,
+      "travel_month": 4,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "attabad",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "photographer-fef518a6",
+    "query": {
+      "group_size": 4,
+      "group_composition": "friends",
+      "budget_pkr": 189964,
+      "days": 7,
+      "travel_month": 10,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography",
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "attabad"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "photographer",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-01f7c7ec",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 71828,
+      "days": 14,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "chitral",
+      "passu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-0a0537f0",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 70324,
+      "days": 7,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.2,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-15da705c",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 82907,
+      "days": 10,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "chitral",
+      "passu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.9,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-19e45c6a",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 82337,
+      "days": 13,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.1,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-290a3abb",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 72958,
+      "days": 13,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "gilgit",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.8,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-3712f2d1",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 51823,
+      "days": 11,
+      "travel_month": 8,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-3defa849",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 58881,
+      "days": 10,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "skardu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-3e49fd09",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 77732,
+      "days": 13,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "khaplu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.7,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-45a88829",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 69730,
+      "days": 12,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 3.9,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-4ffca6b1",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 46328,
+      "days": 12,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "passu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-519554e3",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 73643,
+      "days": 9,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "cultural"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "passu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.9,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-54170a17",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 45341,
+      "days": 9,
+      "travel_month": 10,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.6,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-6e218b09",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 86687,
+      "days": 14,
+      "travel_month": 4,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "hunza-karimabad",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-752a7d25",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 42905,
+      "days": 12,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-81e03a5e",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 68130,
+      "days": 7,
+      "travel_month": 8,
+      "travel_mode_pref": "road",
+      "origin_city": "lahore",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-8c7e6f42",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 49571,
+      "days": 9,
+      "travel_month": 4,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "photography"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-9082889b",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 46737,
+      "days": 9,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "passu",
+      "hunza-karimabad",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 5.0,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-a508dc95",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 49893,
+      "days": 14,
+      "travel_month": 4,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 5,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-ad261ec5",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 80503,
+      "days": 9,
+      "travel_month": 7,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure",
+        "cultural",
+        "photography"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "passu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 3.8,
+    "feedback_tags": [],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-c1b5b5ca",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 70810,
+      "days": 7,
+      "travel_month": 8,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "karachi",
+      "style_tags": [
+        "cultural"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "skardu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.4,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-c4f9eccd",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 80015,
+      "days": 11,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "khaplu",
+      "hunza-karimabad"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-d1a69d87",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 74338,
+      "days": 8,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "adventure"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "chitral",
+      "khaplu"
+    ],
+    "travel_modes": [
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.0,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-d4578ad9",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 77874,
+      "days": 10,
+      "travel_month": 5,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [
+        "photography",
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "hunza-karimabad",
+      "skardu",
+      "gilgit"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.3,
+    "feedback_tags": [
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-da003f16",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 68797,
+      "days": 9,
+      "travel_month": 6,
+      "travel_mode_pref": "hybrid",
+      "origin_city": "lahore",
+      "style_tags": [
+        "cultural",
+        "adventure"
+      ],
+      "difficulty_tolerance": 4,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "hunza-karimabad",
+      "passu"
+    ],
+    "travel_modes": [
+      "hybrid",
+      "hybrid",
+      "hybrid"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  },
+  {
+    "case_id": "solo-backpacker-ebd14d2c",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 53843,
+      "days": 9,
+      "travel_month": 9,
+      "travel_mode_pref": "road",
+      "origin_city": "karachi",
+      "style_tags": [
+        "photography",
+        "adventure"
+      ],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": []
+    },
+    "chosen_route": [
+      "gilgit",
+      "passu",
+      "skardu"
+    ],
+    "travel_modes": [
+      "road",
+      "road",
+      "road"
+    ],
+    "persona": "solo-backpacker",
+    "rating": 5.0,
+    "feedback_tags": [
+      "would-recommend",
+      "loved-the-views",
+      "epic-trek"
+    ],
+    "is_synthetic": true
+  }
+]

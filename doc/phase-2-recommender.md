@@ -147,6 +147,7 @@ streamlit run ui/app.py
 - Real Road / Safety / Budget / Local agents (still stubs from Phase 1)
 - Orchestrator improvements (still the minimal Phase-1 version)
 - Map widget, scorecard heatmap (Phase 4)
-- Replanning under disruption (Phase 4)
+- Replanning under disruption (Phase 3)
 - Memory loop (Phase 4)
 - Evaluation tables (Phase 5)
+- Final report (Phase 6)
