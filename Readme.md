@@ -5,11 +5,11 @@
 
 ## 1. The Problem
 
-Travelling from Karachi or Lahore to northern Pakistan — Hunza, Skardu, Naran, Fairy Meadows, Swat — is one of the most popular domestic trip patterns in the country, and one of the worst-served by technology.
+Travelling from Karachi or Lahore to northern Pakistan Hunza, Skardu, Naran, Fairy Meadows, Swat is one of the most popular domestic trip patterns in the country, and one of the worst-served by technology.
 
 A traveller planning such a trip today has three options, none of which work well:
 
-**Option 1: Tour operators.** Apricot Tours, Pakistan Travel Guide, Exploria, dozens of others. They sell fixed packages with humans in the loop. They are reliable for a price, but they remove agency from the traveller, lock you into one company's network, and assume you have the budget for a full-service package. They are not intelligent — they are catalogues.
+**Option 1: Tour operators.** Apricot Tours, Pakistan Travel Guide, Exploria, dozens of others. They sell fixed packages with humans in the loop. They are reliable for a price, but they remove agency from the traveller, lock you into one company's network, and assume you have the budget for a full-service package. They are not intelligent, they are catalogues.
 
 **Option 2: International AI travel tools.** Layla.ai, Wanderlog, ChatGPT, Gemini. These technically support Pakistan because they support every country, but they have no Pakistan-specific knowledge of any depth. They will happily generate an itinerary that includes Babusar Pass in late November (it closes in October). They will route you through Naran in monsoon without flagging landslide risk. They do not know what an NOC zone is. They are wide and shallow.
 
@@ -73,7 +73,7 @@ The recommender does not need to vary every axis on every query; it varies which
 
 **How it works:**
 - A constraint filter prunes infeasible candidates first (a 4-day Karachi-to-Skardu trip by road is removed up front; the user is told why).
-- A case base of past trips — built from a curated set of real travel reports plus persona-grounded synthetic profiles — provides similarity-based retrieval. New queries find their nearest analogues among past trips.
+- A case base of past trips built from a curated set of real travel reports plus persona-grounded synthetic profiles — provides similarity-based retrieval. New queries find their nearest analogues among past trips.
 - A content-based scorer ranks remaining candidates on fit with the user's stated style preferences (adventure / cultural / photography / relaxation / family-friendly).
 - A diversity-selection step then chooses the final three: starting from the top-ranked candidate and adding two more that maximize spread along the axes above. This is a small but important component — without it, the recommender would tend to produce three top-ranked-but-similar candidates and the debate would collapse.
 - Each of the three candidates carries a justification ("similar travellers with your budget and group rated this 4.3/5; alternative route available if you can extend by 2 days").
@@ -259,6 +259,6 @@ A few things we'd be calling out openly in the report and in any startup convers
 
 These acknowledgments are part of the work, not weaknesses to hide. A system that knows what it doesn't know is more trustworthy than one that pretends to know everything.
 
----
+----
 
 *Document version: working draft, April 2026. Prepared for internal team discussion, not for submission.*
