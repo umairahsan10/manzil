@@ -91,7 +91,13 @@ def test_empty_retrieval_no_hallucination(query_cultural, candidate_unknown_dest
 
     all_text = " ".join(arg.supporting_reasons + arg.concerns).lower()
     # Should contain an honest admission of no content
-    assert "no curated" in all_text or "don't have" in all_text or "not have" in all_text or len(arg.supporting_reasons) == 0
+    assert (
+        "no curated" in all_text
+        or "limited curated" in all_text
+        or "don't have" in all_text
+        or "not have" in all_text
+        or len(arg.supporting_reasons) == 0
+    )
 
 
 def test_normal_retrieval_score_positive(query_cultural, candidate_hunza):

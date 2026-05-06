@@ -195,8 +195,11 @@ produces more honest results than a patched-up original.
   ranks the vetoed one first on cultural value, the dissent block fires.
 - Latency: a debate finishes in roughly the time of the slowest single
   agent (parallel), not the sum of all 5. Test with `test_graph_parallel`.
-- LLM call accounting: exactly **15 agent calls + 1 orchestrator call = 16
-  calls** per fresh debate. Re-running same query = 0 calls.
+- LLM call accounting:
+  - **Full mode**: 15 agent calls + 1 orchestrator call = 16 calls per fresh debate
+  - **Efficient mode**: 0 agent calls + 1 orchestrator call = 1 call per fresh debate
+  - Re-running same query = 0 calls (cached)
+  - Key rotation supports up to 5 comma-separated API keys for free-tier quota management
 - Local Experience Agent **never** mentions a place not in retrieved
   chunks. Verified via prompt design + a regression test that pre-warms an
   empty retrieval and asserts the resulting reasons say "no curated
@@ -233,7 +236,8 @@ streamlit run ui/app.py
 | **RAG corpus quality is bad** after scrape (the project's #3 critical-path risk) | Medium | Hand-curate ~50 chunks across the most-visited destinations. Build the week-7 schedule with a 1-day buffer for this. |
 | Hard-blocker thresholds are too strict (everything gets vetoed) | Medium | Tune the altitude-vs-group thresholds against the case base; require at least one surviving candidate in 90% of synthetic queries before declaring this acceptance criterion met. |
 | `_llm_synthesize` exceeds Flash's 250 RPD on demo day | Low | Cache aggressively keyed on `(winner_id, scorecard_hash)`. Pre-warm in `seed_caches.py` (Phase 5). |
-| Gemini SDK breaking change on `embedding-004` mid-phase | Low | RAG wrapper isolates the embedding call to one place; swap to OpenAI-style sentence-transformers locally if needed. |
+| Gemini free tier quota exhausted (10 RPM, 20 RPD per key) | High | Use Efficient mode (1 call/debate) + key rotation (up to 5 keys). With 4 keys, Efficient mode supports ~80 debates/day. |
+| Gemini SDK breaking change on `embedding-004` mid-phase | Low | RAG wrapper now uses local ONNX embeddings (all-MiniLM-L6-v2). No API dependency for embeddings. |
 
 ## Owner split
 

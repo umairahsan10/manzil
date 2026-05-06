@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 import pytest
 
-from manzil.agents.base import BaseAgent
+from manzil.agents.base import BaseAgent, set_full_llm_mode
 from manzil.llm import LLMParseError
 from manzil.schemas import (
     AgentArgument,
@@ -129,6 +129,7 @@ class _FakeBlockingAgent(BaseAgent):
 
 
 def test_real_agent_calls_llm_once(query, candidate):
+    set_full_llm_mode(True)
     payload = LLMArgumentPayload(
         reasons=["good weather"], concerns=["could be hot"]
     )
@@ -157,6 +158,7 @@ def test_stub_agent_does_not_call_llm(query, candidate):
 
 
 def test_llm_parse_error_falls_back_to_zero_confidence(query, candidate):
+    set_full_llm_mode(True)
     with patch(
         "manzil.agents.base.llm.complete_json",
         side_effect=LLMParseError("bad json"),

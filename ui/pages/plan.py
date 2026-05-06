@@ -1,19 +1,21 @@
 """
 Plan page (Streamlit auto-discovered).
 
-The form builds a `UserQuery`. The recommender returns 3 stub candidates.
-The LangGraph debate runs through 5 agents (1 real, 4 stubs in Phase 1) and
-the Orchestrator picks a winner.
+The form builds a `UserQuery`. The recommender returns 3 diverse candidates.
+The LangGraph debate runs through 5 real specialist agents in parallel
+(Weather, Road, Safety, Budget, Local Experience) and the Orchestrator
+picks a winner using hard-blocker elimination + weighted aggregation.
 
-Phase 1 surfaces:
+Phase 3 surfaces:
     - 3 candidate preview cards (label, destinations, cost, axis tags)
     - Full day-by-day plan for the winner
-    - 5 x 3 scorecard table
-    - Raw scorecard JSON in an expander
+    - 5 x 3 agent scorecard table
+    - Hard blockers (if any candidate was vetoed)
     - Orchestrator reasoning string
+    - Dissenting opinion + why-not summaries (via raw JSON expander)
 
-Phase 4 layers in: map view, scorecard heatmap, dissent box, why-not summaries,
-debate-trace animation, replanning.
+Phase 4 layers in: map view, scorecard heatmap, debate-trace animation,
+side-by-side replanning UI.
 """
 
 from __future__ import annotations
@@ -32,6 +34,7 @@ load_dotenv(_ROOT / ".env")
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
+from manzil.agents.base import is_full_llm_mode, set_full_llm_mode  # noqa: E402
 from manzil.graph.debate_graph import run_debate  # noqa: E402
 from manzil.recommender.pipeline import recommend  # noqa: E402
 from manzil.schemas import (  # noqa: E402
@@ -50,6 +53,26 @@ st.caption(
     "specialist agents debates them and picks one — you'll see the scorecard "
     "and the winning day-by-day plan."
 )
+
+# ---------------------------------------------------------------------------
+# Mode toggle
+# ---------------------------------------------------------------------------
+
+mode_col1, mode_col2 = st.columns([3, 1])
+with mode_col1:
+    pass
+with mode_col2:
+    use_full_llm = st.toggle(
+        "Full LLM Mode",
+        value=is_full_llm_mode(),
+        help=(
+            "ON: Each agent generates unique prose (16 API calls/debate, premium quality). "
+            "OFF: Templated arguments (1 API call/debate, fast & free-tier friendly)."
+        ),
+    )
+    if use_full_llm != is_full_llm_mode():
+        set_full_llm_mode(use_full_llm)
+        st.rerun()
 
 # ---------------------------------------------------------------------------
 # Form
@@ -109,6 +132,14 @@ with st.form("plan_form"):
             options=STYLE_OPTIONS,
             default=["cultural", "photography"],
         )
+        is_foreign = st.checkbox(
+            "I am a foreign national (requires NOC for restricted zones)",
+            value=False,
+        )
+        elderly = st.checkbox(
+            "Group includes someone over 60 years old",
+            value=False,
+        )
 
     submitted = st.form_submit_button("Plan my trip", use_container_width=True)
 
@@ -130,6 +161,8 @@ if submitted:
         difficulty_tolerance=int(difficulty),
         preferred_destinations=[],
         hard_constraints=[],
+        is_foreign_traveller=bool(is_foreign),
+        elderly_in_group=bool(elderly),
     )
     with st.spinner("Recommender → 3 candidate routes…"):
         candidates = recommend(query)
@@ -137,7 +170,7 @@ if submitted:
     st.session_state["last_candidates"] = candidates
 
     with st.spinner("Agents are debating…"):
-        result = run_debate(query, candidates)
+        result = run_debate(query, candidates, use_full_llm=use_full_llm)
     st.session_state["last_result"] = result
 
 

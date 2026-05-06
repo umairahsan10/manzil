@@ -20,7 +20,6 @@ LLM argument:
 
 from __future__ import annotations
 
-import statistics
 from typing import Any, Dict, List, Optional
 
 from manzil.agents.base import BaseAgent
@@ -109,7 +108,7 @@ class RoadAgent(BaseAgent):
         missing_penalty = 2.0 if missing else 0.0
 
         score = 10.0 - drive_penalty - landslide_penalty - missing_penalty
-        return max(0.0, min(10.0, score))
+        return score
 
     def _confidence(
         self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
@@ -174,6 +173,50 @@ class RoadAgent(BaseAgent):
             ]
         )
         return "\n".join(lines)
+
+    def _templated_reasons(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        reasons = []
+        avg_drive = analysis.get("avg_drive_per_day_hours", 0.0)
+        passes = analysis.get("passes", [])
+        missing = analysis.get("missing_segments", [])
+
+        if avg_drive < 4:
+            reasons.append(f"Light driving load at just {avg_drive:.1f} hours per day on average.")
+        elif avg_drive < 6:
+            reasons.append(f"Moderate driving at {avg_drive:.1f} hours daily — comfortable for most groups.")
+
+        month_idx = query.travel_month - 1
+        open_passes = [
+            p for p in passes
+            if month_idx < len(p.get("open_months", [])) and p["open_months"][month_idx]
+        ]
+        if open_passes:
+            names = ", ".join(p.get("name", p["pass_id"]) for p in open_passes[:2])
+            reasons.append(f"Major passes ({names}) are open this month.")
+
+        if not missing:
+            reasons.append("Complete road data available for every segment of this route.")
+
+        return reasons
+
+    def _templated_concerns(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        concerns = []
+        max_leg = analysis.get("max_single_leg_hours", 0.0)
+        landslide = analysis.get("max_landslide_risk", 0.0)
+        missing = analysis.get("missing_segments", [])
+
+        if max_leg > 8:
+            concerns.append(f"Longest driving leg is {max_leg:.1f} hours — consider scheduling a break.")
+        if landslide > 0.3:
+            concerns.append(f"Elevated landslide risk this month ({landslide:.0%}) — monitor weather forecasts closely.")
+        if missing:
+            concerns.append(f"Missing road data for segments: {', '.join(missing)}.")
+
+        return concerns
 
 
 __all__ = ["RoadAgent"]

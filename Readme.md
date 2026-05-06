@@ -220,7 +220,34 @@ This is not a pitch deck. It is enough to know that the project, if it works, ha
 
 ---
 
-## 12. Honest Acknowledgments
+## 12. Free Tier & API Key Rotation
+
+Manzil works on Gemini's free tier. To handle rate limits (10 requests/minute, 20 requests/day per key):
+
+**1. Get multiple API keys**
+- Create 2–5 keys from [Google AI Studio](https://aistudio.google.com/app/apikey) (different Google accounts)
+- Add them comma-separated in `.env`: `GEMINI_API_KEYS=key1,key2,key3,key4`
+
+**2. Choose your agent mode**
+- **Efficient mode** (default): Agents use templated arguments. Only the orchestrator calls the LLM → **1 API call per debate**. With 4 keys = ~80 debates/day.
+- **Full LLM mode**: Each agent generates unique prose → **16 API calls per debate**. With 4 keys = ~5 debates/day. Toggle in the Plan page UI.
+
+**3. Set rate limits in `.env`**
+```bash
+MANZIL_GEMINI_RPM=10      # per key per minute
+MANZIL_GEMINI_RPD=20      # per key per day
+MANZIL_FULL_AGENT_LLM=false   # default to efficient mode
+```
+
+**4. Key rotation behavior**
+- Round-robin across all keys
+- If key A hits 429 (quota exceeded), immediately retries key B
+- If key gets 403 (blocked), marked unavailable permanently
+- Per-key quota bars shown on landing page
+
+---
+
+## 13. Honest Acknowledgments
 
 A few things we'd be calling out openly in the report and in any startup conversation:
 

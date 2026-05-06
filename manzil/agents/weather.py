@@ -18,11 +18,11 @@ import json
 import statistics
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from manzil.agents.base import BaseAgent
 from manzil.data_loader import load_destinations
-from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery, WeatherData
+from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery
 from manzil.tools import cache, weather_api
 
 _SEASONAL_WEATHER_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "seasonal_weather.json"
@@ -203,7 +203,7 @@ class WeatherAgent(BaseAgent):
             wet_penalty = min(3.0, wet_days * 0.6)
 
             s = 10.0 - temp_penalty - precip_penalty - wet_penalty
-            per_scores.append(max(0.0, min(10.0, s)))
+            per_scores.append(s)
 
         return statistics.mean(per_scores)
 
@@ -269,6 +269,64 @@ class WeatherAgent(BaseAgent):
             ]
         )
         return "\n".join(lines)
+
+    def _templated_reasons(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        reasons = []
+        per_dest = analysis.get("per_destination", {})
+        warm_dests = []
+        wet_dests = []
+        error_dests = []
+
+        for data in per_dest.values():
+            if "error" in data:
+                error_dests.append(data.get("name", "unknown"))
+                continue
+            avg_high = data.get("avg_high_c")
+            wet_days = data.get("wet_days_count", 0)
+            if avg_high is not None and avg_high > 25:
+                warm_dests.append(data.get("name", "unknown"))
+            if wet_days >= 2:
+                wet_dests.append(data.get("name", "unknown"))
+
+        if warm_dests:
+            reasons.append(f"Pleasant temperatures expected in {', '.join(warm_dests[:2])}.")
+        if not wet_dests and score >= 7.0:
+            reasons.append("Dry conditions across the route — good for outdoor activities.")
+        if not error_dests:
+            reasons.append("Weather data available for all destinations on this route.")
+
+        return reasons
+
+    def _templated_concerns(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        concerns = []
+        per_dest = analysis.get("per_destination", {})
+        cold_dests = []
+        wet_dests = []
+        error_dests = []
+
+        for data in per_dest.values():
+            if "error" in data:
+                error_dests.append(data.get("name", "unknown"))
+                continue
+            avg_high = data.get("avg_high_c")
+            wet_days = data.get("wet_days_count", 0)
+            if avg_high is not None and avg_high < 5:
+                cold_dests.append(data.get("name", "unknown"))
+            if wet_days >= 2:
+                wet_dests.append(data.get("name", "unknown"))
+
+        if cold_dests:
+            concerns.append(f"Cold temperatures expected in {', '.join(cold_dests[:2])} — pack warm layers.")
+        if wet_dests:
+            concerns.append(f"Rainy days likely in {', '.join(wet_dests[:2])} — plan indoor backups.")
+        if error_dests:
+            concerns.append(f"Weather data unavailable for: {', '.join(error_dests)}.")
+
+        return concerns
 
     # ------------------------------------------------------------------
     # Helpers

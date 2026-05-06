@@ -1,6 +1,6 @@
 """
 One-time script: chunk every file in `data/local_corpus/`, embed with
-Gemini text-embedding-004, and persist to ChromaDB.
+local ONNX all-MiniLM-L6-v2, and persist to ChromaDB.
 
 Idempotent: skips already-indexed files by checking content hash.
 

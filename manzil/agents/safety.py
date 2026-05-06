@@ -152,7 +152,7 @@ class SafetyAgent(BaseAgent):
         noc_penalty = 1.5 if has_noc else 0.0
 
         score = alt_score - hospital_penalty - noc_penalty
-        return max(0.0, min(10.0, score))
+        return score
 
     def _confidence(
         self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
@@ -207,6 +207,49 @@ class SafetyAgent(BaseAgent):
             ]
         )
         return "\n".join(lines)
+
+    def _templated_reasons(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        reasons = []
+        threshold = analysis.get("applied_threshold_m", 4500)
+        max_alt = analysis.get("max_altitude_m", 0)
+        avg_hospital = analysis.get("avg_hospital_distance_km", 0)
+        has_noc = analysis.get("has_noc_zone", False)
+        has_acclim = analysis.get("has_acclimatization_day", False)
+
+        if max_alt < threshold:
+            headroom = threshold - max_alt
+            reasons.append(f"All destinations stay well below the altitude threshold with {headroom}m of headroom.")
+        if has_acclim:
+            reasons.append("Route includes an acclimatization day — good for altitude adjustment.")
+        if avg_hospital < 15:
+            reasons.append(f"Medical facilities are nearby (avg {avg_hospital:.0f} km to nearest hospital).")
+        if not has_noc:
+            reasons.append("No NOC permit required — simpler logistics for this route.")
+
+        return reasons
+
+    def _templated_concerns(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        concerns = []
+        threshold = analysis.get("applied_threshold_m", 4500)
+        max_alt = analysis.get("max_altitude_m", 0)
+        avg_hospital = analysis.get("avg_hospital_distance_km", 0)
+        has_noc = analysis.get("has_noc_zone", False)
+        has_acclim = analysis.get("has_acclimatization_day", False)
+
+        if max_alt > threshold * 0.8:
+            concerns.append(f"Maximum altitude ({max_alt}m) approaches the safety threshold ({threshold}m).")
+        if avg_hospital > 30:
+            concerns.append(f"Hospitals are distant (avg {avg_hospital:.0f} km) — plan for emergencies.")
+        if has_noc:
+            concerns.append("NOC permit required — foreign travellers need advance paperwork.")
+        if not has_acclim and max_alt > 3000:
+            concerns.append("No acclimatization day included — watch for altitude sickness symptoms.")
+
+        return concerns
 
     @staticmethod
     def _threshold_for_query(query: UserQuery, thresholds: Dict[str, int]):

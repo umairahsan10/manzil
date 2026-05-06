@@ -1,5 +1,5 @@
 """
-Gemini client wrapper.
+Gemini client wrapper with multi-key rotation and per-key rate limiting.
 
 Two model tiers are exposed:
     Model.FLASH_LITE   — for the 5 specialist agents (1 call per agent per candidate)
@@ -12,6 +12,13 @@ The `complete_json(...)` helper requests JSON, parses it against a Pydantic
 schema, retries once with a stricter prompt if parsing fails, then raises
 `LLMParseError` so the caller can fall back to a deterministic argument with
 `confidence=0.0`.
+
+Key rotation:
+    - Set GEMINI_API_KEYS=key1,key2,key3 (comma-separated) in .env
+    - Falls back to legacy GEMINI_API_KEY if GEMINI_API_KEYS is empty
+    - Each key has its own 10/min and 20/day rate-limit window
+    - On 429 from key A, immediately retries key B
+    - On 403, marks key unavailable permanently
 """
 
 from __future__ import annotations
@@ -20,8 +27,11 @@ import json
 import logging
 import os
 import re
+import threading
+import time
+from collections import deque
 from enum import Enum
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -46,37 +56,177 @@ class LLMParseError(LLMError):
 
 
 # ---------------------------------------------------------------------------
-# Lazy client init — google-generativeai is only imported when first needed
-# so demo mode (cache-only) does not require the API key to be set.
+# Per-key rate-limit state
+# ---------------------------------------------------------------------------
+
+_RPM_LIMIT = int(os.environ.get("MANZIL_GEMINI_RPM", "10"))
+_RPD_LIMIT = int(os.environ.get("MANZIL_GEMINI_RPD", "20"))
+_MINUTE_WINDOW = 60.0
+_DAY_WINDOW = 86400.0
+
+
+class _KeyState:
+    """Tracks rate-limit state for a single API key."""
+
+    def __init__(self, key: str, index: int) -> None:
+        self.key = key
+        self.index = index
+        self.minute_calls: deque[float] = deque()
+        self.day_calls: deque[float] = deque()
+        self.lock = threading.Lock()
+        self.available = True
+        self.last_error: Optional[str] = None
+
+    def _clean_windows(self, now: float) -> None:
+        while self.minute_calls and self.minute_calls[0] < now - _MINUTE_WINDOW:
+            self.minute_calls.popleft()
+        while self.day_calls and self.day_calls[0] < now - _DAY_WINDOW:
+            self.day_calls.popleft()
+
+    def can_call(self) -> bool:
+        if not self.available:
+            return False
+        with self.lock:
+            now = time.time()
+            self._clean_windows(now)
+            return (
+                len(self.minute_calls) < _RPM_LIMIT
+                and len(self.day_calls) < _RPD_LIMIT
+            )
+
+    def record_call(self) -> None:
+        with self.lock:
+            now = time.time()
+            self._clean_windows(now)
+            self.minute_calls.append(now)
+            self.day_calls.append(now)
+
+    def mark_unavailable(self, reason: str) -> None:
+        self.available = False
+        self.last_error = reason
+
+    def calls_today(self) -> int:
+        with self.lock:
+            now = time.time()
+            self._clean_windows(now)
+            return len(self.day_calls)
+
+
+_KEY_STATES: List[_KeyState] = []
+_LAST_KEY_INDEX = -1
+_KEYS_LOCK = threading.Lock()
+_KEYS_INITIALIZED = False
+
+
+def _parse_api_keys() -> List[str]:
+    """Parse GEMINI_API_KEYS (comma-separated) or fallback to GEMINI_API_KEY."""
+    multi = os.environ.get("GEMINI_API_KEYS", "").strip()
+    if multi:
+        return [k.strip() for k in multi.split(",") if k.strip()]
+    single = os.environ.get("GEMINI_API_KEY", "").strip()
+    return [single] if single else []
+
+
+def _ensure_keys() -> None:
+    """Lazy-init key states."""
+    global _KEYS_INITIALIZED, _KEY_STATES
+    if _KEYS_INITIALIZED:
+        return
+    with _KEYS_LOCK:
+        if _KEYS_INITIALIZED:
+            return
+        keys = _parse_api_keys()
+        _KEY_STATES = [_KeyState(k, i) for i, k in enumerate(keys)]
+        _KEYS_INITIALIZED = True
+        log.info("Initialized %d API key(s)", len(_KEY_STATES))
+
+
+def get_key_states() -> List[_KeyState]:
+    """Return current key states (for UI display)."""
+    _ensure_keys()
+    return list(_KEY_STATES)
+
+
+# ---------------------------------------------------------------------------
+# Key rotation + retry
+# ---------------------------------------------------------------------------
+
+def _pick_available_key() -> _KeyState:
+    """Round-robin across available keys. Raises if all exhausted."""
+    global _LAST_KEY_INDEX
+    _ensure_keys()
+    with _KEYS_LOCK:
+        if not _KEY_STATES:
+            raise LLMError("No API keys configured. Set GEMINI_API_KEYS or GEMINI_API_KEY.")
+
+        # Try each key starting from last used
+        for offset in range(len(_KEY_STATES)):
+            idx = (_LAST_KEY_INDEX + 1 + offset) % len(_KEY_STATES)
+            ks = _KEY_STATES[idx]
+            if ks.can_call():
+                _LAST_KEY_INDEX = idx
+                return ks
+
+        # All keys exhausted — calculate earliest retry
+        now = time.time()
+        earliest_day_reset = min(
+            (ks.day_calls[0] + _DAY_WINDOW if ks.day_calls else now)
+            for ks in _KEY_STATES
+        )
+        earliest_min_reset = min(
+            (ks.minute_calls[0] + _MINUTE_WINDOW if ks.minute_calls else now)
+            for ks in _KEY_STATES
+        )
+        sleep_seconds = min(earliest_day_reset, earliest_min_reset) - now
+        raise LLMError(
+            f"All {len(_KEY_STATES)} API keys exhausted. "
+            f"Retry after {max(0, sleep_seconds):.0f}s."
+        )
+
+
+# ---------------------------------------------------------------------------
+# Lazy client init
+# ---------------------------------------------------------------------------
+
+_CONFIGURED_KEY: Optional[str] = None
+_CLIENT_LOCK = threading.Lock()
+
+
+def _configure_client(api_key: str) -> None:
+    """Configure the Gemini client with the given key."""
+    global _CONFIGURED_KEY
+    if _CONFIGURED_KEY == api_key:
+        return
+    with _CLIENT_LOCK:
+        if _CONFIGURED_KEY == api_key:
+            return
+        import google.generativeai as genai  # noqa: WPS433
+
+        genai.configure(api_key=api_key)
+        _CONFIGURED_KEY = api_key
+
+
+# ---------------------------------------------------------------------------
+# Cache key (includes mode to separate full vs efficient caches)
 # ---------------------------------------------------------------------------
 
 
-_CLIENT_READY = False
+def _cache_key(
+    model: Model,
+    prompt: str,
+    temperature: float,
+    system: Optional[str],
+) -> str:
+    from manzil.agents.base import is_full_llm_mode
 
-
-def _ensure_client() -> None:
-    global _CLIENT_READY
-    if _CLIENT_READY:
-        return
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not api_key:
-        raise LLMError(
-            "GEMINI_API_KEY is not set. Copy .env.example to .env and fill it in, "
-            "or run with MANZIL_DEMO_MODE=1 to use the cache only."
-        )
-    import google.generativeai as genai  # noqa: WPS433 (deliberate lazy import)
-
-    genai.configure(api_key=api_key)
-    _CLIENT_READY = True
-
-
-def _cache_key(model: Model, prompt: str, temperature: float, system: Optional[str]) -> str:
+    mode = "full" if is_full_llm_mode() else "eff"
     return cache.stable_key(
         {
             "model": model.value,
             "prompt": prompt,
             "temperature": round(temperature, 3),
             "system": system or "",
+            "mode": mode,
         }
     )
 
@@ -93,7 +243,7 @@ def complete(
     temperature: float = 0.2,
     system: Optional[str] = None,
 ) -> str:
-    """Return raw text from Gemini, cached by (model, prompt, temperature, system)."""
+    """Return raw text from Gemini, cached by (model, prompt, temperature, system, mode)."""
     key = _cache_key(model, prompt, temperature, system)
 
     cached = cache.get("llm", key)
@@ -103,26 +253,51 @@ def complete(
     if cache.is_demo_mode():
         raise cache.CacheMiss(f"demo mode: no cached LLM response for key {key}")
 
-    _ensure_client()
-    import google.generativeai as genai  # noqa: WPS433
+    last_error = None
+    attempted_keys: List[int] = []
 
-    config: Dict[str, Any] = {"temperature": temperature}
-    gen_model = genai.GenerativeModel(
-        model_name=model.value,
-        system_instruction=system,
-        generation_config=config,
+    for attempt in range(max(1, len(_KEY_STATES) if _KEY_STATES else 1)):
+        ks = _pick_available_key()
+        attempted_keys.append(ks.index)
+        try:
+            _configure_client(ks.key)
+
+            import google.generativeai as genai  # noqa: WPS433
+
+            config: Dict[str, Any] = {"temperature": temperature}
+            gen_model = genai.GenerativeModel(
+                model_name=model.value,
+                system_instruction=system,
+                generation_config=config,
+            )
+            resp = gen_model.generate_content(prompt)
+            text = (resp.text or "").strip()
+
+            ks.record_call()
+            cache.set("llm", key, {"text": text, "model": model.value})
+            return text
+        except Exception as exc:  # noqa: BLE001
+            exc_name = type(exc).__name__
+            if "ResourceExhausted" in exc_name or "429" in str(exc):
+                ks.mark_unavailable(f"429 on attempt {attempt}")
+                last_error = exc
+                log.warning("Key %d hit 429, trying next…", ks.index)
+                continue
+            if "PermissionDenied" in exc_name or "403" in str(exc):
+                ks.mark_unavailable(f"403 blocked")
+                log.warning("Key %d blocked (403), marking unavailable", ks.index)
+                continue
+            # Real error — don't retry with other keys
+            raise
+
+    raise LLMError(
+        f"All keys failed (attempted: {attempted_keys}). Last error: {last_error}"
     )
-    resp = gen_model.generate_content(prompt)
-    text = (resp.text or "").strip()
-
-    cache.set("llm", key, {"text": text, "model": model.value})
-    return text
 
 
 # ---------------------------------------------------------------------------
 # JSON-structured completion with schema validation + retry-once-then-fallback
 # ---------------------------------------------------------------------------
-
 
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
@@ -189,20 +364,31 @@ def _try_parse(
         return None, raw
 
 
+# ---------------------------------------------------------------------------
+# Healthcheck
+# ---------------------------------------------------------------------------
+
+
 def healthcheck() -> tuple[bool, str]:
     """
-    One trivial round-trip used by the Streamlit healthcheck row.
-    Returns (ok, message). Cached after the first successful call.
+    Lightweight healthcheck. Reports key count and availability
+    without burning API quota.
     """
-    try:
-        text = complete(
-            "Reply with the single word: ok",
-            model=Model.FLASH_LITE,
-            temperature=0.0,
-        )
-        return True, text or "(empty)"
-    except Exception as exc:  # noqa: BLE001 — UI surface
-        return False, f"{type(exc).__name__}: {exc}"
+    keys = _parse_api_keys()
+    if not keys:
+        return False, "No API keys configured"
+
+    _ensure_keys()
+    active = sum(1 for ks in _KEY_STATES if ks.available)
+    return True, f"{active}/{len(keys)} keys active"
 
 
-__all__ = ["Model", "LLMError", "LLMParseError", "complete", "complete_json", "healthcheck"]
+__all__ = [
+    "Model",
+    "LLMError",
+    "LLMParseError",
+    "complete",
+    "complete_json",
+    "healthcheck",
+    "get_key_states",
+]

@@ -99,10 +99,10 @@ def test_llm_complete_returns_cached_without_touching_api(monkeypatch):
     """
     importlib.reload(llm)  # reset module-level _CLIENT_READY
 
-    def _explode():
-        raise AssertionError("_ensure_client was called despite a cache hit")
+    def _explode(*args, **kwargs):
+        raise AssertionError("_configure_client was called despite a cache hit")
 
-    monkeypatch.setattr(llm, "_ensure_client", _explode)
+    monkeypatch.setattr(llm, "_configure_client", _explode)
 
     key = llm._cache_key(llm.Model.FLASH_LITE, "ping", 0.0, None)
     cache.set("llm", key, {"text": "pong", "model": llm.Model.FLASH_LITE.value})
@@ -115,10 +115,10 @@ def test_llm_complete_demo_mode_miss_raises(monkeypatch):
     monkeypatch.setenv("MANZIL_DEMO_MODE", "1")
     importlib.reload(llm)
 
-    def _explode():
-        raise AssertionError("_ensure_client must not be called in demo mode")
+    def _explode(*args, **kwargs):
+        raise AssertionError("_configure_client must not be called in demo mode")
 
-    monkeypatch.setattr(llm, "_ensure_client", _explode)
+    monkeypatch.setattr(llm, "_configure_client", _explode)
 
     with pytest.raises(cache.CacheMiss):
         llm.complete("never-cached-prompt", temperature=0.0)

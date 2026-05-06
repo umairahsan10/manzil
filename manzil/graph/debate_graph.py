@@ -20,6 +20,7 @@ from typing import Annotated, List, Optional, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+from manzil.agents.base import set_full_llm_mode
 from manzil.agents.budget import BudgetAgent
 from manzil.agents.local import LocalExperienceAgent
 from manzil.agents.orchestrator import Orchestrator
@@ -147,12 +148,21 @@ def _build_graph_sequential():
 
 
 def run_debate(
-    query: UserQuery, candidates: List[RouteCandidate]
+    query: UserQuery,
+    candidates: List[RouteCandidate],
+    use_full_llm: bool = False,
 ) -> DebateResult:
     """
     Run the full debate over the given candidates and return the final
     `DebateResult`. This is what the UI calls.
+
+    Args:
+        use_full_llm: If True, each agent calls the LLM to generate unique
+            prose (16 calls/debate). If False, agents use templated arguments
+            and only the orchestrator calls the LLM (1 call/debate).
     """
+    set_full_llm_mode(use_full_llm)
+
     # Decide parallel vs sequential based on RPM at invocation time
     if _rpm_ok(n_calls=5):
         graph = _build_graph_parallel()

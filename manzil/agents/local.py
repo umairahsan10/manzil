@@ -113,7 +113,7 @@ class LocalExperienceAgent(BaseAgent):
             align = d.get("style_alignment", 0.0)
             # Combine relevance and alignment
             s = (rel * 5.0) + (align * 5.0)
-            scores.append(min(10.0, max(0.0, s)))
+            scores.append(s)
 
         return sum(scores) / len(scores)
 
@@ -164,6 +164,62 @@ class LocalExperienceAgent(BaseAgent):
             ]
         )
         return "\n".join(lines)
+
+    def _templated_reasons(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        reasons = []
+        per_dest = analysis.get("per_destination", [])
+        matched = []
+        empty = []
+        high_rel = []
+
+        for d in per_dest:
+            dest_id = d.get("id", "unknown")
+            if d.get("chunk_count", 0) == 0:
+                empty.append(dest_id)
+                continue
+            if d.get("avg_relevance", 0) > 0.5:
+                high_rel.append(dest_id)
+            matched_styles = d.get("matched_styles", [])
+            if matched_styles:
+                matched.append(f"{dest_id} ({', '.join(matched_styles[:2])})")
+
+        if matched:
+            reasons.append(f"Strong style alignment found in {', '.join(matched[:2])}.")
+        if high_rel:
+            reasons.append(f"High-quality local content retrieved for {', '.join(high_rel[:2])}.")
+        if not empty and per_dest:
+            reasons.append("Curated local content available for all destinations on this route.")
+
+        return reasons
+
+    def _templated_concerns(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        concerns = []
+        per_dest = analysis.get("per_destination", [])
+        user_styles = analysis.get("user_style_tags", [])
+        empty = []
+        matched = []
+
+        for d in per_dest:
+            dest_id = d.get("id", "unknown")
+            if d.get("chunk_count", 0) == 0:
+                empty.append(dest_id)
+                continue
+            matched_styles = d.get("matched_styles", [])
+            if matched_styles:
+                matched.append(dest_id)
+
+        if empty:
+            concerns.append(f"Limited curated content for {', '.join(empty[:2])} — local tips may be sparse.")
+        if not matched and user_styles:
+            concerns.append(f"Style tags ({', '.join(user_styles[:2])}) not strongly matched in retrieved content.")
+        if analysis.get("any_empty_retrieval"):
+            concerns.append("Some destinations lack curated local content in our database.")
+
+        return concerns
 
 
 __all__ = ["LocalExperienceAgent"]

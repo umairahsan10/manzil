@@ -23,12 +23,15 @@ if str(_ROOT) not in sys.path:
 
 from dotenv import load_dotenv
 
-load_dotenv(_ROOT / ".env")
+# Force-refresh .env on every page load so key changes are picked up
+# without restarting the Streamlit server.
+load_dotenv(_ROOT / ".env", override=True)
 
 import streamlit as st  # noqa: E402
 
 from manzil import __version__  # noqa: E402
 from manzil import llm  # noqa: E402
+from manzil.agents.base import is_full_llm_mode  # noqa: E402
 from manzil.tools import cache, weather_api  # noqa: E402
 
 st.set_page_config(page_title="Manzil", page_icon="🏔️", layout="wide")
@@ -36,7 +39,7 @@ st.set_page_config(page_title="Manzil", page_icon="🏔️", layout="wide")
 st.title("Manzil")
 st.caption(
     f"Multi-agent travel planner for northern Pakistan · v{__version__} · "
-    "Phase 1 — Thin Vertical Slice"
+    "Phase 3 — Full Agent Cast + Real Orchestrator"
 )
 st.write(
     "Pick **Plan** from the left sidebar to start a trip. This page shows "
@@ -47,14 +50,33 @@ st.write(
 # Environment row
 # ---------------------------------------------------------------------------
 
-env_cols = st.columns(4)
+env_cols = st.columns(5)
 env_cols[0].metric("USE_CACHE", "on" if cache.is_enabled() else "off")
 env_cols[1].metric("DEMO_MODE", "on" if cache.is_demo_mode() else "off")
 env_cols[2].metric(
-    "GEMINI_API_KEY",
-    "set" if os.environ.get("GEMINI_API_KEY") else "missing",
+    "AGENT_MODE",
+    "Full LLM" if is_full_llm_mode() else "Efficient",
 )
-env_cols[3].metric("CACHE_DIR", os.environ.get("MANZIL_CACHE_DIR", ".manzil_cache"))
+
+# Key rotation status
+keys = llm.get_key_states()
+if keys:
+    active = sum(1 for ks in keys if ks.available)
+    env_cols[3].metric("API_KEYS", f"{active}/{len(keys)} active")
+else:
+    env_cols[3].metric("API_KEYS", "not configured")
+
+env_cols[4].metric("CACHE_DIR", os.environ.get("MANZIL_CACHE_DIR", ".manzil_cache"))
+
+# Per-key quota bars
+if keys:
+    st.caption("API Key quotas (20 calls/day per key)")
+    key_cols = st.columns(min(len(keys), 5))
+    for i, ks in enumerate(keys):
+        with key_cols[i % len(key_cols)]:
+            used_today = ks.calls_today()
+            remaining = max(0, 20 - used_today)
+            st.progress(remaining / 20.0, text=f"Key {i+1}: {remaining}/20 today")
 
 # ---------------------------------------------------------------------------
 # Healthcheck row
@@ -81,15 +103,15 @@ with col_schemas:
 # --- Gemini ---
 with col_llm:
     st.markdown("**Gemini (Flash-Lite)**")
-    if not os.environ.get("GEMINI_API_KEY") and not cache.is_demo_mode():
+    if not keys and not cache.is_demo_mode():
         st.warning(
-            "No GEMINI_API_KEY found. Copy `.env.example` to `.env` and add a key, "
+            "No GEMINI_API_KEYS found. Copy `.env.example` to `.env` and add keys, "
             "or set MANZIL_DEMO_MODE=1 to run cache-only."
         )
     else:
         ok, msg = llm.healthcheck()
         if ok:
-            st.success(f"OK — round-trip reply: `{msg}`")
+            st.success(f"OK — {msg}")
         else:
             st.error(f"FAILED — {msg}")
 

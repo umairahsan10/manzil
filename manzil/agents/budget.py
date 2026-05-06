@@ -18,7 +18,7 @@ LLM argument:
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from manzil.agents.base import BaseAgent
 from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery
@@ -121,6 +121,46 @@ class BudgetAgent(BaseAgent):
             "Cite the data above. Do not invent costs. Reply with ONLY the JSON.",
         ]
         return "\n".join(lines)
+
+    def _templated_reasons(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        reasons = []
+        total = analysis.get("estimated_cost_pkr", 0)
+        budget = analysis.get("user_budget_pkr", 1)
+        delta = analysis.get("delta_pkr", 0)
+        pct_over = analysis.get("pct_over_budget", 0.0)
+        within = analysis.get("within_budget", False)
+        bd = analysis.get("breakdown", {})
+        transport = bd.get("transport", 0)
+        lodging = bd.get("lodging", 0)
+
+        if within:
+            reasons.append(f"Fits comfortably within budget at PKR {total:,} (under by PKR {-delta:,}).")
+        elif pct_over <= 5:
+            reasons.append(f"Slightly over budget by {pct_over:.0f}% — still very manageable.")
+        if transport < budget * 0.3:
+            reasons.append("Transport costs are reasonable for this route length.")
+        if lodging < budget * 0.4:
+            reasons.append("Lodging allocation leaves room for upgrades or extras.")
+
+        return reasons
+
+    def _templated_concerns(
+        self, analysis: Dict[str, Any], score: float, candidate: RouteCandidate, query: UserQuery
+    ) -> List[str]:
+        concerns = []
+        pct_over = analysis.get("pct_over_budget", 0.0)
+        delta = analysis.get("delta_pkr", 0)
+
+        if pct_over > 10:
+            concerns.append(f"Over budget by {pct_over:.0f}% — consider trimming activities or lodging tier.")
+        if pct_over > 25:
+            concerns.append("Significantly over budget — may need to drop a destination or downgrade accommodation.")
+        if delta > 20000:
+            concerns.append(f"Budget gap of PKR {delta:,} is substantial for this group size.")
+
+        return concerns
 
 
 __all__ = ["BudgetAgent"]

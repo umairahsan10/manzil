@@ -3,7 +3,7 @@ RAG wrapper — ChromaDB-based retrieval for the Local Experience Agent.
 
 Responsibilities:
     - Initialize a persistent ChromaDB client (file-backed)
-    - Embed queries using Gemini text-embedding-004
+    - Embed queries & documents using local ONNX all-MiniLM-L6-v2
     - Retrieve top-k chunks per destination
     - Return empty list gracefully when no matches exist
 
@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from manzil.tools import cache
+from manzil.tools import onnx_embedder
 
 log = logging.getLogger(__name__)
 
@@ -37,27 +38,14 @@ except ImportError:
     chromadb = None  # type: ignore
 
 # ---------------------------------------------------------------------------
-# Lazy Gemini embedding import
+# Local ONNX embedding (all-MiniLM-L6-v2, 384-dim)
 # ---------------------------------------------------------------------------
-
-_CLIENT_READY = False
-
-
-def _ensure_embedding_client():
-    global _CLIENT_READY
-    if _CLIENT_READY:
-        return
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not api_key:
-        raise RuntimeError(
-            "GEMINI_API_KEY is not set. Required for text-embedding-004."
-        )
-    _CLIENT_READY = True
 
 
 def _embed_texts(texts: List[str]) -> List[List[float]]:
-    """Call Gemini text-embedding-004. Caches by content hash."""
-    _ensure_embedding_client()
+    """Embed texts locally using ONNX all-MiniLM-L6-v2. Caches by content hash."""
+    if not texts:
+        return []
 
     # Check cache first
     results: List[Optional[List[float]]] = [None] * len(texts)
@@ -65,7 +53,7 @@ def _embed_texts(texts: List[str]) -> List[List[float]]:
     missing_texts = []
 
     for i, text in enumerate(texts):
-        key = cache.stable_key({"text": text, "model": "text-embedding-004"})
+        key = cache.stable_key({"text": text, "model": "onnx-all-minilm-l6-v2"})
         cached = cache.get("embedding", key)
         if cached is not None:
             results[i] = cached["vector"]
@@ -74,24 +62,14 @@ def _embed_texts(texts: List[str]) -> List[List[float]]:
             missing_texts.append(text)
 
     if missing_texts:
-        import google.generativeai as genai  # noqa: WPS433
-
-        # Batch embedding — Gemini supports up to 100 per request
-        batch_size = 100
-        for batch_start in range(0, len(missing_texts), batch_size):
-            batch = missing_texts[batch_start : batch_start + batch_size]
-            resp = genai.embed_content(
-                model="models/text-embedding-004",
-                content=batch,
+        vectors = onnx_embedder.embed_texts(missing_texts)
+        for offset, vec in enumerate(vectors):
+            idx = missing_indices[offset]
+            results[idx] = vec
+            key = cache.stable_key(
+                {"text": missing_texts[offset], "model": "onnx-all-minilm-l6-v2"}
             )
-            vectors = resp.get("embedding", [])
-            for offset, vec in enumerate(vectors):
-                idx = missing_indices[batch_start + offset]
-                results[idx] = vec
-                key = cache.stable_key(
-                    {"text": missing_texts[batch_start + offset], "model": "text-embedding-004"}
-                )
-                cache.set("embedding", key, {"vector": vec})
+            cache.set("embedding", key, {"vector": vec})
 
     return [r for r in results if r is not None]
 
