@@ -39,11 +39,12 @@ st.set_page_config(page_title="Manzil", page_icon="🏔️", layout="wide")
 st.title("Manzil")
 st.caption(
     f"Multi-agent travel planner for northern Pakistan · v{__version__} · "
-    "Phase 3 — Full Agent Cast + Real Orchestrator"
+    "Phase 4 — UI Polish + Memory Loop"
 )
 st.write(
-    "Pick **Plan** from the left sidebar to start a trip. This page shows "
-    "the system healthchecks — useful when something is misbehaving."
+    "Pick **Plan** from the left sidebar to start a trip, or **Feedback** to "
+    "rate a past recommendation. This page shows the system healthchecks — "
+    "useful when something is misbehaving."
 )
 
 # ---------------------------------------------------------------------------
@@ -126,6 +127,6 @@ with col_weather:
 
 st.divider()
 st.caption(
-    "Phase 1 status: form → 3 stub candidates → debate → winner page. "
-    "Phase 2 will replace the stub recommender with the real CBR pipeline."
+    "Phase 4 status: full UI polish (map, scorecard heatmap, debate trace, "
+    "dissent/why-not, side-by-side replanning) + memory loop (feedback → case base)."
 )

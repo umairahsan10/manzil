@@ -215,6 +215,9 @@ class DebateResult(BaseModel):
     blockers: Dict[str, List[str]] = Field(default_factory=dict)
     # blockers[candidate_id] = list of blocker reasons
 
+    arguments: List[AgentArgument] = Field(default_factory=list)
+    # raw agent arguments (enables the scorecard detail panel)
+
     dissenting_opinion: Optional[str] = None
     why_not: Dict[str, str] = Field(default_factory=dict)
     # why_not[runner_up_candidate_id] = one-line explanation

@@ -1,21 +1,16 @@
 """
 Plan page (Streamlit auto-discovered).
 
-The form builds a `UserQuery`. The recommender returns 3 diverse candidates.
+The form builds a UserQuery. The recommender returns 3 diverse candidates.
 The LangGraph debate runs through 5 real specialist agents in parallel
-(Weather, Road, Safety, Budget, Local Experience) and the Orchestrator
-picks a winner using hard-blocker elimination + weighted aggregation.
+and the Orchestrator picks a winner.
 
-Phase 3 surfaces:
-    - 3 candidate preview cards (label, destinations, cost, axis tags)
-    - Full day-by-day plan for the winner
-    - 5 x 3 agent scorecard table
-    - Hard blockers (if any candidate was vetoed)
-    - Orchestrator reasoning string
-    - Dissenting opinion + why-not summaries (via raw JSON expander)
-
-Phase 4 layers in: map view, scorecard heatmap, debate-trace animation,
-side-by-side replanning UI.
+Phase 4 layers in:
+    - Map view with candidate routes
+    - Scorecard heatmap (hero widget)
+    - Debate-trace animation
+    - Dissent + why-not blocks
+    - Side-by-side replanning UI
 """
 
 from __future__ import annotations
@@ -31,28 +26,228 @@ from dotenv import load_dotenv
 
 load_dotenv(_ROOT / ".env")
 
-import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
 from manzil.agents.base import is_full_llm_mode, set_full_llm_mode  # noqa: E402
 from manzil.graph.debate_graph import run_debate  # noqa: E402
 from manzil.recommender.pipeline import recommend  # noqa: E402
+from manzil.replan import replan  # noqa: E402
 from manzil.schemas import (  # noqa: E402
     DebateResult,
+    Disruption,
     GroupType,
     RouteCandidate,
     TravelMode,
     UserQuery,
 )
-
+from ui.components.map_view import render_map  # noqa: E402
+from ui.components.scorecard import render_scorecard  # noqa: E402
+from ui.components.day_by_day import render_day_by_day  # noqa: E402
+from ui.components.dissent import render_dissent  # noqa: E402
+from ui.components.why_not import render_why_not  # noqa: E402
 st.set_page_config(page_title="Manzil — Plan", page_icon="🏔️", layout="wide")
 
 st.title("Plan your trip")
 st.caption(
     "Fill the form. The recommender returns 3 diverse routes. A team of "
-    "specialist agents debates them and picks one — you'll see the scorecard "
-    "and the winning day-by-day plan."
+    "specialist agents debates them and picks one — you'll see the scorecard, "
+    "map, and the winning day-by-day plan."
 )
+
+# ---------------------------------------------------------------------------
+# Helpers (defined before use)
+# ---------------------------------------------------------------------------
+
+
+def _strip_relaxation_note(rationale: str) -> tuple[str | None, str]:
+    """Returns (note_or_none, stripped_rationale)."""
+    if not rationale.startswith("⚠"):
+        return None, rationale
+    parts = rationale.split("\n\n", 1)
+    note = parts[0].lstrip("⚠ ").strip()
+    rest = parts[1] if len(parts) == 2 else ""
+    return note, rest
+
+
+def _render_candidate_cards(candidates: list[RouteCandidate]):
+    if not candidates:
+        st.warning(
+            "No feasible routes for these constraints — even after relaxation. "
+            "Try a different month, a higher difficulty tolerance, or a bigger budget."
+        )
+        return
+
+    notes = []
+    for c in candidates:
+        note, _ = _strip_relaxation_note(c.rationale)
+        if note:
+            notes.append(note)
+    if notes:
+        st.info(notes[0])
+
+    st.subheader("Three candidate routes")
+    n_cols = max(1, min(3, len(candidates)))
+    cols = st.columns(n_cols)
+    for i, c in enumerate(candidates):
+        with cols[i % n_cols]:
+            st.markdown(f"#### {c.label}")
+            st.markdown("**Stops:** " + " → ".join(c.destinations))
+            st.metric("Estimated cost (PKR)", f"{c.estimated_cost:,}")
+            st.caption(f"{c.days} days · ₨{c.estimated_cost // max(1, c.days):,}/day")
+
+            chips = " · ".join(
+                f"`{k}`: **{v}**" for k, v in c.diversity_axes.items()
+            )
+            st.markdown(chips)
+
+            st.caption(
+                f"CBR fit {c.cbr_score:.2f} · style fit {c.content_score:.2f}"
+            )
+
+            _, body = _strip_relaxation_note(c.rationale)
+            if body:
+                st.write(body)
+
+
+def _render_winner(result: DebateResult | None, candidates: list[RouteCandidate]):
+    if result is None:
+        return
+
+    st.divider()
+
+    # --- Scorecard (render even when all blocked — shows why each failed) ---
+    if result.scorecard:
+        render_scorecard(
+            candidates=candidates,
+            arguments=result.arguments,
+            scorecard=result.scorecard,
+            blockers=result.blockers,
+        )
+
+    if result.all_blocked:
+        st.error("No safe candidate survived the debate.")
+        st.write(result.orchestrator_reasoning)
+        st.markdown("**Hard blockers:**")
+        for cid, reasons in result.blockers.items():
+            st.markdown(f"- `{cid}`")
+            for r in reasons:
+                st.markdown(f"  - {r}")
+        return
+
+    winner = result.winner
+    if not winner:
+        st.warning("No winner was selected.")
+        return
+
+    st.subheader(f"Winner — {winner.label}")
+    st.write(result.orchestrator_reasoning)
+
+    if result.blockers:
+        with st.expander("Hard blockers", expanded=False):
+            for cid, reasons in result.blockers.items():
+                st.markdown(f"**`{cid}`**")
+                for r in reasons:
+                    st.markdown(f"- {r}")
+
+    if result.full_plan and result.full_plan.days:
+        render_day_by_day(result.full_plan)
+
+    render_dissent(result.dissenting_opinion)
+
+    candidate_labels = {c.candidate_id: c.label for c in candidates}
+    render_why_not(result.why_not, candidate_labels)
+
+    with st.expander("Raw result (JSON)", expanded=False):
+        st.json(result.model_dump(mode="json"))
+
+
+def _render_replan_ui():
+    st.divider()
+    with st.expander("🔄 Replan with disruption…", expanded=False):
+        st.caption(
+            "Simulate a mid-trip disruption and see how the recommendation changes."
+        )
+
+        dis_kind = st.selectbox(
+            "Disruption type",
+            options=["road_closed", "budget_cut", "weather_event", "flight_cancelled"],
+            format_func=lambda k: {
+                "road_closed": "Road closed (pass blocked)",
+                "budget_cut": "Budget cut",
+                "weather_event": "Weather event",
+                "flight_cancelled": "Flight cancelled",
+            }.get(k, k),
+            key="replan_kind",
+        )
+
+        dis_params = {}
+        if dis_kind == "road_closed":
+            dis_params["pass_id"] = st.text_input("Pass ID", value="babusar", help="e.g. babusar, lowari", key="replan_pass")
+            dis_params["day_index"] = st.number_input("Day affected", min_value=1, max_value=21, value=3, key="replan_day")
+        elif dis_kind == "budget_cut":
+            dis_params["pct_cut"] = st.number_input("Budget cut (%)", min_value=5, max_value=90, value=20, key="replan_pct")
+        elif dis_kind == "weather_event":
+            dis_params["destination_id"] = st.text_input("Destination affected", value="naran", key="replan_dest")
+            dis_params["day_index"] = st.number_input("Day affected", min_value=1, max_value=21, value=3, key="replan_wday")
+        elif dis_kind == "flight_cancelled":
+            dis_params["destination_id"] = st.text_input("Flight destination", value="skardu", key="replan_fdest")
+
+        description = st.text_input("Description", value=f"{dis_kind} disruption", key="replan_desc")
+
+        if st.button("Replan", use_container_width=True, key="replan_btn"):
+            original_query = st.session_state.get("last_query")
+            if not original_query:
+                st.error("No original query found in session state.")
+            else:
+                disruption = Disruption(
+                    kind=dis_kind,
+                    description=description,
+                    **{k: v for k, v in dis_params.items() if v is not None},
+                )
+                with st.spinner("Replanning…"):
+                    new_result = replan(original_query, disruption)
+                st.session_state["replan_result"] = new_result
+                st.rerun()
+
+    replan_result = st.session_state.get("replan_result")
+    if replan_result:
+        st.markdown("---")
+        st.subheader("Side-by-side: Original vs. Replan")
+
+        col_orig, col_replan = st.columns(2)
+
+        original_result = st.session_state.get("last_result")
+        with col_orig:
+            st.markdown("**Original winner**")
+            if original_result and original_result.winner:
+                st.markdown(f"### {original_result.winner.label}")
+                st.caption(original_result.orchestrator_reasoning)
+                if original_result.full_plan:
+                    render_day_by_day(original_result.full_plan, title="Plan")
+            else:
+                st.caption("No original winner.")
+
+        with col_replan:
+            st.markdown("**Replan winner**")
+            if replan_result.all_blocked:
+                st.error("All candidates blocked after disruption.")
+                st.write(replan_result.orchestrator_reasoning)
+            elif replan_result.winner:
+                st.markdown(f"### {replan_result.winner.label}")
+                st.caption(replan_result.orchestrator_reasoning)
+                if replan_result.full_plan:
+                    render_day_by_day(replan_result.full_plan, title="Plan")
+            else:
+                st.caption("No winner.")
+
+        if original_result and original_result.winner and replan_result and replan_result.winner:
+            orig_id = original_result.winner.candidate_id
+            replan_id = replan_result.winner.candidate_id
+            if orig_id != replan_id:
+                st.success(f"Winner changed from **{orig_id}** to **{replan_id}**.")
+            else:
+                st.info("Winner stayed the same, but details may have shifted.")
+
 
 # ---------------------------------------------------------------------------
 # Mode toggle
@@ -164,147 +359,46 @@ if submitted:
         is_foreign_traveller=bool(is_foreign),
         elderly_in_group=bool(elderly),
     )
+    st.session_state["last_query"] = query
+    st.session_state.pop("last_candidates", None)
+    st.session_state.pop("last_result", None)
+    st.session_state.pop("replan_result", None)
+
     with st.spinner("Recommender → 3 candidate routes…"):
         candidates = recommend(query)
-    st.session_state["last_query"] = query
     st.session_state["last_candidates"] = candidates
 
-    with st.spinner("Agents are debating…"):
-        result = run_debate(query, candidates, use_full_llm=use_full_llm)
-    st.session_state["last_result"] = result
+    if candidates:
+        with st.spinner("Agents are debating…"):
+            result = run_debate(query, candidates, use_full_llm=use_full_llm)
+        st.session_state["last_result"] = result
+    else:
+        st.session_state["last_result"] = None
 
 
 # ---------------------------------------------------------------------------
 # Render persisted results
 # ---------------------------------------------------------------------------
 
+if "last_result" in st.session_state:
+    candidates = st.session_state.get("last_candidates", [])
+    result = st.session_state["last_result"]
 
-def _strip_relaxation_note(rationale: str) -> tuple[str | None, str]:
-    """Returns (note_or_none, stripped_rationale)."""
-    if not rationale.startswith("⚠"):
-        return None, rationale
-    parts = rationale.split("\n\n", 1)
-    note = parts[0].lstrip("⚠ ").strip()
-    rest = parts[1] if len(parts) == 2 else ""
-    return note, rest
+    if candidates:
+        _render_candidate_cards(candidates)
 
-
-def _render_candidate_cards(candidates: list[RouteCandidate]):
-    if not candidates:
-        st.warning(
-            "No feasible routes for these constraints — even after relaxation. "
-            "Try a different month, a higher difficulty tolerance, or a bigger budget."
+        st.markdown("---")
+        winner_id = result.winner.candidate_id if result and result.winner else None
+        render_map(
+            candidates,
+            winner_id=winner_id,
+            day_plan=result.full_plan if result else None,
         )
-        return
 
-    # Relaxation banner — shown once if any candidate has a relaxation note
-    notes = []
-    for c in candidates:
-        note, _ = _strip_relaxation_note(c.rationale)
-        if note:
-            notes.append(note)
-    if notes:
-        # All candidates share the same note in this run, so just show the first
-        st.info(notes[0])
+    _render_winner(result, candidates)
 
-    st.subheader("Three candidate routes")
-    n_cols = max(1, min(3, len(candidates)))
-    cols = st.columns(n_cols)
-    for i, c in enumerate(candidates):
-        with cols[i % n_cols]:
-            st.markdown(f"#### {c.label}")
-            st.markdown("**Stops:** " + " → ".join(c.destinations))
-            st.metric("Estimated cost (PKR)", f"{c.estimated_cost:,}")
-            st.caption(f"{c.days} days · ₨{c.estimated_cost // max(1, c.days):,}/day")
+    if result and not result.all_blocked:
+        _render_replan_ui()
 
-            # Diversity axes as small badge-y chips
-            chips = " · ".join(
-                f"`{k}`: **{v}**" for k, v in c.diversity_axes.items()
-            )
-            st.markdown(chips)
-
-            # CBR + content scores
-            st.caption(
-                f"CBR fit {c.cbr_score:.2f} · style fit {c.content_score:.2f}"
-            )
-
-            # Strip the relaxation prefix from the rationale we show inline
-            _, body = _strip_relaxation_note(c.rationale)
-            if body:
-                st.write(body)
-
-
-def _render_winner(result: DebateResult, candidates: list[RouteCandidate]):
-    st.divider()
-    if result.all_blocked:
-        st.error("No safe candidate survived the debate.")
-        st.write(result.orchestrator_reasoning)
-        st.markdown("**Hard blockers:**")
-        for cid, reasons in result.blockers.items():
-            st.markdown(f"- `{cid}`")
-            for r in reasons:
-                st.markdown(f"  - {r}")
-        return
-
-    winner = result.winner
-    st.subheader(f"Winner — {winner.label}")
-    st.write(result.orchestrator_reasoning)
-
-    # --- Scorecard table -----------------------------------------------------
-    st.markdown("##### Agent scorecard")
-    st.caption("Each agent's score (0–10) for each candidate. Phase 4 turns this into a heatmap.")
-
-    candidate_ids = [c.candidate_id for c in candidates]
-    candidate_labels = {c.candidate_id: c.label for c in candidates}
-
-    rows = []
-    for agent_name, by_cand in result.scorecard.items():
-        row = {"Agent": agent_name}
-        for cid in candidate_ids:
-            row[candidate_labels[cid]] = round(by_cand.get(cid, 0.0), 1)
-        rows.append(row)
-    if rows:
-        df = pd.DataFrame(rows).set_index("Agent")
-        st.dataframe(df, use_container_width=True)
-
-    # --- Blockers (if any) ---------------------------------------------------
-    if result.blockers:
-        with st.expander("Hard blockers", expanded=False):
-            for cid, reasons in result.blockers.items():
-                st.markdown(f"**`{cid}`**")
-                for r in reasons:
-                    st.markdown(f"- {r}")
-
-    # --- Day-by-day plan -----------------------------------------------------
-    if result.full_plan and result.full_plan.days:
-        st.markdown("##### Day-by-day plan")
-        for day in result.full_plan.days:
-            stop_names = ", ".join(s.name for s in day.stops) or "(rest day)"
-            with st.expander(f"Day {day.day_index} — {stop_names}", expanded=False):
-                if day.travel_mode:
-                    st.caption(f"Travel mode: {day.travel_mode.value}")
-                if day.estimated_cost:
-                    st.caption(f"Day budget: PKR {day.estimated_cost:,}")
-                if day.weather_note:
-                    st.markdown(f"- **Weather:** {day.weather_note}")
-                if day.road_note:
-                    st.markdown(f"- **Road:** {day.road_note}")
-                if day.safety_note:
-                    st.markdown(f"- **Safety:** {day.safety_note}")
-                for stop in day.stops:
-                    if stop.activities:
-                        st.markdown(
-                            f"- **{stop.name}:** "
-                            + ", ".join(stop.activities)
-                        )
-
-    # --- Raw debug -----------------------------------------------------------
-    with st.expander("Raw scorecard (JSON)", expanded=False):
-        st.json(result.model_dump(mode="json"))
-
-
-if "last_result" in st.session_state and "last_candidates" in st.session_state:
-    _render_candidate_cards(st.session_state["last_candidates"])
-    _render_winner(st.session_state["last_result"], st.session_state["last_candidates"])
 elif not submitted:
     st.info("Submit the form above to see the recommender output and the debate.")

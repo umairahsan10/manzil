@@ -32,6 +32,7 @@ from manzil.schemas import (
     TravelMode,
     UserQuery,
 )
+from manzil.tools.cost_calc import estimate_cost as _full_estimate_cost
 
 
 def recommend(query: UserQuery) -> List[RouteCandidate]:
@@ -116,93 +117,26 @@ def _try_recommend(
 # ---------------------------------------------------------------------------
 
 
-def _season_bucket(travel_month: int) -> str:
-    if travel_month in (6, 7, 8):
-        return "high"
-    if travel_month in (4, 5, 9, 10):
-        return "shoulder"
-    return "low"
-
-
-def _tier_for_budget(budget_pkr: int, group_size: int, days: int) -> str:
-    """A loose budget→tier mapping for the cost lookup table."""
-    if days < 1:
-        return "low"
-    per_person_per_day = budget_pkr / max(1, group_size) / max(1, days)
-    if per_person_per_day < 6_000:
-        return "low"
-    if per_person_per_day < 14_000:
-        return "mid"
-    return "high"
-
-
 def _estimate_cost(
     route: EnumeratedRoute,
     query: UserQuery,
     destinations: Dict[str, Destination],
 ) -> int:
+    """
+    Delegate to the same cost model the BudgetAgent uses so the
+    recommender's estimated_cost and the agent's breakdown are consistent.
+    """
     if not route.destinations:
         return 0
-    costs = load_costs()
-    season = _season_bucket(query.travel_month)
-    tier = _tier_for_budget(query.budget_pkr, query.group_size, query.days)
-
-    # Lodging — region-specific table when available, else destination's
-    # cost_per_day field.
-    lodging_per_night_per_person = 0
-    days_per_dest = max(1, query.days // len(route.destinations))
-    for dest_id in route.destinations:
-        dest = destinations.get(dest_id)
-        if dest is None:
-            continue
-        region_key = _region_key(dest.region)
-        region_table = costs.get("lodging_per_night", {}).get(region_key, {})
-        season_table = region_table.get(season, {})
-        if tier in season_table:
-            lodging_per_night_per_person += int(season_table[tier])
-        else:
-            lodging_per_night_per_person += int(dest.cost_per_day.get("mid", 7000))
-    avg_lodging = lodging_per_night_per_person / max(1, len(route.destinations))
-    lodging_total = int(avg_lodging * days_per_dest * len(route.destinations) * query.group_size)
-
-    # Food + activities (per-person-per-day)
-    food = costs.get("food_per_person_per_day", {}).get(tier, 1800)
-    acts = costs.get("activities_per_day", {}).get(tier, 1500)
-    food_acts = int((food + acts) * query.days * query.group_size)
-
-    # Transport — origin → first stop, plus per-segment intra-route
-    transport = _transport_cost(
-        query.origin_city, route.destinations[0], query.travel_mode_pref
+    temp = RouteCandidate(
+        candidate_id="temp",
+        label="",
+        destinations=route.destinations,
+        travel_modes=_modes_for(route, query),
+        estimated_cost=0,
+        days=query.days,
     )
-    transport *= query.group_size
-    # Add a flat 1500 PKR per intra-leg per person for fuel/local transport
-    transport += int(1500 * max(0, len(route.destinations) - 1) * query.group_size)
-
-    buffer_pct = float(costs.get("buffer_pct", 0.10))
-    subtotal = lodging_total + food_acts + transport
-    return subtotal + int(subtotal * buffer_pct)
-
-
-_REGION_MAP = {
-    "Gilgit-Baltistan": "gilgit-baltistan",
-    "Khyber Pakhtunkhwa": "khyber-pakhtunkhwa",
-    "Punjab": "punjab",
-    "Azad Kashmir": "khyber-pakhtunkhwa",  # closest match in our cost table
-}
-
-
-def _region_key(region: str) -> str:
-    return _REGION_MAP.get(region, "gilgit-baltistan")
-
-
-def _transport_cost(origin: str, dest: str, mode: TravelMode) -> int:
-    costs = load_costs()
-    table = (
-        costs.get("transport", {})
-        .get(origin.lower(), {})
-        .get(dest, {})
-    )
-    return int(table.get(mode.value, table.get("road", 10_000)))
+    return _full_estimate_cost(temp, query).total
 
 
 # ---------------------------------------------------------------------------
