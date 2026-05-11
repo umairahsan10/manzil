@@ -101,9 +101,9 @@ with col_schemas:
     except Exception as exc:  # noqa: BLE001 — UI surface
         st.error(f"FAILED — {type(exc).__name__}: {exc}")
 
-# --- Gemini ---
+# --- LLM ---
 with col_llm:
-    st.markdown("**Gemini (Flash-Lite)**")
+    st.markdown("**DeepSeek V4 Pro**")
     if not keys and not cache.is_demo_mode():
         st.warning(
             "No GEMINI_API_KEYS found. Copy `.env.example` to `.env` and add keys, "

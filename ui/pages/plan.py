@@ -29,7 +29,7 @@ load_dotenv(_ROOT / ".env")
 import streamlit as st  # noqa: E402
 
 from manzil.agents.base import is_full_llm_mode, set_full_llm_mode  # noqa: E402
-from manzil.graph.debate_graph import run_debate  # noqa: E402
+from manzil.graph.debate_graph import run_debate, run_debate_stream  # noqa: E402
 from manzil.recommender.pipeline import recommend  # noqa: E402
 from manzil.replan import replan  # noqa: E402
 from manzil.schemas import (  # noqa: E402
@@ -45,6 +45,7 @@ from ui.components.scorecard import render_scorecard  # noqa: E402
 from ui.components.day_by_day import render_day_by_day  # noqa: E402
 from ui.components.dissent import render_dissent  # noqa: E402
 from ui.components.why_not import render_why_not  # noqa: E402
+from ui.components.debate_live import render_debate_live  # noqa: E402
 st.set_page_config(page_title="Manzil — Plan", page_icon="🏔️", layout="wide")
 
 st.title("Plan your trip")
@@ -369,8 +370,12 @@ if submitted:
     st.session_state["last_candidates"] = candidates
 
     if candidates:
-        with st.spinner("Agents are debating…"):
-            result = run_debate(query, candidates, use_full_llm=use_full_llm)
+        if use_full_llm:
+            events = run_debate_stream(query, candidates, use_full_llm=True)
+            result = render_debate_live(events, candidates)
+        else:
+            with st.spinner("Agents are debating…"):
+                result = run_debate(query, candidates, use_full_llm=False)
         st.session_state["last_result"] = result
     else:
         st.session_state["last_result"] = None

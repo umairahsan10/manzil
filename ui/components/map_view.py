@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 import folium
+import streamlit as st
 from streamlit_folium import st_folium
 
 from manzil.data_loader import load_destinations

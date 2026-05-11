@@ -3,7 +3,7 @@ WeatherAgent — the first real agent in the system.
 
 Pulls a forecast for each destination on the candidate route via Open-Meteo
 (`manzil.tools.weather_api`), aggregates per-destination weather features
-into a deterministic score, then asks Gemini to phrase the agent's
+into a deterministic score, then asks the LLM to phrase the agent's
 position in 2–3 short reasons + 1–3 short concerns.
 
 Phase-1 caveat: Open-Meteo's free forecast horizon is 16 days. If the

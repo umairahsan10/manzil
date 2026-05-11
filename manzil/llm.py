@@ -1,9 +1,13 @@
 """
-Gemini client wrapper with multi-key rotation and per-key rate limiting.
+OpenAI-compatible LLM client wrapper with multi-key rotation and per-key
+rate limiting.
 
-Two model tiers are exposed:
-    Model.FLASH_LITE   — for the 5 specialist agents (1 call per agent per candidate)
-    Model.FLASH        — for the Orchestrator (1 deeper synthesis call per debate)
+Configured for DeepSeek V4 Pro via opencode.ai by default, but works with
+any OpenAI-compatible endpoint (set LLM_API_BASE_URL).
+
+Two model tiers are exposed (both map to the same underlying model):
+    Model.FLASH_LITE   — for the 5 specialist agents
+    Model.FLASH        — for the Orchestrator synthesis call
 
 All calls go through the cache. In demo mode, a miss raises `CacheMiss` so the
 demo cannot accidentally hit the network.
@@ -14,11 +18,11 @@ schema, retries once with a stricter prompt if parsing fails, then raises
 `confidence=0.0`.
 
 Key rotation:
-    - Set GEMINI_API_KEYS=key1,key2,key3 (comma-separated) in .env
-    - Falls back to legacy GEMINI_API_KEY if GEMINI_API_KEYS is empty
-    - Each key has its own 10/min and 20/day rate-limit window
+    - Set LLM_API_KEYS=key1,key2,key3 (comma-separated) in .env
+    - Falls back to legacy GEMINI_API_KEYS / GEMINI_API_KEY for smooth migration
+    - Each key has its own RPM and RPD rate-limit window
     - On 429 from key A, immediately retries key B
-    - On 403, marks key unavailable permanently
+    - On 403/401, marks key unavailable permanently
 """
 
 from __future__ import annotations
@@ -41,10 +45,25 @@ log = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
 
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+
+_DEFAULT_BASE_URL = "https://opencode.ai/zen/go/v1"
+_DEFAULT_MODEL = "deepseek-v4-pro"
+
+_LLM_BASE_URL = os.environ.get("LLM_API_BASE_URL", _DEFAULT_BASE_URL).rstrip("/")
+_LLM_MODEL = os.environ.get("LLM_MODEL", _DEFAULT_MODEL)
+
+_RPM_LIMIT = int(os.environ.get("MANZIL_LLM_RPM", os.environ.get("MANZIL_GEMINI_RPM", "100")))
+_RPD_LIMIT = int(os.environ.get("MANZIL_LLM_RPD", os.environ.get("MANZIL_GEMINI_RPD", "1000")))
+_MINUTE_WINDOW = 60.0
+_DAY_WINDOW = 86400.0
+
 
 class Model(str, Enum):
-    FLASH_LITE = "gemini-2.5-flash-lite"
-    FLASH = "gemini-2.5-flash"
+    FLASH_LITE = _LLM_MODEL
+    FLASH = _LLM_MODEL
 
 
 class LLMError(Exception):
@@ -58,11 +77,6 @@ class LLMParseError(LLMError):
 # ---------------------------------------------------------------------------
 # Per-key rate-limit state
 # ---------------------------------------------------------------------------
-
-_RPM_LIMIT = int(os.environ.get("MANZIL_GEMINI_RPM", "10"))
-_RPD_LIMIT = int(os.environ.get("MANZIL_GEMINI_RPD", "20"))
-_MINUTE_WINDOW = 60.0
-_DAY_WINDOW = 86400.0
 
 
 class _KeyState:
@@ -119,7 +133,11 @@ _KEYS_INITIALIZED = False
 
 
 def _parse_api_keys() -> List[str]:
-    """Parse GEMINI_API_KEYS (comma-separated) or fallback to GEMINI_API_KEY."""
+    """Parse LLM_API_KEYS or fall back to legacy GEMINI_API_KEYS / GEMINI_API_KEY."""
+    multi = os.environ.get("LLM_API_KEYS", "").strip()
+    if multi:
+        return [k.strip() for k in multi.split(",") if k.strip()]
+    # Legacy fallback for smooth migration
     multi = os.environ.get("GEMINI_API_KEYS", "").strip()
     if multi:
         return [k.strip() for k in multi.split(",") if k.strip()]
@@ -151,15 +169,15 @@ def get_key_states() -> List[_KeyState]:
 # Key rotation + retry
 # ---------------------------------------------------------------------------
 
+
 def _pick_available_key() -> _KeyState:
     """Round-robin across available keys. Raises if all exhausted."""
     global _LAST_KEY_INDEX
     _ensure_keys()
     with _KEYS_LOCK:
         if not _KEY_STATES:
-            raise LLMError("No API keys configured. Set GEMINI_API_KEYS or GEMINI_API_KEY.")
+            raise LLMError("No API keys configured. Set LLM_API_KEYS.")
 
-        # Try each key starting from last used
         for offset in range(len(_KEY_STATES)):
             idx = (_LAST_KEY_INDEX + 1 + offset) % len(_KEY_STATES)
             ks = _KEY_STATES[idx]
@@ -167,7 +185,6 @@ def _pick_available_key() -> _KeyState:
                 _LAST_KEY_INDEX = idx
                 return ks
 
-        # All keys exhausted — calculate earliest retry
         now = time.time()
         earliest_day_reset = min(
             (ks.day_calls[0] + _DAY_WINDOW if ks.day_calls else now)
@@ -185,29 +202,39 @@ def _pick_available_key() -> _KeyState:
 
 
 # ---------------------------------------------------------------------------
-# Lazy client init
+# OpenAI client init
 # ---------------------------------------------------------------------------
 
 _CONFIGURED_KEY: Optional[str] = None
 _CLIENT_LOCK = threading.Lock()
 
 
-def _configure_client(api_key: str) -> None:
-    """Configure the Gemini client with the given key."""
-    global _CONFIGURED_KEY
+def _get_client(api_key: str) -> Any:
+    """Build an OpenAI client for the given key."""
+    global _CONFIGURED_KEY, _client
     if _CONFIGURED_KEY == api_key:
-        return
+        return _client
     with _CLIENT_LOCK:
         if _CONFIGURED_KEY == api_key:
-            return
-        import google.generativeai as genai  # noqa: WPS433
+            return _client
+        from openai import OpenAI  # noqa: WPS433
 
-        genai.configure(api_key=api_key)
+        client = OpenAI(
+            base_url=_LLM_BASE_URL,
+            api_key=api_key,
+            timeout=60.0,
+        )
+        _client = client
         _CONFIGURED_KEY = api_key
+        return client
+
+
+# Module-level client cache
+_client: Any = None
 
 
 # ---------------------------------------------------------------------------
-# Cache key (includes mode to separate full vs efficient caches)
+# Cache key
 # ---------------------------------------------------------------------------
 
 
@@ -216,6 +243,7 @@ def _cache_key(
     prompt: str,
     temperature: float,
     system: Optional[str],
+    json_mode: bool = False,
 ) -> str:
     from manzil.agents.base import is_full_llm_mode
 
@@ -227,6 +255,7 @@ def _cache_key(
             "temperature": round(temperature, 3),
             "system": system or "",
             "mode": mode,
+            "json_mode": json_mode,
         }
     )
 
@@ -242,9 +271,10 @@ def complete(
     model: Model = Model.FLASH_LITE,
     temperature: float = 0.2,
     system: Optional[str] = None,
+    json_mode: bool = False,
 ) -> str:
-    """Return raw text from Gemini, cached by (model, prompt, temperature, system, mode)."""
-    key = _cache_key(model, prompt, temperature, system)
+    """Return raw text from the LLM, cached by (model, prompt, temperature, system, mode)."""
+    key = _cache_key(model, prompt, temperature, system, json_mode=json_mode)
 
     cached = cache.get("llm", key)
     if cached is not None:
@@ -253,46 +283,79 @@ def complete(
     if cache.is_demo_mode():
         raise cache.CacheMiss(f"demo mode: no cached LLM response for key {key}")
 
-    last_error = None
-    attempted_keys: List[int] = []
-
-    for attempt in range(max(1, len(_KEY_STATES) if _KEY_STATES else 1)):
-        ks = _pick_available_key()
-        attempted_keys.append(ks.index)
+    # Retry up to 3 times when rate-limited (waiting for window reset)
+    key_exhausted_retries = 3
+    for _ in range(key_exhausted_retries):
         try:
-            _configure_client(ks.key)
+            ks = _pick_available_key()
+        except LLMError as exc:
+            # All keys exhausted — extract wait time and retry
+            msg = str(exc)
+            retry_after = 1.0
+            # Parse "Retry after Xs." from the error message
+            import re as _re
+            m = _re.search(r"Retry after (\d+)s", msg)
+            if m:
+                retry_after = max(float(m.group(1)), 1.0)
+            log.warning("All keys exhausted, waiting %.0fs before retry…", retry_after)
+            time.sleep(retry_after + 0.5)
+            continue
 
-            import google.generativeai as genai  # noqa: WPS433
+        try:
+            client = _get_client(ks.key)
 
-            config: Dict[str, Any] = {"temperature": temperature}
-            gen_model = genai.GenerativeModel(
-                model_name=model.value,
-                system_instruction=system,
-                generation_config=config,
-            )
-            resp = gen_model.generate_content(prompt)
-            text = (resp.text or "").strip()
+            messages: List[Dict[str, str]] = []
+            if system:
+                messages.append({"role": "system", "content": system})
+            messages.append({"role": "user", "content": prompt})
+
+            api_kwargs: Dict[str, Any] = {
+                "model": model.value,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": 2048,
+            }
+            if json_mode:
+                api_kwargs["response_format"] = {"type": "json_object"}
+
+            try:
+                resp = client.chat.completions.create(**api_kwargs)
+            except Exception as inner_exc:
+                # Retry without response_format only for schema-rejection errors
+                if json_mode and api_kwargs.get("response_format"):
+                    inner_name = type(inner_exc).__name__
+                    inner_msg = str(inner_exc)
+                    if "response_format" in inner_msg or "BadRequestError" in inner_name:
+                        api_kwargs.pop("response_format", None)
+                        log.warning(
+                            "JSON mode not supported by endpoint, falling back to prompt-only"
+                        )
+                        resp = client.chat.completions.create(**api_kwargs)
+                    else:
+                        raise
+                else:
+                    raise
+
+            text = (resp.choices[0].message.content or "").strip()
 
             ks.record_call()
             cache.set("llm", key, {"text": text, "model": model.value})
             return text
         except Exception as exc:  # noqa: BLE001
             exc_name = type(exc).__name__
-            if "ResourceExhausted" in exc_name or "429" in str(exc):
-                ks.mark_unavailable(f"429 on attempt {attempt}")
-                last_error = exc
+            msg = str(exc)
+            if "429" in msg or "RateLimitError" in exc_name:
+                ks.mark_unavailable(f"429")
                 log.warning("Key %d hit 429, trying next…", ks.index)
                 continue
-            if "PermissionDenied" in exc_name or "403" in str(exc):
-                ks.mark_unavailable(f"403 blocked")
-                log.warning("Key %d blocked (403), marking unavailable", ks.index)
+            if "401" in msg or "403" in msg or "AuthenticationError" in exc_name or "PermissionDeniedError" in exc_name:
+                ks.mark_unavailable(f"{msg}")
+                log.warning("Key %d auth error (%s), marking unavailable", ks.index, msg)
                 continue
             # Real error — don't retry with other keys
             raise
 
-    raise LLMError(
-        f"All keys failed (attempted: {attempted_keys}). Last error: {last_error}"
-    )
+    raise LLMError(f"All API keys exhausted after {key_exhausted_retries} retries.")
 
 
 # ---------------------------------------------------------------------------
@@ -322,17 +385,20 @@ def complete_json(
     Ask the LLM for JSON matching `schema`. Parse it. Retry once with a
     stricter prompt if parsing fails. Raise `LLMParseError` if it fails twice.
     """
-    parsed, _ = _try_parse(prompt, schema, model=model, temperature=temperature, system=system)
+    parsed, _ = _try_parse(
+        prompt, schema, model=model, temperature=temperature, system=system, json_mode=True
+    )
     if parsed is not None:
         return parsed
 
-    # Retry with a stricter prompt
     stricter = (
         prompt
         + "\n\nIMPORTANT: Reply with ONLY a single JSON object matching the schema. "
         "No markdown, no commentary, no fences. Begin your response with { and end with }."
     )
-    parsed, raw = _try_parse(stricter, schema, model=model, temperature=temperature, system=system)
+    parsed, raw = _try_parse(
+        stricter, schema, model=model, temperature=temperature, system=system, json_mode=True
+    )
     if parsed is not None:
         return parsed
 
@@ -349,8 +415,9 @@ def _try_parse(
     model: Model,
     temperature: float,
     system: Optional[str],
+    json_mode: bool = False,
 ) -> tuple[Optional[T], str]:
-    raw = complete(prompt, model=model, temperature=temperature, system=system)
+    raw = complete(prompt, model=model, temperature=temperature, system=system, json_mode=json_mode)
     body = _extract_json(raw)
     try:
         data = json.loads(body)
@@ -380,7 +447,7 @@ def healthcheck() -> tuple[bool, str]:
 
     _ensure_keys()
     active = sum(1 for ks in _KEY_STATES if ks.available)
-    return True, f"{active}/{len(keys)} keys active"
+    return True, f"{active}/{len(keys)} keys active · {_LLM_MODEL} @ {_LLM_BASE_URL}"
 
 
 __all__ = [

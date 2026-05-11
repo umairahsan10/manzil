@@ -34,8 +34,8 @@ from manzil.schemas import (
     UserQuery,
 )
 
-# Flash-Lite RPM limit (free tier)
-_FLASH_LITE_RPM = 15
+# RPM limit per key (default 100, matches opencode.ai's limit)
+_LLM_RPM = int(__import__("os").environ.get("MANZIL_LLM_RPM", __import__("os").environ.get("MANZIL_GEMINI_RPM", "100")))
 
 
 class DebateState(TypedDict):
@@ -55,12 +55,12 @@ _rpm_timestamps: List[float] = []
 
 
 def _rpm_ok(n_calls: int = 5) -> bool:
-    """Check if we can make n_calls without exceeding 15 RPM."""
+    """Check if we can make n_calls without exceeding the RPM limit."""
     now = time.time()
     # Clean old timestamps (> 60 seconds)
     global _rpm_timestamps
     _rpm_timestamps = [t for t in _rpm_timestamps if now - t < 60.0]
-    return len(_rpm_timestamps) + n_calls <= _FLASH_LITE_RPM
+    return len(_rpm_timestamps) + n_calls <= _LLM_RPM
 
 
 def _record_calls(n_calls: int = 5) -> None:
@@ -163,13 +163,18 @@ def run_debate(
     """
     set_full_llm_mode(use_full_llm)
 
+    # Estimate how many LLM calls this debate will make:
+    # Full mode: 5 agents × 3 candidates + orchestrator = 16
+    # Efficient mode: 1 orchestrator call
+    n_estimated_calls = 16 if use_full_llm else 1
+
     # Decide parallel vs sequential based on RPM at invocation time
-    if _rpm_ok(n_calls=5):
+    if _rpm_ok(n_calls=n_estimated_calls):
         graph = _build_graph_parallel()
-        _record_calls(n_calls=5)
+        _record_calls(n_calls=n_estimated_calls)
     else:
         graph = _build_graph_sequential()
-        _record_calls(n_calls=5)
+        _record_calls(n_calls=n_estimated_calls)
 
     initial: DebateState = {
         "query": query,
@@ -181,4 +186,56 @@ def run_debate(
     return final["result"]
 
 
-__all__ = ["DebateState", "run_debate"]
+# ---------------------------------------------------------------------------
+# Streaming variant — yields events for real-time UI
+# ---------------------------------------------------------------------------
+
+_AGENT_NAMES = frozenset({"weather", "road", "safety", "budget", "local"})
+
+
+def run_debate_stream(
+    query: UserQuery,
+    candidates: List[RouteCandidate],
+    use_full_llm: bool = False,
+):
+    """
+    Generator that yields live events as the debate progresses.
+
+    Event types:
+        {"type": "agent_done", "agent": str, "arguments": List[AgentArgument]}
+        {"type": "orchestrator_done", "result": DebateResult}
+    """
+    set_full_llm_mode(use_full_llm)
+
+    n_estimated_calls = 16 if use_full_llm else 1
+
+    if _rpm_ok(n_calls=n_estimated_calls):
+        graph = _build_graph_parallel()
+        _record_calls(n_calls=n_estimated_calls)
+    else:
+        graph = _build_graph_sequential()
+        _record_calls(n_calls=n_estimated_calls)
+
+    initial: DebateState = {
+        "query": query,
+        "candidates": candidates,
+        "arguments": [],
+        "result": None,
+    }
+
+    for chunk in graph.stream(initial, stream_mode="updates"):
+        for node_name, node_output in chunk.items():
+            if node_name in _AGENT_NAMES:
+                yield {
+                    "type": "agent_done",
+                    "agent": node_name,
+                    "arguments": node_output.get("arguments", []),
+                }
+            elif node_name == "orchestrator":
+                yield {
+                    "type": "orchestrator_done",
+                    "result": node_output.get("result"),
+                }
+
+
+__all__ = ["DebateState", "run_debate", "run_debate_stream"]

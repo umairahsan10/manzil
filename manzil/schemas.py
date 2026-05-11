@@ -284,7 +284,7 @@ class CostBreakdown(BaseModel):
 
 
 class LLMArgumentPayload(BaseModel):
-    """What `BaseAgent._llm_argue` parses out of a Gemini response."""
+    """What `BaseAgent._llm_argue` parses out of an LLM response."""
 
     model_config = ConfigDict(extra="forbid")
 

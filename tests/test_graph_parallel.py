@@ -167,3 +167,48 @@ def test_graph_returns_debate_result():
     assert result.winner is not None
     assert result.scorecard is not None
     assert len(result.scorecard) > 0
+
+
+def test_run_debate_stream_yields_events():
+    """run_debate_stream yields 5 agent_done events + 1 orchestrator_done."""
+    query = UserQuery(
+        group_size=2,
+        group_composition=GroupType.COUPLE,
+        budget_pkr=300_000,
+        days=3,
+        travel_month=7,
+        travel_mode_pref=TravelMode.ROAD,
+        origin_city="islamabad",
+        style_tags=["cultural"],
+        difficulty_tolerance=2,
+    )
+    candidates = [
+        RouteCandidate(
+            candidate_id="cand-A",
+            label="Test route to Murree",
+            destinations=["murree"],
+            travel_modes=[TravelMode.ROAD],
+            estimated_cost=80_000,
+            days=3,
+        ),
+    ]
+
+    from manzil.graph.debate_graph import run_debate_stream
+
+    agent_count = 0
+    orch_done = False
+    result = None
+
+    for event in run_debate_stream(query, candidates, use_full_llm=False):
+        if event["type"] == "agent_done":
+            agent_count += 1
+            assert "agent" in event
+            assert "arguments" in event
+        elif event["type"] == "orchestrator_done":
+            orch_done = True
+            result = event["result"]
+
+    assert agent_count == 5, f"Expected 5 agent events, got {agent_count}"
+    assert orch_done, "Missing orchestrator_done event"
+    assert result is not None
+    assert result.winner is not None

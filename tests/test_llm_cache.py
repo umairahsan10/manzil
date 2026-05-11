@@ -1,11 +1,11 @@
 """
-Tests for the LLM cache layer and the Gemini wrapper's cache integration.
+Tests for the LLM cache layer and the OpenAI-compatible wrapper's cache integration.
 
-We never actually hit Gemini in these tests — we assert that:
+We never actually hit the live API in these tests — we assert that:
   - the cache's set/get/clear round-trip
   - stable_key is deterministic and order-insensitive
   - demo mode raises CacheMiss on miss but serves hits
-  - llm.complete() reads through the cache and never imports google.generativeai
+  - llm.complete() reads through the cache and never builds an OpenAI client
     when the cache is warm
 """
 
@@ -94,15 +94,15 @@ def test_demo_mode_hit_serves(monkeypatch):
 
 def test_llm_complete_returns_cached_without_touching_api(monkeypatch):
     """
-    With a pre-warmed cache, llm.complete must NOT try to import
-    google.generativeai or call _ensure_client. We sentinel both.
+    With a pre-warmed cache, llm.complete must NOT try to build an
+    OpenAI client. We sentinel _get_client.
     """
-    importlib.reload(llm)  # reset module-level _CLIENT_READY
+    importlib.reload(llm)  # reset module-level state
 
     def _explode(*args, **kwargs):
-        raise AssertionError("_configure_client was called despite a cache hit")
+        raise AssertionError("_get_client was called despite a cache hit")
 
-    monkeypatch.setattr(llm, "_configure_client", _explode)
+    monkeypatch.setattr(llm, "_get_client", _explode)
 
     key = llm._cache_key(llm.Model.FLASH_LITE, "ping", 0.0, None)
     cache.set("llm", key, {"text": "pong", "model": llm.Model.FLASH_LITE.value})
@@ -116,9 +116,9 @@ def test_llm_complete_demo_mode_miss_raises(monkeypatch):
     importlib.reload(llm)
 
     def _explode(*args, **kwargs):
-        raise AssertionError("_configure_client must not be called in demo mode")
+        raise AssertionError("_get_client must not be called in demo mode")
 
-    monkeypatch.setattr(llm, "_configure_client", _explode)
+    monkeypatch.setattr(llm, "_get_client", _explode)
 
     with pytest.raises(cache.CacheMiss):
         llm.complete("never-cached-prompt", temperature=0.0)
