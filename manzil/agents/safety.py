@@ -29,7 +29,6 @@ from manzil.agents.base import BaseAgent
 from manzil.data_loader import load_safety_knowledge
 from manzil.schemas import (
     GroupType,
-    LLMArgumentPayload,
     RouteCandidate,
     UserQuery,
 )
@@ -134,6 +133,7 @@ class SafetyAgent(BaseAgent):
         max_alt = analysis.get("max_altitude_m", 0)
         avg_hospital_dist = analysis.get("avg_hospital_distance_km", 0)
         has_noc = analysis.get("has_noc_zone", False)
+        is_solo = query.group_composition.value == "solo"
 
         # Altitude headroom: ratio of max_alt to threshold
         if max_alt <= 0:
@@ -151,7 +151,15 @@ class SafetyAgent(BaseAgent):
         # NOC penalty
         noc_penalty = 1.5 if has_noc else 0.0
 
-        score = alt_score - hospital_penalty - noc_penalty
+        # Solo-travel penalty: solo travellers face higher risk on remote or high-altitude routes
+        solo_penalty = 0.0
+        if is_solo:
+            if max_alt > 2200:
+                solo_penalty += 1.0
+            if avg_hospital_dist > 30:
+                solo_penalty += 1.0
+
+        score = alt_score - hospital_penalty - noc_penalty - solo_penalty
         return score
 
     def _confidence(
@@ -217,6 +225,7 @@ class SafetyAgent(BaseAgent):
         avg_hospital = analysis.get("avg_hospital_distance_km", 0)
         has_noc = analysis.get("has_noc_zone", False)
         has_acclim = analysis.get("has_acclimatization_day", False)
+        is_solo = query.group_composition.value == "solo"
 
         if max_alt < threshold:
             headroom = threshold - max_alt
@@ -227,6 +236,8 @@ class SafetyAgent(BaseAgent):
             reasons.append(f"Medical facilities are nearby (avg {avg_hospital:.0f} km to nearest hospital).")
         if not has_noc:
             reasons.append("No NOC permit required — simpler logistics for this route.")
+        if is_solo and max_alt <= 2500 and avg_hospital < 20:
+            reasons.append("Well-connected route suitable for solo travel — medical access and moderate altitude.")
 
         return reasons
 
@@ -239,6 +250,7 @@ class SafetyAgent(BaseAgent):
         avg_hospital = analysis.get("avg_hospital_distance_km", 0)
         has_noc = analysis.get("has_noc_zone", False)
         has_acclim = analysis.get("has_acclimatization_day", False)
+        is_solo = query.group_composition.value == "solo"
 
         if max_alt > threshold * 0.8:
             concerns.append(f"Maximum altitude ({max_alt}m) approaches the safety threshold ({threshold}m).")
@@ -248,6 +260,10 @@ class SafetyAgent(BaseAgent):
             concerns.append("NOC permit required — foreign travellers need advance paperwork.")
         if not has_acclim and max_alt > 3000:
             concerns.append("No acclimatization day included — watch for altitude sickness symptoms.")
+        if is_solo and max_alt > 2200:
+            concerns.append("Solo traveller on a route with notable altitude — ensure emergency contacts and travel insurance.")
+        if is_solo and avg_hospital > 30:
+            concerns.append("Remote route with limited medical access — solo travellers should carry a first-aid kit.")
 
         return concerns
 

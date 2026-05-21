@@ -18,15 +18,48 @@ LLM argument:
     - If retrieval is empty, surfaces the gap honestly:
       "We don't have curated local content for X yet."
     - NEVER hallucinates places not in retrieved chunks.
+
+Phase 5 addition: debug cache at .manzil_cache/local_retrievals.json
+    logs every retrieval call for the RAG curation pass.
 """
 
 from __future__ import annotations
 
+import json
+import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from manzil.agents.base import BaseAgent
-from manzil.schemas import LLMArgumentPayload, RouteCandidate, UserQuery
+from manzil.schemas import RouteCandidate, UserQuery
 from manzil.tools import rag
+
+_DEBUG_CACHE_PATH = Path(os.environ.get("MANZIL_CACHE_DIR", ".manzil_cache")) / "local_retrievals.json"
+
+
+def _log_retrieval(dest_id: str, query_text: str, chunks: list, score: float) -> None:
+    try:
+        _DEBUG_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        data = {}
+        if _DEBUG_CACHE_PATH.exists():
+            try:
+                data = json.loads(_DEBUG_CACHE_PATH.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                data = {}
+        entry = {
+            "destination_id": dest_id,
+            "query_text": query_text,
+            "n_chunks": len(chunks),
+            "avg_distance": round(sum(c["distance"] for c in chunks) / max(1, len(chunks)), 4) if chunks else None,
+            "score": round(score, 3),
+        }
+        key = f"{dest_id}::{query_text[:50]}"
+        data[key] = entry
+        _DEBUG_CACHE_PATH.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+    except (OSError, json.JSONEncodeError):
+        pass
 
 
 class LocalExperienceAgent(BaseAgent):
@@ -58,6 +91,7 @@ class LocalExperienceAgent(BaseAgent):
                         "style_alignment": 0.0,
                     }
                 )
+                _log_retrieval(dest_id, query_text, [], 0.0)
                 continue
 
             # Compute avg relevance (lower distance = higher relevance)
@@ -68,6 +102,8 @@ class LocalExperienceAgent(BaseAgent):
             chunk_text = " ".join(c["text"].lower() for c in chunks)
             matched_styles = [s for s in user_styles if s in chunk_text]
             alignment = len(matched_styles) / max(1, len(user_styles)) if user_styles else 0.5
+
+            _log_retrieval(dest_id, query_text, chunks, relevance)
 
             per_dest.append(
                 {

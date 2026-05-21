@@ -1,0 +1,22 @@
+1. friends PKR50,000 5d m1 d1 -> 3c relaxed=False
+2. solo PKR30,000 3d m1 d1 -> 3c relaxed=False
+3. friends PKR120,000 7d m12 d1 -> 3c relaxed=False
+4. friends PKR120,000 7d m11 d1 -> 3c relaxed=False
+5. friends PKR40,000 4d m2 d1 -> 3c relaxed=False
+6. friends PKR60,000 3d m7 d1 hc=['wheelchair'] -> 2c relaxed=False
+7. friends PKR120,000 7d m1 d1 hc=['wheelchair'] -> 2c relaxed=False
+8. friends PKR80,000 7d m7 d1 hc=['noc-sensitive'] foreign=True -> 3c relaxed=False
+9. friends PKR50,000 4d m7 d1 elderly=True -> 3c relaxed=False
+10. friends PKR100,000 7d m7 d2 hc=['wheelchair'] elderly=True -> 2c relaxed=False
+11. couple PKR25,000 3d m7 d1 -> 3c relaxed=False
+12. solo PKR35,000 10d m7 d5 -> 3c relaxed=False
+13. friends PKR20,000 2d m7 d1 -> 3c relaxed=False
+14. family PKR150,000 7d m1 d1 -> 3c relaxed=False
+15. family PKR60,000 3d m12 d1 -> 3c relaxed=False
+16. friends PKR30,000 3d m1 d1 -> 3c relaxed=False
+17. friends PKR120,000 7d m1 d1 hc=['wheelchair'] -> 2c relaxed=False
+18. friends PKR100,000 3d m7 d1 foreign=True elderly=True -> 3c relaxed=False
+19. family PKR80,000 7d m7 d1 hc=['wheelchair'] -> 2c relaxed=False
+20. solo PKR35,000 4d m1 d1 -> 3c relaxed=False
+
+Relaxation fired: 0/20

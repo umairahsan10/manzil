@@ -48,6 +48,15 @@ def load_safety_knowledge() -> Dict[str, Any]:
         return json.load(f)
 
 
+def load_personas() -> Dict[str, Any]:
+    """Returns the personas dict. Cached for the process lifetime."""
+    path = _DATA_DIR / "personas.json"
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def load_case_base() -> List[CaseBaseEntry]:
     """
     Not @lru_cache'd because Phase 4's feedback loop appends to this file
@@ -67,5 +76,6 @@ __all__ = [
     "load_costs",
     "load_road_knowledge",
     "load_safety_knowledge",
+    "load_personas",
     "load_case_base",
 ]

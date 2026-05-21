@@ -31,7 +31,6 @@ from manzil.schemas import (
     DayStop,
     DebateResult,
     RouteCandidate,
-    TravelMode,
 )
 
 # Editorial weights — fixed in the project version (Readme §5).

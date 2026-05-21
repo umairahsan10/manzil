@@ -16,11 +16,7 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from manzil.data_loader import (
-    load_case_base,
-    load_costs,
-    load_destinations,
-)
+from manzil.data_loader import load_case_base, load_destinations
 from manzil.recommender import cbr, content, diversity, relaxation
 from manzil.recommender.enumerate import EnumeratedRoute, enumerate_routes
 from manzil.recommender.filter import filter_destinations

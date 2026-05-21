@@ -1,0 +1,62 @@
+=== Per-persona diversity ===
+
+hardcore-mountaineer:
+  scope: unique=2, total=27, ratio=0.074
+  mode_mix: unique=2, total=27, ratio=0.074
+  pace: unique=3, total=27, ratio=0.111
+  risk: unique=3, total=27, ratio=0.111
+  budget_posture: unique=1, total=27, ratio=0.037
+
+family-with-kids:
+  scope: unique=2, total=27, ratio=0.074
+  mode_mix: unique=2, total=27, ratio=0.074
+  pace: unique=3, total=27, ratio=0.111
+  risk: unique=1, total=27, ratio=0.037
+  budget_posture: unique=3, total=27, ratio=0.111
+
+photographer:
+  scope: unique=2, total=27, ratio=0.074
+  mode_mix: unique=3, total=27, ratio=0.111
+  pace: unique=3, total=27, ratio=0.111
+  risk: unique=3, total=27, ratio=0.111
+  budget_posture: unique=1, total=27, ratio=0.037
+
+solo-backpacker:
+  scope: unique=2, total=27, ratio=0.074
+  mode_mix: unique=2, total=27, ratio=0.074
+  pace: unique=3, total=27, ratio=0.111
+  risk: unique=1, total=27, ratio=0.037
+  budget_posture: unique=1, total=27, ratio=0.037
+
+couple-honeymoon:
+  scope: unique=2, total=27, ratio=0.074
+  mode_mix: unique=3, total=27, ratio=0.111
+  pace: unique=3, total=27, ratio=0.111
+  risk: unique=2, total=27, ratio=0.074
+  budget_posture: unique=3, total=27, ratio=0.111
+
+cultural-explorer:
+  scope: unique=2, total=27, ratio=0.074
+  mode_mix: unique=3, total=27, ratio=0.111
+  pace: unique=3, total=27, ratio=0.111
+  risk: unique=2, total=27, ratio=0.074
+  budget_posture: unique=1, total=27, ratio=0.037
+
+=== Popularity bias ===
+Gini coefficient: 0.4231
+Total recommendations: 340
+Destination counts:
+  hunza-karimabad: 83
+  skardu: 50
+  khaplu: 33
+  chitral: 27
+  shogran: 27
+  naran: 25
+  passu: 22
+  gilgit: 20
+  fairy-meadows: 16
+  attabad: 14
+  murree: 13
+  deosai: 5
+  swat-kalam: 3
+  neelum: 2
