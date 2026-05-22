@@ -6,12 +6,17 @@ aggregate activity profile, blended with a difficulty-match score.
 
 Output is in [0.0, 1.0]:
     content_score = 0.7 * tag_cosine + 0.3 * difficulty_match
+
+The user vector is soft: picked tags score 1.0, unpicked tags score their
+highest semantic similarity to any picked tag (e.g. "trekking" gets 0.8
+credit when user picks "adventure"). This prevents penalising routes that
+contain closely related but non-identical tags.
 """
 
 from __future__ import annotations
 
 import math
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from manzil.schemas import Destination, UserQuery
 
@@ -35,10 +40,79 @@ _TAG_UNIVERSE = sorted(
     }
 )
 
+# Pairwise semantic similarity between tags. Stored as (smaller, larger) tuples
+# so lookup is order-independent. Pairs absent from this dict have similarity 0.
+_TAG_SIMILARITY: Dict[Tuple[str, str], float] = {
+    # Outdoor / active cluster
+    ("adventure", "trekking"):    0.8,
+    ("adventure", "mountain"):    0.6,
+    ("adventure", "wildlife"):    0.4,
+    ("adventure", "photography"): 0.3,
+    ("adventure", "lake"):        0.2,
+    ("adventure", "family"):      0.1,
+    ("mountain",  "trekking"):    0.7,
+    ("mountain",  "photography"): 0.5,
+    ("mountain",  "lake"):        0.4,
+    ("mountain",  "wildlife"):    0.3,
+    ("mountain",  "family"):      0.2,
+    ("trekking",  "wildlife"):    0.3,
+    ("trekking",  "photography"): 0.3,
+    ("trekking",  "lake"):        0.2,
+    # Nature / scenic cluster
+    ("photography", "wildlife"):  0.5,
+    ("photography", "lake"):      0.4,
+    ("photography", "relaxation"):0.2,
+    ("lake",       "wildlife"):   0.3,
+    ("lake",       "relaxation"): 0.5,
+    ("lake",       "family"):     0.3,
+    ("wildlife",   "relaxation"): 0.2,
+    # Culture / history cluster
+    ("cultural",   "history"):    0.7,
+    ("cultural",   "shopping"):   0.4,
+    ("cultural",   "photography"):0.3,
+    ("cultural",   "family"):     0.3,
+    ("cultural",   "relaxation"): 0.2,
+    ("history",    "photography"):0.3,
+    ("history",    "shopping"):   0.2,
+    ("history",    "relaxation"): 0.1,
+    ("history",    "family"):     0.2,
+    # Leisure / social cluster
+    ("family",     "relaxation"): 0.5,
+    ("family",     "shopping"):   0.3,
+    ("family",     "wildlife"):   0.3,
+    ("family",     "photography"):0.2,
+    ("relaxation", "shopping"):   0.2,
+    # Transit is mostly logistical — low cross-similarity
+    ("shopping",   "transit"):    0.1,
+}
 
-def _vec(tags: List[str]) -> List[float]:
-    bag = {t.lower() for t in tags}
-    return [1.0 if t in bag else 0.0 for t in _TAG_UNIVERSE]
+
+def _tag_sim(a: str, b: str) -> float:
+    """Symmetric pairwise tag similarity. Returns 0 for unknown pairs."""
+    key: Tuple[str, str] = (min(a, b), max(a, b))
+    return _TAG_SIMILARITY.get(key, 0.0)
+
+
+def _soft_user_vec(style_tags: List[str]) -> List[float]:
+    """
+    Soft user preference vector.
+
+    Picked tags   → 1.0
+    Unpicked tags → highest similarity score to any picked tag (or 0.0)
+
+    Example: user picks ["adventure"]. "trekking" gets 0.8, "mountain" gets
+    0.6, "shopping" gets 0.0. This lets the cosine reward routes whose tags
+    are semantically close to what the user asked for.
+    """
+    picked = {t.lower() for t in style_tags}
+    vec: List[float] = []
+    for t in _TAG_UNIVERSE:
+        if t in picked:
+            vec.append(1.0)
+        else:
+            credit = max((_tag_sim(t, p) for p in picked), default=0.0)
+            vec.append(credit)
+    return vec
 
 
 def _route_tag_vec(route: List[str], destinations: Dict[str, Destination]) -> List[float]:
@@ -88,7 +162,7 @@ def score_route(
     if not route:
         return 0.0
 
-    user_vec = _vec(query.style_tags)
+    user_vec = _soft_user_vec(query.style_tags)
     route_vec = _route_tag_vec(route, destinations)
     tag_cos = _cosine(user_vec, route_vec)
     diff_match = _difficulty_match(route, destinations, query.difficulty_tolerance)
