@@ -17,9 +17,9 @@ Output is in [0.0, 1.0]:
 
 from __future__ import annotations
 
-from typing import List
+from typing import List, Tuple
 
-from manzil.schemas import CaseBaseEntry, UserQuery
+from manzil.schemas import CBRTopKCase, CBRTrace, CaseBaseEntry, UserQuery
 
 # ---------------------------------------------------------------------------
 # Per-attribute similarity components (each returns [0, 1])
@@ -113,11 +113,15 @@ def score_route(
     case_base: List[CaseBaseEntry],
     *,
     k: int = 10,
-) -> float:
+    return_trace: bool = False,
+) -> float | Tuple[float, CBRTrace]:
     """
     Returns a CBR score in [0.0, 1.0] for the route under this query.
+    If return_trace=True, returns (score, CBRTrace).
     """
     if not case_base or not route:
+        if return_trace:
+            return 0.0, CBRTrace(k=k)
         return 0.0
 
     # 1. k most similar cases by query alone
@@ -128,23 +132,44 @@ def score_route(
     # 2. For each, weight by query-similarity * route-overlap
     weights: List[float] = []
     ratings: List[float] = []
+    trace_cases: List[CBRTopKCase] = []
     for case, q_sim in top_k:
         r_sim = route_overlap(route, case.chosen_route)
+        w = q_sim * r_sim
+        trace_cases.append(
+            CBRTopKCase(
+                case_id=case.case_id,
+                query_similarity=round(q_sim, 3),
+                route_overlap=round(r_sim, 3),
+                rating=case.rating,
+                weight=round(w, 3),
+            )
+        )
         if r_sim <= 0:
             continue
-        w = q_sim * r_sim
         if w <= 0:
             continue
         weights.append(w)
         ratings.append(case.rating)
 
     if not weights:
+        if return_trace:
+            return 0.0, CBRTrace(k=k, top_cases=trace_cases)
         return 0.0
 
     total_w = sum(weights)
     weighted_avg = sum(r * w for r, w in zip(ratings, weights)) / total_w
-    # Map ratings (1.0-5.0) to [0.0-1.0]
-    return max(0.0, min(1.0, (weighted_avg - 1.0) / 4.0))
+    normalized = max(0.0, min(1.0, (weighted_avg - 1.0) / 4.0))
+
+    if return_trace:
+        trace = CBRTrace(
+            k=k,
+            top_cases=trace_cases,
+            weighted_avg_rating=round(weighted_avg, 3),
+            normalized_score=round(normalized, 3),
+        )
+        return normalized, trace
+    return normalized
 
 
 __all__ = ["query_similarity", "route_overlap", "score_route"]

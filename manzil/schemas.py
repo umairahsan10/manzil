@@ -137,6 +137,7 @@ class RouteCandidate(BaseModel):
     cbr_score: float = Field(ge=0.0, le=1.0, default=0.0)
     content_score: float = Field(ge=0.0, le=1.0, default=0.0)
     rationale: str = ""
+    rs_trace: Optional[CandidateTrace] = None
 
     @field_validator("travel_modes")
     @classmethod
@@ -224,6 +225,206 @@ class DebateResult(BaseModel):
 
     orchestrator_reasoning: str = ""
     all_blocked: bool = False  # True when every candidate had a hard blocker
+    debate_trace: Optional[DebateTrace] = None
+
+
+# ---------------------------------------------------------------------------
+# Recommender trace — exposes the internal math for transparency
+# ---------------------------------------------------------------------------
+
+
+class FilterTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    total_destinations: int = 0
+    feasible_count: int = 0
+    dropped_count: int = 0
+    dropped_summary: Dict[str, int] = Field(default_factory=dict)
+    # code -> count
+
+
+class EnumerateTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    max_destinations: int = 4
+    max_single_leg_hours: float = 14.0
+    max_routes_cap: int = 80
+    total_routes_generated: int = 0
+    single_stop_routes: int = 0
+    multi_stop_routes: int = 0
+
+
+class CBRTopKCase(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str
+    query_similarity: float
+    route_overlap: float
+    rating: float
+    weight: float  # query_sim * route_overlap
+
+
+class CBRTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    k: int = 10
+    top_cases: List[CBRTopKCase] = Field(default_factory=list)
+    weighted_avg_rating: float = 0.0
+    normalized_score: float = 0.0  # final cbr_score
+
+
+class ContentTagVector(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tag: str
+    user_value: float
+    route_value: float
+
+
+class ContentTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tag_cosine: float = 0.0
+    difficulty_match: float = 0.0
+    content_score: float = 0.0
+    user_vector: List[ContentTagVector] = Field(default_factory=list)
+    avg_route_difficulty: float = 0.0
+    user_tolerance: int = 0
+
+
+class HybridTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    alpha: float = 0.6
+    cbr_score: float = 0.0
+    content_score: float = 0.0
+    hybrid_score: float = 0.0
+
+
+class MMRStep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step: int  # 1, 2, 3
+    candidate_id: str
+    candidate_label: str
+    hybrid_score: float
+    max_axis_similarity_to_picked: float
+    mmr_score: float
+    lambda_: float = 0.5
+    picked_so_far: List[str] = Field(default_factory=list)
+
+
+class DiversityTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    axes: Dict[str, str] = Field(default_factory=dict)
+    mmr_steps: List[MMRStep] = Field(default_factory=list)
+
+
+class CandidateTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str
+    candidate_label: str
+    destinations: List[str] = Field(default_factory=list)
+    cbr: CBRTrace = Field(default_factory=CBRTrace)
+    content: ContentTrace = Field(default_factory=ContentTrace)
+    hybrid: HybridTrace = Field(default_factory=HybridTrace)
+    diversity: DiversityTrace = Field(default_factory=DiversityTrace)
+
+
+class RecommendationTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    filter_: FilterTrace = Field(default_factory=FilterTrace, alias="filter")
+    enumerate_: EnumerateTrace = Field(default_factory=EnumerateTrace, alias="enumerate")
+    candidates: List[CandidateTrace] = Field(default_factory=list)
+    relaxation_note: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Debate trace — exposes orchestrator internal math for transparency
+# ---------------------------------------------------------------------------
+
+
+class AgentScoreDetail(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    agent_name: str
+    weight: float
+    raw_score: float
+    confidence: float
+    effective_weight: float  # weight * confidence
+    contribution: float  # raw_score * effective_weight
+
+
+class CandidateAggregate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str
+    candidate_label: str
+    agent_details: List[AgentScoreDetail] = Field(default_factory=list)
+    total_weighted: float = 0.0
+    total_effective_weight: float = 0.0
+    aggregate_score: float = 0.0
+    concentration: float = 0.0  # max - min across agents
+
+
+class TieBreakTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    epsilon: float = 0.3
+    top_candidate_id: str
+    second_candidate_id: str
+    top_score: float
+    second_score: float
+    gap: float
+    triggered: bool  # gap <= epsilon
+    top_concentration: float
+    second_concentration: float
+    winner_id: str
+    reason: str
+
+
+class DissentTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float = 2.0
+    dissent_lines: List[str] = Field(default_factory=list)
+    had_dissent: bool = False
+
+
+class WhyNotTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    runner_up_id: str
+    runner_up_label: str
+    aggregate_score: float
+    winner_score: float
+    delta: float
+    worst_agent: Optional[str] = None
+    worst_agent_score: Optional[float] = None
+    explanation: str
+
+
+class OrchestratorTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidates: List[CandidateAggregate] = Field(default_factory=list)
+    surviving_ids: List[str] = Field(default_factory=list)
+    blocked_ids: List[str] = Field(default_factory=list)
+    tie_break: Optional[TieBreakTrace] = None
+    dissent: DissentTrace = Field(default_factory=DissentTrace)
+    why_not: List[WhyNotTrace] = Field(default_factory=list)
+    weights_used: Dict[str, float] = Field(default_factory=dict)
+    final_winner_id: Optional[str] = None
+
+
+class DebateTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    arguments: List[AgentArgument] = Field(default_factory=list)
+    orchestrator: OrchestratorTrace = Field(default_factory=OrchestratorTrace)
 
 
 # ---------------------------------------------------------------------------
@@ -308,4 +509,23 @@ __all__ = [
     "CostBreakdown",
     "LLMArgumentPayload",
     "Disruption",
+    # Trace models
+    "FilterTrace",
+    "EnumerateTrace",
+    "CBRTopKCase",
+    "CBRTrace",
+    "ContentTagVector",
+    "ContentTrace",
+    "HybridTrace",
+    "MMRStep",
+    "DiversityTrace",
+    "CandidateTrace",
+    "RecommendationTrace",
+    "AgentScoreDetail",
+    "CandidateAggregate",
+    "TieBreakTrace",
+    "DissentTrace",
+    "WhyNotTrace",
+    "OrchestratorTrace",
+    "DebateTrace",
 ]

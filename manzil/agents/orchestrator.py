@@ -26,11 +26,18 @@ from manzil.data_loader import load_destinations
 from manzil.llm import Model
 from manzil.schemas import (
     AgentArgument,
+    AgentScoreDetail,
+    CandidateAggregate,
     DayByDayPlan,
     DayPlan,
     DayStop,
     DebateResult,
+    DebateTrace,
+    DissentTrace,
+    OrchestratorTrace,
     RouteCandidate,
+    TieBreakTrace,
+    WhyNotTrace,
 )
 
 # Editorial weights — fixed in the project version (Readme §5).
@@ -59,6 +66,12 @@ class Orchestrator:
             c for c in candidates if not blockers.get(c.candidate_id)
         ]
 
+        orch_trace = OrchestratorTrace(
+            weights_used=dict(self.weights),
+            surviving_ids=[c.candidate_id for c in surviving],
+            blocked_ids=[c.candidate_id for c in candidates if blockers.get(c.candidate_id)],
+        )
+
         if not surviving:
             return DebateResult(
                 winner=None,
@@ -70,12 +83,27 @@ class Orchestrator:
                 why_not={},
                 orchestrator_reasoning=self._all_blocked_reasoning(candidates, blockers),
                 all_blocked=True,
+                debate_trace=DebateTrace(
+                    arguments=arguments,
+                    orchestrator=orch_trace,
+                ),
             )
 
-        aggregates = self._weighted_aggregate(surviving, arguments)
-        winner = self._pick_winner(surviving, aggregates, arguments)
-        dissent = self._detect_dissent(winner, arguments)
-        why_not = self._generate_why_not(surviving, winner, arguments, aggregates)
+        aggregates, cand_aggs = self._weighted_aggregate_with_trace(surviving, arguments)
+        orch_trace.candidates = cand_aggs
+
+        winner, tie_trace = self._pick_winner_with_trace(surviving, aggregates, arguments)
+        orch_trace.tie_break = tie_trace
+        orch_trace.final_winner_id = winner.candidate_id if winner else None
+
+        dissent, dissent_trace = self._detect_dissent_with_trace(winner, arguments)
+        orch_trace.dissent = dissent_trace
+
+        why_not, why_not_traces = self._generate_why_not_with_trace(
+            surviving, winner, arguments, aggregates
+        )
+        orch_trace.why_not = why_not_traces
+
         reasoning = self._llm_synthesize(winner, arguments, dissent, why_not)
         full_plan = self._expand_plan(winner, arguments)
 
@@ -89,6 +117,10 @@ class Orchestrator:
             why_not=why_not,
             orchestrator_reasoning=reasoning,
             all_blocked=False,
+            debate_trace=DebateTrace(
+                arguments=arguments,
+                orchestrator=orch_trace,
+            ),
         )
 
     # ------------------------------------------------------------------
@@ -119,23 +151,56 @@ class Orchestrator:
         candidates: List[RouteCandidate],
         arguments: List[AgentArgument],
     ) -> Dict[str, float]:
+        agg, _ = self._weighted_aggregate_with_trace(candidates, arguments)
+        return agg
+
+    def _weighted_aggregate_with_trace(
+        self,
+        candidates: List[RouteCandidate],
+        arguments: List[AgentArgument],
+    ) -> tuple[Dict[str, float], List[CandidateAggregate]]:
         by_pair: Dict[tuple, AgentArgument] = {}
         for arg in arguments:
             by_pair[(arg.candidate_id, arg.agent_name)] = arg
 
         out: Dict[str, float] = {}
+        cand_aggs: List[CandidateAggregate] = []
         for c in candidates:
             total = 0.0
             weight_used = 0.0
+            details: List[AgentScoreDetail] = []
             for agent_name, weight in self.weights.items():
                 arg = by_pair.get((c.candidate_id, agent_name))
                 if arg is None:
                     continue
                 eff_weight = weight * arg.confidence
-                total += arg.score * eff_weight
+                contribution = arg.score * eff_weight
+                total += contribution
                 weight_used += eff_weight
-            out[c.candidate_id] = total / weight_used if weight_used > 0 else 0.0
-        return out
+                details.append(
+                    AgentScoreDetail(
+                        agent_name=agent_name,
+                        weight=weight,
+                        raw_score=arg.score,
+                        confidence=arg.confidence,
+                        effective_weight=round(eff_weight, 3),
+                        contribution=round(contribution, 3),
+                    )
+                )
+            agg_score = total / weight_used if weight_used > 0 else 0.0
+            out[c.candidate_id] = agg_score
+            cand_aggs.append(
+                CandidateAggregate(
+                    candidate_id=c.candidate_id,
+                    candidate_label=c.label,
+                    agent_details=details,
+                    total_weighted=round(total, 3),
+                    total_effective_weight=round(weight_used, 3),
+                    aggregate_score=round(agg_score, 3),
+                    concentration=round(self._concentration(c.candidate_id, arguments), 3),
+                )
+            )
+        return out, cand_aggs
 
     def _pick_winner(
         self,
@@ -143,9 +208,18 @@ class Orchestrator:
         aggregates: Dict[str, float],
         arguments: List[AgentArgument],
     ) -> RouteCandidate:
+        winner, _ = self._pick_winner_with_trace(surviving, aggregates, arguments)
+        return winner
+
+    def _pick_winner_with_trace(
+        self,
+        surviving: List[RouteCandidate],
+        aggregates: Dict[str, float],
+        arguments: List[AgentArgument],
+    ) -> tuple[RouteCandidate, TieBreakTrace]:
         """
         Pick winner by aggregate score. If two candidates are within
-        epsilon=0.3, apply concentration tie-break (higher concentration wins).
+        epsilon=0.3, apply concentration tie-break (lower concentration wins).
         """
         EPS = 0.3
 
@@ -157,23 +231,69 @@ class Orchestrator:
         )
 
         if len(sorted_cands) == 1:
-            return sorted_cands[0]
+            trace = TieBreakTrace(
+                epsilon=EPS,
+                top_candidate_id=sorted_cands[0].candidate_id,
+                second_candidate_id="",
+                top_score=round(aggregates.get(sorted_cands[0].candidate_id, 0.0), 3),
+                second_score=0.0,
+                gap=999.0,
+                triggered=False,
+                top_concentration=0.0,
+                second_concentration=0.0,
+                winner_id=sorted_cands[0].candidate_id,
+                reason="Only one surviving candidate — no tie-break needed.",
+            )
+            return sorted_cands[0], trace
 
         top = sorted_cands[0]
         second = sorted_cands[1]
         top_score = aggregates.get(top.candidate_id, 0.0)
         second_score = aggregates.get(second.candidate_id, 0.0)
+        gap = top_score - second_score
 
-        if top_score - second_score > EPS:
-            return top
-
-        # Tie-break: concentration over breadth
         top_conc = self._concentration(top.candidate_id, arguments)
         second_conc = self._concentration(second.candidate_id, arguments)
 
-        if second_conc > top_conc:
-            return second
-        return top
+        if gap > EPS:
+            winner = top
+            reason = (
+                f"Top candidate {top.candidate_id} ({top_score:.2f}) beat "
+                f"{second.candidate_id} ({second_score:.2f}) by {gap:.2f}, "
+                f"exceeding epsilon={EPS}. No tie-break needed."
+            )
+        else:
+            # Tie-break: lower concentration wins (agents agreed more consistently)
+            if second_conc < top_conc:
+                winner = second
+                reason = (
+                    f"Gap {gap:.2f} <= epsilon {EPS}. Tie-break triggered. "
+                    f"{second.candidate_id} has lower concentration ({second_conc:.2f}) "
+                    f"vs {top.candidate_id} ({top_conc:.2f}) → agents agreed more. "
+                    f"Winner flipped to {second.candidate_id}."
+                )
+            else:
+                winner = top
+                reason = (
+                    f"Gap {gap:.2f} <= epsilon {EPS}. Tie-break triggered. "
+                    f"{top.candidate_id} has lower or equal concentration ({top_conc:.2f}) "
+                    f"vs {second.candidate_id} ({second_conc:.2f}). Winner stays {top.candidate_id}."
+                )
+
+        trace = TieBreakTrace(
+            epsilon=EPS,
+            top_candidate_id=top.candidate_id,
+            second_candidate_id=second.candidate_id,
+            top_score=round(top_score, 3),
+            second_score=round(second_score, 3),
+            gap=round(gap, 3),
+            triggered=gap <= EPS,
+            top_concentration=round(top_conc, 3),
+            second_concentration=round(second_conc, 3),
+            winner_id=winner.candidate_id,
+            reason=reason,
+        )
+        return winner, trace
 
     def _concentration(self, candidate_id: str, arguments: List[AgentArgument]) -> float:
         """max(scores) - min(scores) for this candidate across all agents."""
@@ -189,6 +309,14 @@ class Orchestrator:
         winner: RouteCandidate,
         arguments: List[AgentArgument],
     ) -> Optional[str]:
+        dissent, _ = self._detect_dissent_with_trace(winner, arguments)
+        return dissent
+
+    def _detect_dissent_with_trace(
+        self,
+        winner: RouteCandidate,
+        arguments: List[AgentArgument],
+    ) -> tuple[Optional[str], DissentTrace]:
         """
         For each agent, find its top-scoring candidate. If the agent's
         score for the winner is >2 points below its top pick, surface dissent.
@@ -219,9 +347,14 @@ class Orchestrator:
                     f"{winner_arg.score:.1f}/10 — a gap of {gap:.1f} points."
                 )
 
+        trace = DissentTrace(
+            threshold=DISSENT_THRESHOLD,
+            dissent_lines=dissent_lines,
+            had_dissent=bool(dissent_lines),
+        )
         if not dissent_lines:
-            return None
-        return " ".join(dissent_lines)
+            return None, trace
+        return " ".join(dissent_lines), trace
 
     def _generate_why_not(
         self,
@@ -230,8 +363,21 @@ class Orchestrator:
         arguments: List[AgentArgument],
         aggregates: Dict[str, float],
     ) -> Dict[str, str]:
+        why_not, _ = self._generate_why_not_with_trace(
+            surviving, winner, arguments, aggregates
+        )
+        return why_not
+
+    def _generate_why_not_with_trace(
+        self,
+        surviving: List[RouteCandidate],
+        winner: RouteCandidate,
+        arguments: List[AgentArgument],
+        aggregates: Dict[str, float],
+    ) -> tuple[Dict[str, str], List[WhyNotTrace]]:
         """One-line explanation for each runner-up."""
         why_not: Dict[str, str] = {}
+        traces: List[WhyNotTrace] = []
         for c in surviving:
             if c.candidate_id == winner.candidate_id:
                 continue
@@ -239,6 +385,8 @@ class Orchestrator:
             winner_score = aggregates.get(winner.candidate_id, 0.0)
             delta = winner_score - agg_score
 
+            worst_agent_name = None
+            worst_agent_score = None
             # Find the agent that most hurt this candidate
             agent_args = [a for a in arguments if a.candidate_id == c.candidate_id]
             if agent_args:
@@ -248,12 +396,26 @@ class Orchestrator:
                     f"{worst_agent.agent_name} gave it only {worst_agent.score:.1f}/10 "
                     f"— its weakest point."
                 )
+                worst_agent_name = worst_agent.agent_name
+                worst_agent_score = worst_agent.score
             else:
                 reason = (
                     f"Scored {agg_score:.1f}/10 aggregate, {delta:.1f} points below the winner."
                 )
             why_not[c.candidate_id] = reason
-        return why_not
+            traces.append(
+                WhyNotTrace(
+                    runner_up_id=c.candidate_id,
+                    runner_up_label=c.label,
+                    aggregate_score=round(agg_score, 3),
+                    winner_score=round(winner_score, 3),
+                    delta=round(delta, 3),
+                    worst_agent=worst_agent_name,
+                    worst_agent_score=round(worst_agent_score, 3) if worst_agent_score is not None else None,
+                    explanation=reason,
+                )
+            )
+        return why_not, traces
 
     def _all_blocked_reasoning(
         self,

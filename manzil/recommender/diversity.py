@@ -22,7 +22,14 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from manzil.schemas import Destination, RouteCandidate, TravelMode, UserQuery
+from manzil.schemas import (
+    Destination,
+    DiversityTrace,
+    MMRStep,
+    RouteCandidate,
+    TravelMode,
+    UserQuery,
+)
 
 DEFAULT_LAMBDA = 0.5
 DEFAULT_ALPHA = 0.6  # hybrid blend; same default as hybrid.py
@@ -118,7 +125,8 @@ def pick_diverse_three(
     *,
     alpha: float = DEFAULT_ALPHA,
     lambda_: float = DEFAULT_LAMBDA,
-) -> List[RouteCandidate]:
+    return_trace: bool = False,
+) -> List[RouteCandidate] | tuple[List[RouteCandidate], list[MMRStep]]:
     """Return the 3 most-diverse-but-still-good candidates.
 
     We run MMR even when `len(candidates) <= 3` because the ORDER matters
@@ -126,25 +134,56 @@ def pick_diverse_three(
     not the second-highest scorer).
     """
     if len(candidates) <= 1:
+        if return_trace:
+            return list(candidates), []
         return list(candidates)
 
     pool = list(candidates)
     # 1. Top-1 by hybrid score
     pool.sort(key=lambda c: -_hybrid(c, alpha))
     picked: List[RouteCandidate] = [pool.pop(0)]
+    mmr_steps: list[MMRStep] = [
+        MMRStep(
+            step=1,
+            candidate_id=picked[0].candidate_id,
+            candidate_label=picked[0].label,
+            hybrid_score=round(_hybrid(picked[0], alpha), 3),
+            max_axis_similarity_to_picked=0.0,
+            mmr_score=round(_hybrid(picked[0], alpha), 3),
+            lambda_=lambda_,
+            picked_so_far=[picked[0].candidate_id],
+        )
+    ]
 
     # 2-3. Greedy MMR for remaining slots
     while len(picked) < 3 and pool:
         best_idx = 0
         best_mmr = -1e9
+        best_sim = 0.0
         for i, c in enumerate(pool):
             sim = max(_axis_similarity(c, p) for p in picked)
             mmr = _hybrid(c, alpha) - lambda_ * sim
             if mmr > best_mmr:
                 best_mmr = mmr
                 best_idx = i
-        picked.append(pool.pop(best_idx))
+                best_sim = sim
+        chosen = pool.pop(best_idx)
+        picked.append(chosen)
+        mmr_steps.append(
+            MMRStep(
+                step=len(picked),
+                candidate_id=chosen.candidate_id,
+                candidate_label=chosen.label,
+                hybrid_score=round(_hybrid(chosen, alpha), 3),
+                max_axis_similarity_to_picked=round(best_sim, 3),
+                mmr_score=round(best_mmr, 3),
+                lambda_=lambda_,
+                picked_so_far=[p.candidate_id for p in picked],
+            )
+        )
 
+    if return_trace:
+        return picked, mmr_steps
     return picked
 
 

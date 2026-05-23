@@ -18,7 +18,7 @@ from __future__ import annotations
 import math
 from typing import Dict, List, Tuple
 
-from manzil.schemas import Destination, UserQuery
+from manzil.schemas import ContentTagVector, ContentTrace, Destination, UserQuery
 
 # Universe of activity tags that the cosine vectors live in. Must contain
 # every value that appears in destinations' `activity_tags` AND every value
@@ -157,9 +157,14 @@ def score_route(
     route: List[str],
     query: UserQuery,
     destinations: Dict[str, Destination],
-) -> float:
-    """Return a content score in [0.0, 1.0] for the route under this query."""
+    *,
+    return_trace: bool = False,
+) -> float | tuple[float, ContentTrace]:
+    """Return a content score in [0.0, 1.0] for the route under this query.
+    If return_trace=True, returns (score, ContentTrace)."""
     if not route:
+        if return_trace:
+            return 0.0, ContentTrace()
         return 0.0
 
     user_vec = _soft_user_vec(query.style_tags)
@@ -167,7 +172,30 @@ def score_route(
     tag_cos = _cosine(user_vec, route_vec)
     diff_match = _difficulty_match(route, destinations, query.difficulty_tolerance)
 
-    return 0.7 * tag_cos + 0.3 * diff_match
+    content_score = 0.7 * tag_cos + 0.3 * diff_match
+
+    if return_trace:
+        tag_vectors = [
+            ContentTagVector(tag=t, user_value=u, route_value=r)
+            for t, u, r in zip(_TAG_UNIVERSE, user_vec, route_vec)
+        ]
+        diffs = [
+            destinations[d].difficulty
+            for d in route
+            if d in destinations
+        ]
+        avg_diff = sum(diffs) / len(diffs) if diffs else 0.0
+        trace = ContentTrace(
+            tag_cosine=round(tag_cos, 3),
+            difficulty_match=round(diff_match, 3),
+            content_score=round(content_score, 3),
+            user_vector=tag_vectors,
+            avg_route_difficulty=round(avg_diff, 2),
+            user_tolerance=query.difficulty_tolerance,
+        )
+        return content_score, trace
+
+    return content_score
 
 
 __all__ = ["score_route"]

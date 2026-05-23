@@ -81,7 +81,7 @@ def arguments_for_tiebreak(candidates) -> list[AgentArgument]:
     cand-A and cand-B have nearly identical aggregates (within 0.3).
     cand-A has concentrated scores (9,5,7,6,8) -> conc=4
     cand-B has flat scores (7,7,7,7,7) -> conc=0
-    Tie-break should pick cand-A.
+    Tie-break should pick cand-B (lower concentration = more consistent agreement).
     """
     args = []
     # cand-A: concentrated
@@ -155,12 +155,12 @@ def test_weighted_aggregate(candidates, arguments_all_clear):
 
 
 def test_tie_break_concentration(candidates, arguments_for_tiebreak):
-    """cand-A has higher concentration; it should win the tie-break."""
+    """cand-B has lower concentration (flat scores) = more consistent agreement; it should win the tie-break."""
     orch = Orchestrator()
     result = orch.synthesize(candidates, arguments_for_tiebreak)
-    # Both A and B are within 0.3, but A has higher concentration
+    # Both A and B are within 0.3, but B has lower concentration -> safer pick
     assert result.winner is not None
-    assert result.winner.candidate_id == "cand-A"
+    assert result.winner.candidate_id == "cand-B"
 
 
 def test_dissent_detection(candidates, arguments_with_dissent):

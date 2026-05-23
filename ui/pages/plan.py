@@ -30,12 +30,13 @@ import streamlit as st  # noqa: E402
 
 from manzil.agents.base import is_full_llm_mode, set_full_llm_mode  # noqa: E402
 from manzil.graph.debate_graph import run_debate, run_debate_stream  # noqa: E402
-from manzil.recommender.pipeline import recommend  # noqa: E402
+from manzil.recommender.pipeline import recommend_with_trace  # noqa: E402
 from manzil.replan import replan  # noqa: E402
 from manzil.schemas import (  # noqa: E402
     DebateResult,
     Disruption,
     GroupType,
+    RecommendationTrace,
     RouteCandidate,
     TravelMode,
     UserQuery,
@@ -46,6 +47,8 @@ from ui.components.day_by_day import render_day_by_day  # noqa: E402
 from ui.components.dissent import render_dissent  # noqa: E402
 from ui.components.why_not import render_why_not  # noqa: E402
 from ui.components.debate_live import render_debate_live  # noqa: E402
+from ui.components.rs_trace import render_rs_trace  # noqa: E402
+from ui.components.agent_math import render_agent_math  # noqa: E402
 st.set_page_config(page_title="Manzil — Plan", page_icon="🏔️", layout="wide")
 
 st.title("Plan your trip")
@@ -116,6 +119,13 @@ def _render_winner(result: DebateResult | None, candidates: list[RouteCandidate]
 
     st.divider()
 
+    # --- RS Trace: how routes were selected ---
+    rs_trace = st.session_state.get("last_rs_trace")
+    if rs_trace:
+        render_rs_trace(rs_trace)
+
+    st.divider()
+
     # --- Scorecard (render even when all blocked — shows why each failed) ---
     if result.scorecard:
         render_scorecard(
@@ -157,6 +167,11 @@ def _render_winner(result: DebateResult | None, candidates: list[RouteCandidate]
 
     candidate_labels = {c.candidate_id: c.label for c in candidates}
     render_why_not(result.why_not, candidate_labels)
+
+    # --- Agent math trace: how winner was chosen ---
+    if result.debate_trace:
+        st.divider()
+        render_agent_math(result.debate_trace)
 
     with st.expander("Raw result (JSON)", expanded=False):
         st.json(result.model_dump(mode="json"))
@@ -364,10 +379,14 @@ if submitted:
     st.session_state.pop("last_candidates", None)
     st.session_state.pop("last_result", None)
     st.session_state.pop("replan_result", None)
+    st.session_state.pop("last_rs_trace", None)
+    st.session_state.pop("rs_trace_done", None)
+    st.session_state.pop("agent_math_done", None)
 
     with st.spinner("Recommender → 3 candidate routes…"):
-        candidates = recommend(query)
+        candidates, rs_trace = recommend_with_trace(query)
     st.session_state["last_candidates"] = candidates
+    st.session_state["last_rs_trace"] = rs_trace
 
     if candidates:
         if use_full_llm:
