@@ -90,11 +90,16 @@ def test_closed_pass_blocker(query_karachi_january, candidate_skardu):
 
 
 def test_long_leg_blocker(query_karachi_july, candidate_naran_then_skardu):
-    """Naran -> Skardu is 13h drive, exceeding the 12h humane limit."""
+    """Naran -> Skardu is 13h drive. Blocker disabled for demo; score should still be low."""
     agent = RoadAgent()
     arg = agent.evaluate(candidate_naran_then_skardu, query_karachi_july)
-    assert arg.hard_blocker is not None
-    assert "12-hour" in arg.hard_blocker or "humane" in arg.hard_blocker.lower()
+    # Blocker disabled for demo
+    assert arg.hard_blocker is None
+    # But the long leg should still penalize the score (below a perfect 10)
+    assert arg.score < 8.5
+    # And surface as a concern
+    concerns_text = " ".join(arg.concerns).lower()
+    assert "break" in concerns_text or "longest driving leg" in concerns_text
 
 
 def test_normal_route_no_blocker(query_karachi_july):

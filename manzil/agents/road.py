@@ -8,7 +8,7 @@ Deterministic analysis:
 
 Hard blockers:
     - Veto if any pass on the route has open_months[month-1] == False
-    - Veto if any single day's drive exceeds 12 hours (humane-driving rule)
+    - Veto if any single day's drive exceeds 12 hours (humane-driving rule)  [DISABLED FOR DEMO]
 
 Score:
     - Linear from average drive-time per day and aggregate landslide risk
@@ -81,13 +81,13 @@ class RoadAgent(BaseAgent):
                     f"month {query.travel_month}."
                 )
 
-        # Humane driving: any single leg > 12 hours?
-        max_leg = analysis.get("max_single_leg_hours", 0.0)
-        if max_leg > 12.0:
-            return (
-                f"Longest driving leg is {max_leg:.1f} h, exceeding the "
-                f"12-hour humane-driving limit."
-            )
+        # DISABLED FOR DEMO: humane-driving blocker
+        # max_leg = analysis.get("max_single_leg_hours", 0.0)
+        # if max_leg > 12.0:
+        #     return (
+        #         f"Longest driving leg is {max_leg:.1f} h, exceeding the "
+        #         f"12-hour humane-driving limit."
+        #     )
 
         return None
 

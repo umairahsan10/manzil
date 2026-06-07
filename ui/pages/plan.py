@@ -51,6 +51,26 @@ from ui.components.rs_trace import render_rs_trace  # noqa: E402
 from ui.components.agent_math import render_agent_math  # noqa: E402
 st.set_page_config(page_title="Manzil — Plan", page_icon="🏔️", layout="wide")
 
+# ---------------------------------------------------------------------------
+# Session-state defaults for form widgets (enables preset buttons)
+# ---------------------------------------------------------------------------
+_DEFAULTS = {
+    "group_size": 4,
+    "days": 7,
+    "budget_pkr": 120_000,
+    "group_composition": "friends",
+    "month_name": "July",
+    "travel_mode": "road",
+    "origin_city": "karachi",
+    "difficulty": 3,
+    "styles": ["cultural", "photography"],
+    "is_foreign": False,
+    "elderly": False,
+}
+for _k, _v in _DEFAULTS.items():
+    if _k not in st.session_state:
+        st.session_state[_k] = _v
+
 st.title("Plan your trip")
 st.caption(
     "Fill the form. The recommender returns 3 diverse routes. A team of "
@@ -269,10 +289,76 @@ def _render_replan_ui():
 # Mode toggle
 # ---------------------------------------------------------------------------
 
-mode_col1, mode_col2 = st.columns([3, 1])
-with mode_col1:
+# ---------------------------------------------------------------------------
+# Preset buttons + mode toggle
+# ---------------------------------------------------------------------------
+preset_cols = st.columns([1, 1, 1, 2, 2])
+with preset_cols[0]:
+    if st.button("Set 1", help="Karachi → Hunza, 7d, ₨500k", key="btn_set1"):
+        st.session_state.update({
+            "group_size": 4,
+            "days": 7,
+            "budget_pkr": 500_000,
+            "group_composition": "friends",
+            "month_name": "July",
+            "travel_mode": "road",
+            "origin_city": "karachi",
+            "difficulty": 3,
+            "styles": ["adventure", "cultural", "photography"],
+            "is_foreign": False,
+            "elderly": False,
+            "trigger_run": True,
+        })
+        st.session_state.pop("last_candidates", None)
+        st.session_state.pop("last_result", None)
+        st.session_state.pop("replan_result", None)
+        st.session_state.pop("last_rs_trace", None)
+        st.rerun()
+with preset_cols[1]:
+    if st.button("Set 2", help="Lahore → Hunza, 6d, ₨350k", key="btn_set2"):
+        st.session_state.update({
+            "group_size": 2,
+            "days": 6,
+            "budget_pkr": 350_000,
+            "group_composition": "couple",
+            "month_name": "August",
+            "travel_mode": "road",
+            "origin_city": "lahore",
+            "difficulty": 3,
+            "styles": ["cultural", "photography", "relaxation"],
+            "is_foreign": False,
+            "elderly": False,
+            "trigger_run": True,
+        })
+        st.session_state.pop("last_candidates", None)
+        st.session_state.pop("last_result", None)
+        st.session_state.pop("replan_result", None)
+        st.session_state.pop("last_rs_trace", None)
+        st.rerun()
+with preset_cols[2]:
+    if st.button("Set 3", help="Islamabad → Murree, 3d, ₨180k", key="btn_set3"):
+        st.session_state.update({
+            "group_size": 4,
+            "days": 3,
+            "budget_pkr": 180_000,
+            "group_composition": "family",
+            "month_name": "July",
+            "travel_mode": "road",
+            "origin_city": "islamabad",
+            "difficulty": 2,
+            "styles": ["family", "relaxation"],
+            "is_foreign": False,
+            "elderly": False,
+            "trigger_run": True,
+        })
+        st.session_state.pop("last_candidates", None)
+        st.session_state.pop("last_result", None)
+        st.session_state.pop("replan_result", None)
+        st.session_state.pop("last_rs_trace", None)
+        st.rerun()
+with preset_cols[3]:
     pass
-with mode_col2:
+with preset_cols[4]:
     use_full_llm = st.toggle(
         "Full LLM Mode",
         value=is_full_llm_mode(),
@@ -308,48 +394,67 @@ STYLE_OPTIONS = [
 with st.form("plan_form"):
     cols = st.columns(3)
     with cols[0]:
-        group_size = st.number_input("Group size", min_value=1, max_value=20, value=4)
-        days = st.number_input("Days", min_value=2, max_value=21, value=7)
+        group_size = st.number_input("Group size", min_value=1, max_value=20, value=st.session_state["group_size"], key="group_size")
+        days = st.number_input("Days", min_value=2, max_value=21, value=st.session_state["days"], key="days")
         budget_pkr = st.number_input(
             "Budget (PKR)",
             min_value=20_000,
             max_value=2_000_000,
-            value=120_000,
+            value=st.session_state["budget_pkr"],
             step=10_000,
+            key="budget_pkr",
         )
     with cols[1]:
+        _grp_opts = [g.value for g in GroupType]
         group_composition = st.selectbox(
             "Group composition",
-            options=[g.value for g in GroupType],
-            index=3,
+            options=_grp_opts,
+            index=_grp_opts.index(st.session_state["group_composition"]),
+            key="group_composition",
         )
-        month_name = st.selectbox("Travel month", options=MONTH_NAMES, index=6)
+        month_name = st.selectbox(
+            "Travel month",
+            options=MONTH_NAMES,
+            index=MONTH_NAMES.index(st.session_state["month_name"]),
+            key="month_name",
+        )
+        _mode_opts = [t.value for t in TravelMode]
         travel_mode = st.selectbox(
             "Travel mode preference",
-            options=[t.value for t in TravelMode],
-            index=0,
+            options=_mode_opts,
+            index=_mode_opts.index(st.session_state["travel_mode"]),
+            key="travel_mode",
         )
     with cols[2]:
-        origin_city = st.selectbox("Origin city", options=ORIGINS, index=0)
+        origin_city = st.selectbox(
+            "Origin city",
+            options=ORIGINS,
+            index=ORIGINS.index(st.session_state["origin_city"]),
+            key="origin_city",
+        )
         difficulty = st.slider(
             "Difficulty tolerance",
             min_value=1,
             max_value=5,
-            value=3,
+            value=st.session_state["difficulty"],
             help="1 = easy / family-friendly · 5 = ambitious / mountainous",
+            key="difficulty",
         )
         styles = st.multiselect(
             "Travel styles",
             options=STYLE_OPTIONS,
-            default=["cultural", "photography"],
+            default=st.session_state["styles"],
+            key="styles",
         )
         is_foreign = st.checkbox(
             "I am a foreign national (requires NOC for restricted zones)",
-            value=False,
+            value=st.session_state["is_foreign"],
+            key="is_foreign",
         )
         elderly = st.checkbox(
             "Group includes someone over 60 years old",
-            value=False,
+            value=st.session_state["elderly"],
+            key="elderly",
         )
 
     submitted = st.form_submit_button("Plan my trip", use_container_width=True)
@@ -374,6 +479,53 @@ if submitted:
         hard_constraints=[],
         is_foreign_traveller=bool(is_foreign),
         elderly_in_group=bool(elderly),
+    )
+    st.session_state["last_query"] = query
+    st.session_state.pop("last_candidates", None)
+    st.session_state.pop("last_result", None)
+    st.session_state.pop("replan_result", None)
+    st.session_state.pop("last_rs_trace", None)
+    st.session_state.pop("rs_trace_done", None)
+    st.session_state.pop("agent_math_done", None)
+
+    with st.spinner("Recommender → 3 candidate routes…"):
+        candidates, rs_trace = recommend_with_trace(query)
+    st.session_state["last_candidates"] = candidates
+    st.session_state["last_rs_trace"] = rs_trace
+
+    if candidates:
+        if use_full_llm:
+            events = run_debate_stream(query, candidates, use_full_llm=True)
+            result = render_debate_live(events, candidates)
+        else:
+            with st.spinner("Agents are debating…"):
+                result = run_debate(query, candidates, use_full_llm=False)
+        st.session_state["last_result"] = result
+    else:
+        st.session_state["last_result"] = None
+
+
+# ---------------------------------------------------------------------------
+# Auto-submit handler for preset buttons (one-click demo)
+# ---------------------------------------------------------------------------
+
+if st.session_state.get("trigger_run", False):
+    st.session_state["trigger_run"] = False
+
+    query = UserQuery(
+        group_size=int(st.session_state["group_size"]),
+        group_composition=GroupType(st.session_state["group_composition"]),
+        budget_pkr=int(st.session_state["budget_pkr"]),
+        days=int(st.session_state["days"]),
+        travel_month=MONTH_NAMES.index(st.session_state["month_name"]) + 1,
+        travel_mode_pref=TravelMode(st.session_state["travel_mode"]),
+        origin_city=st.session_state["origin_city"],
+        style_tags=list(st.session_state["styles"]),
+        difficulty_tolerance=int(st.session_state["difficulty"]),
+        preferred_destinations=[],
+        hard_constraints=[],
+        is_foreign_traveller=bool(st.session_state["is_foreign"]),
+        elderly_in_group=bool(st.session_state["elderly"]),
     )
     st.session_state["last_query"] = query
     st.session_state.pop("last_candidates", None)

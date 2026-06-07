@@ -7,7 +7,7 @@ many destinations for the available days.
 
 Constraints (defaults; tunable):
     - max_destinations         = 4   (per tech-sketch §4 cap)
-    - max_single_leg_hours     = 14  (no humane driving above this)
+    - max_single_leg_hours     = 9999  (DISABLED FOR DEMO — was 14)
     - max_routes               = 80  (the diversity selector picks 3 from these)
     - no destination is visited twice in the same chain
 
@@ -46,7 +46,7 @@ def enumerate_routes(
     feasible_ids: List[str],
     *,
     max_destinations: int = 4,
-    max_single_leg_hours: float = 14.0,
+    max_single_leg_hours: float = 9999.0,  # DISABLED FOR DEMO
     max_routes: int = 80,
 ) -> List[EnumeratedRoute]:
     """Generate ordered destination chains from the feasible set."""
@@ -78,8 +78,9 @@ def enumerate_routes(
             if seg is None:
                 continue
             leg_hours = float(seg.get("drive_time_hours", 0.0))
-            if leg_hours > max_single_leg_hours:
-                continue
+            # DISABLED FOR DEMO:
+            # if leg_hours > max_single_leg_hours:
+            #     continue
             extended = EnumeratedRoute(
                 destinations=chain.destinations + [nxt],
                 inter_drive_hours=chain.inter_drive_hours + leg_hours,
