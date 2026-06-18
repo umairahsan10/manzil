@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "currency": "PKR",
+    "last_updated": "2026-05-04",
+    "notes": "Phase-3 expansion. Original entries manually sourced from PIA, Daewoo, NATCO, and 2024-2025 traveller reports. Missing entries extrapolated from distance ratios in road_knowledge.json and flagged accordingly.",
+    "season_definition": {
+      "high": [6, 7, 8],
+      "shoulder": [4, 5, 9, 10],
+      "low": [1, 2, 3, 11, 12]
+    }
+  },
+  "lodging_per_night": {
+    "gilgit-baltistan": {
+      "high":     {"low": 2500, "mid": 6500,  "high": 18000},
+      "shoulder": {"low": 1800, "mid": 5000,  "high": 14000},
+      "low":      {"low": 1500, "mid": 4000,  "high": 11000}
+    },
+    "khyber-pakhtunkhwa": {
+      "high":     {"low": 2200, "mid": 5500,  "high": 14000},
+      "shoulder": {"low": 1500, "mid": 4000,  "high": 11000},
+      "low":      {"low": 1200, "mid": 3200,  "high": 9000}
+    },
+    "punjab": {
+      "high":     {"low": 2000, "mid": 5000,  "high": 13000},
+      "shoulder": {"low": 1500, "mid": 4000,  "high": 11000},
+      "low":      {"low": 1200, "mid": 3200,  "high": 9000}
+    },
+    "azad-kashmir": {
+      "high":     {"low": 2000, "mid": 5000,  "high": 12000},
+      "shoulder": {"low": 1500, "mid": 4000,  "high": 10000},
+      "low":      {"low": 1200, "mid": 3000,  "high": 8000}
+    }
+  },
+  "food_per_person_per_day": {
+    "low": 800,
+    "mid": 1800,
+    "high": 4500
+  },
+  "activities_per_day": {
+    "low": 500,
+    "mid": 1500,
+    "high": 4000
+  },
+  "transport": {
+    "karachi": {
+      "hunza-karimabad": {"road": 12000, "air": 35000, "hybrid": 28000},
+      "skardu":          {"road": 14000, "air": 38000, "hybrid": 30000},
+      "naran":           {"road":  9000, "air": 26000, "hybrid": 21000},
+      "fairy-meadows":   {"road": 13000, "air": 36000, "hybrid": 29000},
+      "murree":          {"road":  7500, "air": 22000, "hybrid": 16000},
+      "gilgit":          {"road": 12000, "air": 34000, "hybrid": 27000},
+      "passu":           {"road": 13000, "air": 37000, "hybrid": 29500},
+      "attabad":         {"road": 12500, "air": 35500, "hybrid": 28500},
+      "khaplu":          {"road": 15000, "air": 40000, "hybrid": 32000},
+      "swat-kalam":      {"road": 11000, "air": 30000, "hybrid": 24000},
+      "shogran":         {"road":  9500, "air": 25000, "hybrid": 20000},
+      "neelum":          {"road": 10000, "air": 27000, "hybrid": 22000},
+      "deosai":          {"road": 14500, "air": 39000, "hybrid": 31000},
+      "chitral":         {"road": 12000, "air": 34000, "hybrid": 27000}
+    },
+    "lahore": {
+      "hunza-karimabad": {"road":  8500, "air": 32000, "hybrid": 24000},
+      "skardu":          {"road": 10000, "air": 35000, "hybrid": 26000},
+      "naran":           {"road":  4500, "air": 22000, "hybrid": 14000},
+      "fairy-meadows":   {"road":  9500, "air": 33000, "hybrid": 25000},
+      "murree":          {"road":  3500, "air": 18000, "hybrid": 11000},
+      "gilgit":          {"road":  8500, "air": 31000, "hybrid": 23500},
+      "passu":           {"road":  9500, "air": 34000, "hybrid": 25500},
+      "attabad":         {"road":  9000, "air": 32500, "hybrid": 24500},
+      "khaplu":          {"road": 11000, "air": 37000, "hybrid": 28000},
+      "swat-kalam":      {"road":  7500, "air": 27000, "hybrid": 20000},
+      "shogran":         {"road":  6000, "air": 22000, "hybrid": 16000},
+      "neelum":          {"road":  6500, "air": 24000, "hybrid": 17000},
+      "deosai":          {"road": 10500, "air": 36000, "hybrid": 27000},
+      "chitral":         {"road":  8500, "air": 31000, "hybrid": 23500}
+    },
+    "islamabad": {
+      "hunza-karimabad": {"road":  6500, "air": 28000, "hybrid": 19000},
+      "skardu":          {"road":  8000, "air": 30000, "hybrid": 21000},
+      "naran":           {"road":  3000, "air": 18000, "hybrid":  9000},
+      "fairy-meadows":   {"road":  7500, "air": 29000, "hybrid": 20000},
+      "murree":          {"road":  1500, "air":  8000, "hybrid":  4000},
+      "gilgit":          {"road":  6500, "air": 27000, "hybrid": 18500},
+      "passu":           {"road":  7500, "air": 30000, "hybrid": 20500},
+      "attabad":         {"road":  7000, "air": 28500, "hybrid": 19500},
+      "khaplu":          {"road":  9000, "air": 32000, "hybrid": 23000},
+      "swat-kalam":      {"road":  5500, "air": 23000, "hybrid": 15000},
+      "shogran":         {"road":  4000, "air": 18000, "hybrid": 12000},
+      "neelum":          {"road":  4500, "air": 20000, "hybrid": 13000},
+      "deosai":          {"road":  8500, "air": 31000, "hybrid": 22000},
+      "chitral":         {"road":  6500, "air": 27000, "hybrid": 18500}
+    }
+  },
+  "inter_destination": {
+    "_meta": {
+      "notes": "Costs for hops between destinations. Based on road distances and local transport rates. Flagged as extrapolated where calculated from distance ratios.",
+      "base_rate_pkr_per_km_road": 18,
+      "base_rate_pkr_per_km_air": 45
+    },
+    "hunza-karimabad__skardu":          {"road": 4500,  "air": 12000, "hybrid": 8500,  "_extrapolated": true},
+    "hunza-karimabad__fairy-meadows":   {"road": 2500,  "air": 8000,  "hybrid": 5500,  "_extrapolated": true},
+    "hunza-karimabad__attabad":         {"road": 800,   "air": 3000,  "hybrid": 2000,  "_extrapolated": true},
+    "hunza-karimabad__passu":           {"road": 1200,  "air": 4000,  "hybrid": 2800,  "_extrapolated": true},
+    "hunza-karimabad__gilgit":          {"road": 1800,  "air": 5500,  "hybrid": 3800,  "_extrapolated": true},
+    "attabad__passu":                   {"road": 600,   "air": 2500,  "hybrid": 1600,  "_extrapolated": true},
+    "skardu__khaplu":                   {"road": 2200,  "air": 7000,  "hybrid": 4800,  "_extrapolated": true},
+    "skardu__deosai":                   {"road": 1800,  "air": 6000,  "hybrid": 4000,  "_extrapolated": true},
+    "naran__hunza-karimabad":           {"road": 6500,  "air": 16000, "hybrid": 11500, "_extrapolated": true},
+    "naran__skardu":                    {"road": 8500,  "air": 22000, "hybrid": 15500, "_extrapolated": true},
+    "naran__shogran":                   {"road": 1400,  "air": 4500,  "hybrid": 3000,  "_extrapolated": true},
+    "shogran__naran":                   {"road": 1400,  "air": 4500,  "hybrid": 3000,  "_extrapolated": true},
+    "gilgit__hunza-karimabad":          {"road": 1800,  "air": 5500,  "hybrid": 3800,  "_extrapolated": true},
+    "gilgit__skardu":                   {"road": 4500,  "air": 12000, "hybrid": 8500,  "_extrapolated": true},
+    "chitral__swat-kalam":              {"road": 5000,  "air": 14000, "hybrid": 10000, "_extrapolated": true},
+    "skardu__hunza-karimabad":          {"road": 4500,  "air": 12000, "hybrid": 8500,  "_extrapolated": true},
+    "fairy-meadows__hunza-karimabad":   {"road": 2500,  "air": 8000,  "hybrid": 5500,  "_extrapolated": true},
+    "passu__hunza-karimabad":           {"road": 1200,  "air": 4000,  "hybrid": 2800,  "_extrapolated": true},
+    "khaplu__skardu":                   {"road": 2200,  "air": 7000,  "hybrid": 4800,  "_extrapolated": true},
+    "deosai__skardu":                   {"road": 1800,  "air": 6000,  "hybrid": 4000,  "_extrapolated": true}
+  },
+  "buffer_pct": 0.10
+}
