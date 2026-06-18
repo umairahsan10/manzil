@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Mountain } from "lucide-react";
@@ -16,23 +16,32 @@ const navItems = [
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
-      <div className="container flex h-16 items-center justify-between">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        scrolled
+          ? "bg-background/80 backdrop-blur-2xl shadow-sm"
+          : "bg-transparent"
+      )}
+    >
+      <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
             <Mountain className="h-5 w-5" />
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-bold text-lg tracking-tight">Manzil</span>
-            <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">
-              AI Travel Planner
-            </span>
-          </div>
+          <span className="font-extrabold text-xl tracking-tight">Manzil</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -40,15 +49,15 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                  "relative text-sm font-semibold transition-colors",
                   isActive
                     ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {item.label}
                 {isActive && (
-                  <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
+                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-primary" />
                 )}
               </Link>
             );
@@ -56,13 +65,16 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:block">
-          <Button size="sm" asChild>
+          <Button
+            className="rounded-full px-6 h-10 bg-foreground text-background hover:bg-foreground/90 shadow-lg"
+            asChild
+          >
             <Link href="/plan">Start Planning</Link>
           </Button>
         </div>
 
         <button
-          className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-muted/60 transition-colors"
+          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
@@ -71,8 +83,8 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border/60 bg-background animate-fade-in">
-          <div className="container py-3 space-y-1">
+        <nav className="md:hidden bg-background/95 backdrop-blur-2xl border-t border-border animate-reveal-fade">
+          <div className="container py-4 space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -81,10 +93,10 @@ export function Navbar() {
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "block px-4 py-3 rounded-xl text-sm font-semibold transition-colors",
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   {item.label}

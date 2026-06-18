@@ -100,3 +100,20 @@ export async function submitFeedback(
 export async function getFeedbackStats(): Promise<FeedbackStatsResponse> {
   return fetchJson<FeedbackStatsResponse>("/feedback/stats");
 }
+
+export interface ImageSearchResult {
+  url: string;
+  photographer: string;
+  photographer_url?: string;
+  source: string;
+}
+
+export async function searchImages(
+  query: string,
+  perPage: number = 1
+): Promise<ImageSearchResult[]> {
+  const data = await fetchJson<{ results: ImageSearchResult[] }>(
+    `/images/search?query=${encodeURIComponent(query)}&per_page=${perPage}`
+  );
+  return data.results;
+}

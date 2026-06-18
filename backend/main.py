@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers import feedback, health, plan, replan
+from backend.routers import feedback, health, images, plan, replan
 
 # Load environment variables from project root .env file
 PROJECT_ROOT = BACKEND_DIR.parent
@@ -55,6 +55,7 @@ app.include_router(health.router, prefix="/api/v1")
 app.include_router(plan.router, prefix="/api/v1")
 app.include_router(replan.router, prefix="/api/v1")
 app.include_router(feedback.router, prefix="/api/v1")
+app.include_router(images.router, prefix="/api/v1")
 
 
 @app.get("/")

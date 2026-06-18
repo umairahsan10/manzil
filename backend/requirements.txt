@@ -1,21 +1,31 @@
 # Manzil — FastAPI backend dependencies
+# Install with: cd backend && pip install -r requirements.txt
 
-# Core (must match root requirements)
+# Core
 pydantic==2.9.2
 python-dotenv==1.0.1
 
-# FastAPI server
+# Server
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 
 # HTTP
 httpx==0.28.1
 
+# LLM
+openai==2.36.0
+
+# Agent graph
+langgraph==1.1.10
+
+# CORS
+python-multipart==0.0.9
+
+# Data
+numpy==2.4.4
+
 # Phase 2 database (installed now, used later)
 sqlmodel==0.0.22
 sqlalchemy==2.0.35
 psycopg2-binary==2.9.9
 alembic==1.13.3
-
-# CORS
-python-multipart==0.0.9
