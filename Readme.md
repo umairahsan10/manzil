@@ -3,6 +3,64 @@
 
 ---
 
+## Running Manzil
+
+Manzil now has a **Next.js frontend** and a **FastAPI backend**. Both are self-contained services.
+
+> **Note:** The new stack does **not** depend on the root `manzil/` folder or the old Streamlit UI (`ui/`). The backend includes its own copy of the core logic under `backend/manzil/` and its own data under `backend/data/`. You can delete or keep the root `manzil/` folder without affecting the Next.js + FastAPI application.
+
+### Option 1: One-click start (Windows PowerShell)
+
+From the project root:
+
+```powershell
+.\start-dev.ps1
+```
+
+This opens two PowerShell windows — one for the backend, one for the frontend — and waits until both are ready.
+
+Then open http://localhost:3000.
+
+### Option 2: Manual start
+
+**Backend:**
+
+```bash
+# From the project root
+.venv\Scripts\python -m uvicorn backend.main:app --reload --port 8000
+```
+
+**Frontend (in a second terminal):**
+
+```bash
+cd frontend
+npm run dev
+```
+
+Then open http://localhost:3000.
+
+The frontend proxies `/api/*` requests to the FastAPI backend at `http://127.0.0.1:8000`.
+
+### First-time setup
+
+If you haven't set up the environment yet:
+
+```bash
+# 1. Python backend dependencies
+python3.12 -m venv .venv
+.venv\Scripts\python -m pip install -r backend/requirements.txt
+
+# 2. Environment variables
+copy .env.example .env
+# edit .env with your LLM keys if you want live LLM calls
+
+# 3. Node frontend dependencies
+cd frontend
+npm install
+```
+
+---
+
 ## 1. The Problem
 
 Travelling from Karachi or Lahore to northern Pakistan Hunza, Skardu, Naran, Fairy Meadows, Swat is one of the most popular domestic trip patterns in the country, and one of the worst-served by technology.

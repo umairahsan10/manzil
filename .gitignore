@@ -46,4 +46,13 @@ htmlcov/
 build/
 dist/
 
+# Next.js
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+
 .claude/

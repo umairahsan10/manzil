@@ -5408,5 +5408,36 @@
       "epic-trek"
     ],
     "is_synthetic": true
+  },
+  {
+    "case_id": "real_6073f2c3",
+    "query": {
+      "group_size": 1,
+      "group_composition": "solo",
+      "budget_pkr": 100000,
+      "days": 5,
+      "travel_month": 6,
+      "travel_mode_pref": "road",
+      "origin_city": "islamabad",
+      "style_tags": [],
+      "difficulty_tolerance": 3,
+      "preferred_destinations": [],
+      "hard_constraints": [],
+      "is_foreign_traveller": false,
+      "elderly_in_group": false
+    },
+    "chosen_route": [
+      "placeholder"
+    ],
+    "travel_modes": [
+      "road"
+    ],
+    "persona": "real_user",
+    "rating": 4.5,
+    "feedback_tags": [
+      "would-recommend",
+      "great-views"
+    ],
+    "is_synthetic": false
   }
 ]
