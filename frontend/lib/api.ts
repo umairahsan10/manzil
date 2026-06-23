@@ -7,6 +7,7 @@ import {
   HealthResponse,
   PlanRequest,
   PlanResponse,
+  PreviewResponse,
   RouteCandidate,
   UserQuery,
 } from "@/lib/types";
@@ -43,6 +44,15 @@ export async function planTrip(
   });
 }
 
+export async function previewTrip(
+  query: UserQuery
+): Promise<PreviewResponse> {
+  return fetchJson<PreviewResponse>("/plan/preview", {
+    method: "POST",
+    body: JSON.stringify({ query }),
+  });
+}
+
 export function streamPlanTrip(
   query: UserQuery,
   fullLlmMode: boolean = false,
@@ -72,6 +82,9 @@ export function streamPlanTrip(
 export type StreamEvent =
   | { type: "agent_done"; agent: string; arguments: unknown }
   | { type: "orchestrator_done"; result: DebateResult }
+  | { type: "recommendation_done"; trip_id: string; candidates: RouteCandidate[] }
+  | { type: "done" }
+  | { type: "error"; message: string }
   | { type: "raw"; data: string };
 
 export async function replanTrip(

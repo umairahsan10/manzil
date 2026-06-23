@@ -41,14 +41,14 @@ from manzil.schemas import (  # noqa: E402
     TravelMode,
     UserQuery,
 )
-from ui.components.map_view import render_map  # noqa: E402
-from ui.components.scorecard import render_scorecard  # noqa: E402
-from ui.components.day_by_day import render_day_by_day  # noqa: E402
-from ui.components.dissent import render_dissent  # noqa: E402
-from ui.components.why_not import render_why_not  # noqa: E402
-from ui.components.debate_live import render_debate_live  # noqa: E402
-from ui.components.rs_trace import render_rs_trace  # noqa: E402
-from ui.components.agent_math import render_agent_math  # noqa: E402
+from manzil.ui.components.map_view import render_map  # noqa: E402
+from manzil.ui.components.scorecard import render_scorecard  # noqa: E402
+from manzil.ui.components.day_by_day import render_day_by_day  # noqa: E402
+from manzil.ui.components.dissent import render_dissent  # noqa: E402
+from manzil.ui.components.why_not import render_why_not  # noqa: E402
+from manzil.ui.components.debate_live import render_debate_live  # noqa: E402
+from manzil.ui.components.rs_trace import render_rs_trace  # noqa: E402
+from manzil.ui.components.agent_math import render_agent_math  # noqa: E402
 st.set_page_config(page_title="Manzil — Plan", page_icon="🏔️", layout="wide")
 
 # ---------------------------------------------------------------------------

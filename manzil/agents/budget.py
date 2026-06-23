@@ -38,6 +38,18 @@ class BudgetAgent(BaseAgent):
         pct_over = (delta / budget * 100.0) if budget > 0 else 0.0
         relaxation_limit = budget * 1.15
 
+        # Determine which tier was used for the lodging
+        if getattr(query, "luxury_stays_needed", False):
+            lodging_tier = "high"
+        else:
+            per_day = budget / max(1, query.days)
+            if per_day <= 2500:
+                lodging_tier = "low"
+            elif per_day <= 7000:
+                lodging_tier = "mid"
+            else:
+                lodging_tier = "high"
+
         return {
             "estimated_cost_pkr": breakdown.total,
             "user_budget_pkr": budget,
@@ -46,6 +58,13 @@ class BudgetAgent(BaseAgent):
             "relaxation_limit_pkr": int(relaxation_limit),
             "within_budget": breakdown.total <= budget,
             "within_relaxation": breakdown.total <= relaxation_limit,
+            "lodging_tier": lodging_tier,
+            "transport": breakdown.transport,
+            "lodging": breakdown.lodging,
+            "food": breakdown.food,
+            "activities": breakdown.activities,
+            "buffer": breakdown.buffer,
+            "total": breakdown.total,
             "breakdown": {
                 "transport": breakdown.transport,
                 "lodging": breakdown.lodging,

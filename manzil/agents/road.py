@@ -56,6 +56,35 @@ class RoadAgent(BaseAgent):
         # Missing segments?
         missing = [s["leg_key"] for s in segments if s.get("missing")]
 
+        # Per-destination road risk for the trip detail page
+        per_dest_risk = []
+        for seg in segments:
+            if seg.get("missing"):
+                continue
+            dest_id = seg.get("to", "")
+            landslide = seg.get("landslide_risk", 0.0)
+            drive_h = seg.get("drive_time_hours", 0.0)
+            passes_on_seg = [p for p in passes if p.get("altitude_m", 0) > 3000]
+            if landslide > 0.4 or drive_h > 10:
+                risk = "high"
+            elif landslide > 0.2 or drive_h > 6 or passes_on_seg:
+                risk = "moderate"
+            else:
+                risk = "low"
+            reasons = []
+            if landslide > 0.3:
+                reasons.append(f"Landslide risk {landslide:.0%}")
+            if drive_h > 8:
+                reasons.append(f"Long drive {drive_h:.1f}h")
+            if passes_on_seg:
+                reasons.append(f"{len(passes_on_seg)} high pass(es) on route")
+            per_dest_risk.append({
+                "destination_id": dest_id,
+                "segment": f"{seg.get('from', '?')} → {dest_id}",
+                "risk_level": risk,
+                "risk_reasons": reasons,
+            })
+
         return {
             "travel_month": month,
             "total_drive_hours": round(total_drive_h, 1),
@@ -65,12 +94,21 @@ class RoadAgent(BaseAgent):
             "passes": passes,
             "segments": segments,
             "missing_segments": missing,
+            "per_destination": per_dest_risk,
         }
 
     def _check_blocker(
         self, analysis: Dict[str, Any], candidate: RouteCandidate, query: UserQuery
     ) -> Optional[str]:
         month_idx = query.travel_month - 1  # 0-based
+
+        # road_trip_only: veto any candidate using air travel
+        if getattr(query, "road_trip_only", False):
+            air_modes = [m for m in candidate.travel_modes if m.value in ("air", "hybrid")]
+            if air_modes:
+                return (
+                    "Route includes flight segments but user requested road-trip only."
+                )
 
         # Check pass closures
         for p in analysis.get("passes", []):
@@ -80,14 +118,6 @@ class RoadAgent(BaseAgent):
                     f"{p.get('name', p['pass_id'])} is closed in "
                     f"month {query.travel_month}."
                 )
-
-        # DISABLED FOR DEMO: humane-driving blocker
-        # max_leg = analysis.get("max_single_leg_hours", 0.0)
-        # if max_leg > 12.0:
-        #     return (
-        #         f"Longest driving leg is {max_leg:.1f} h, exceeding the "
-        #         f"12-hour humane-driving limit."
-        #     )
 
         return None
 
@@ -107,7 +137,13 @@ class RoadAgent(BaseAgent):
         # Missing knowledge penalty
         missing_penalty = 2.0 if missing else 0.0
 
-        score = 10.0 - drive_penalty - landslide_penalty - missing_penalty
+        # Motion sickness: penalize routes with high-altitude winding passes
+        motion_sickness_penalty = 0.0
+        if getattr(query, "motion_sickness", False):
+            high_passes = [p for p in analysis.get("passes", []) if p.get("altitude_m", 0) > 3000]
+            motion_sickness_penalty = min(3.0, len(high_passes) * 1.0)
+
+        score = 10.0 - drive_penalty - landslide_penalty - missing_penalty - motion_sickness_penalty
         return score
 
     def _confidence(

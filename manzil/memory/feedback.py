@@ -40,6 +40,7 @@ VALID_TAGS = {
     "road-was-rough",
     "altitude-sick",
     "family-friendly",
+    "stay-mismatch",
 }
 
 
@@ -49,6 +50,7 @@ def submit_feedback(
     travel_modes: List[str],
     rating: float,
     tags: List[str] = None,
+    accuracy_scores: dict = None,
 ) -> CaseBaseEntry:
     """
     Append a real-user feedback entry to the case base atomically.
@@ -59,6 +61,8 @@ def submit_feedback(
         travel_modes: Ordered list of travel mode strings used.
         rating: User rating 1.0–5.0.
         tags: Optional list of feedback tags.
+        accuracy_scores: Optional dict with budget_accuracy / safety_accuracy /
+            experience_quality (1.0–5.0 each).
 
     Returns:
         The newly created CaseBaseEntry.
@@ -66,6 +70,7 @@ def submit_feedback(
     tags = tags or []
     # Normalize tags to known set
     tags = [t for t in tags if t in VALID_TAGS]
+    accuracy_scores = accuracy_scores or {}
 
     entry = CaseBaseEntry(
         case_id=f"real_{uuid.uuid4().hex[:8]}",
@@ -76,6 +81,7 @@ def submit_feedback(
         rating=max(1.0, min(5.0, float(rating))),
         feedback_tags=tags,
         is_synthetic=False,
+        accuracy_scores=accuracy_scores,
     )
 
     _append_case_base(entry)

@@ -45,6 +45,12 @@ export interface UserQuery {
   hard_constraints?: string[];
   is_foreign_traveller: boolean;
   elderly_in_group: boolean;
+  // New planning toggles (Phase 2 UI redesign)
+  kids_in_group: boolean;
+  altitude_sensitive: boolean;
+  luxury_stays_needed: boolean;
+  motion_sickness: boolean;
+  road_trip_only: boolean;
 }
 
 export interface Disruption {
@@ -83,6 +89,18 @@ export interface RouteCandidate {
   diversity_axes?: Record<string, string>;
   rationale?: string;
   why?: string;
+}
+
+export interface PreviewResponse {
+  trip_id: string | null;
+  top: RouteCandidate | null;
+  candidates: RouteCandidate[];
+  rough_scores: {
+    safety: number;
+    weather: number;
+    budget_fit: number;
+    trip_score: number;
+  } | null;
 }
 
 export interface RecommendationTrace {
@@ -151,8 +169,112 @@ export interface DebateTrace {
   orchestrator: OrchestratorTrace;
 }
 
+// --- New structured types for the trip detail page ---
+
+export interface DayWeatherCard {
+  destination_id: string;
+  temp_high_c: number | null;
+  temp_low_c: number | null;
+  precip_prob_pct: number | null;
+  precip_mm: number | null;
+  summary: string;
+  condition: string; // "Excellent" | "Good" | "Fair" | "Poor"
+}
+
+export interface RoadRiskCard {
+  segment: string;
+  risk_level: string; // "low" | "moderate" | "high"
+  reasons: string[];
+}
+
+export interface DayStop {
+  destination_id: string;
+  name: string;
+  activities: string[];
+  local_tips: string[];
+  local_tip?: string | null;
+}
+
+export interface DayPlan {
+  day: number;
+  day_index?: number;
+  travel_mode: TravelMode | null;
+  drive_time_minutes: number;
+  drive_time_hours?: number | null;
+  day_budget_pkr: number;
+  estimated_cost?: number;
+  safety_notes: string[];
+  weather_notes: string[];
+  road_notes: string[];
+  safety_note?: string | null;
+  weather_note?: string | null;
+  road_note?: string | null;
+  stops: DayStop[];
+  // New structured fields
+  stay_type?: string | null;
+  altitude_m?: number | null;
+  weather?: DayWeatherCard | null;
+  road_risk?: RoadRiskCard | null;
+}
+
+export interface DayByDayPlan {
+  candidate_id: string;
+  days: DayPlan[];
+  total_cost: number;
+}
+
+export interface AltitudePoint {
+  day: number;
+  destination_id: string;
+  destination_name: string;
+  altitude_m: number;
+}
+
+export interface FacilityProximity {
+  destination_id: string;
+  name: string;
+  distance_km: number;
+  level: string;
+}
+
+export interface SafetyAnalysis {
+  altitude_progression: AltitudePoint[];
+  road_risk_cards: RoadRiskCard[];
+  hospital_proximity: FacilityProximity[];
+  police_stations: FacilityProximity[];
+  emergency_contacts: Array<Record<string, string>>;
+  max_altitude_m: number;
+  applied_threshold_m: number;
+  threshold_label: string;
+}
+
+export interface ExperienceSpot {
+  name: string;
+  destination_id: string;
+  category: string;
+  description: string;
+  source: string;
+}
+
+export interface ExperienceLayer {
+  hidden_spots: ExperienceSpot[];
+  local_foods: ExperienceSpot[];
+  sunrise_points: ExperienceSpot[];
+  photo_spots: ExperienceSpot[];
+}
+
+export interface CostBreakdownDetailed {
+  transport: number;
+  lodging: number;
+  food: number;
+  activities: number;
+  buffer: number;
+  total: number;
+}
+
 export interface DebateResult {
   winner: RouteCandidate | null;
+  full_plan?: DayByDayPlan | null;
   runner_ups: RouteCandidate[];
   scorecard: Record<string, Record<string, number>>;
   blockers: Record<string, string[]>;
@@ -162,33 +284,18 @@ export interface DebateResult {
   all_blocked?: boolean;
   orchestrator_reasoning?: string;
   debate_trace?: DebateTrace;
-}
-
-export interface DayStop {
-  destination_id: string;
-  name: string;
-  activities: string[];
-  local_tips: string[];
-}
-
-export interface DayPlan {
-  day: number;
-  travel_mode: TravelMode;
-  drive_time_minutes: number;
-  day_budget_pkr: number;
-  safety_notes: string[];
-  weather_notes: string[];
-  road_notes: string[];
-  stops: DayStop[];
-}
-
-export interface DayByDayPlan {
-  days: DayPlan[];
+  // New structured layers
+  safety_analysis?: SafetyAnalysis | null;
+  experience_layer?: ExperienceLayer | null;
+  cost_breakdown?: CostBreakdownDetailed | null;
 }
 
 export interface FeedbackRequest {
   trip_id: string;
   rating: number;
+  budget_accuracy?: number;
+  safety_accuracy?: number;
+  experience_quality?: number;
   tags: string[];
   comment?: string;
 }
@@ -222,8 +329,8 @@ export const MONTHS = [
 
 export const TRAVEL_MODES: { value: TravelMode; label: string }[] = [
   { value: "road", label: "Road" },
-  { value: "air", label: "Air" },
-  { value: "hybrid", label: "Hybrid" },
+  { value: "air", label: "Flight" },
+  { value: "hybrid", label: "Mixed" },
 ];
 
 export const GROUP_TYPES: { value: GroupType; label: string }[] = [
@@ -246,3 +353,57 @@ export const STYLE_TAGS = [
   "trekking",
   "luxury",
 ];
+
+// New: intensity spectrum (maps 1:1 to difficulty_tolerance 1-5)
+export const INTENSITY_LEVELS = [
+  { value: 1, label: "Chill" },
+  { value: 2, label: "Relaxed" },
+  { value: 3, label: "Balanced" },
+  { value: 4, label: "Packed" },
+  { value: 5, label: "Extreme" },
+] as const;
+
+// New: UI display names for agents (backend keys stay road/local)
+export const AGENT_DISPLAY: Record<string, { label: string; backend: string }> = {
+  weather: { label: "Weather Agent", backend: "weather" },
+  safety: { label: "Safety Agent", backend: "safety" },
+  budget: { label: "Budget Agent", backend: "budget" },
+  road: { label: "Route Agent", backend: "road" },
+  local: { label: "Experience Agent", backend: "local" },
+  orchestrator: { label: "Orchestrator Agent", backend: "orchestrator" },
+};
+
+// New: feedback tags for the redesigned feedback page
+export const FEEDBACK_TAGS = [
+  { value: "would-recommend", label: "Would recommend", emoji: "👍" },
+  { value: "great-views", label: "Great views", emoji: "🏔️" },
+  { value: "loved-the-food", label: "Loved the food", emoji: "🍲" },
+  { value: "family-friendly", label: "Family friendly", emoji: "👨‍👩‍👧‍👦" },
+  { value: "too-rushed", label: "Too rushed", emoji: "⏱️" },
+  { value: "too-slow", label: "Too slow", emoji: "🐢" },
+  { value: "weather-was-wrong", label: "Weather was wrong", emoji: "🌧️" },
+  { value: "budget-overran", label: "Overspent", emoji: "💸" },
+  { value: "road-was-rough", label: "Road blocked", emoji: "🛣️" },
+  { value: "stay-mismatch", label: "Stay mismatch", emoji: "🏨" },
+  { value: "not-again", label: "Not again", emoji: "👎" },
+];
+
+// New: default query for the planning canvas
+export const DEFAULT_QUERY: UserQuery = {
+  group_size: 4,
+  group_composition: "family",
+  budget_pkr: 150000,
+  days: 7,
+  travel_month: 7,
+  travel_mode_pref: "road",
+  origin_city: "islamabad",
+  style_tags: ["scenic", "cultural"],
+  difficulty_tolerance: 3,
+  is_foreign_traveller: false,
+  elderly_in_group: false,
+  kids_in_group: false,
+  altitude_sensitive: false,
+  luxury_stays_needed: false,
+  motion_sickness: false,
+  road_trip_only: false,
+};

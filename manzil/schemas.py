@@ -95,6 +95,12 @@ class UserQuery(BaseModel):
     hard_constraints: List[str] = Field(default_factory=list)
     is_foreign_traveller: bool = False
     elderly_in_group: bool = False
+    # New planning toggles (Phase 2 UI redesign)
+    kids_in_group: bool = False
+    altitude_sensitive: bool = False
+    luxury_stays_needed: bool = False
+    motion_sickness: bool = False
+    road_trip_only: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -179,6 +185,30 @@ class DayStop(BaseModel):
     local_tip: Optional[str] = None
 
 
+class DayWeatherCard(BaseModel):
+    """Daily weather summary for the trip detail page."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    destination_id: str = ""
+    temp_high_c: Optional[float] = None
+    temp_low_c: Optional[float] = None
+    precip_prob_pct: Optional[float] = None
+    precip_mm: Optional[float] = None
+    summary: str = ""
+    condition: str = ""  # "Excellent" | "Good" | "Fair" | "Poor"
+
+
+class RoadRiskCard(BaseModel):
+    """Road risk assessment for a segment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    segment: str = ""  # "Naran → Babusar Top"
+    risk_level: str = "low"  # "low" | "moderate" | "high"
+    reasons: List[str] = Field(default_factory=list)
+
+
 class DayPlan(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -190,6 +220,11 @@ class DayPlan(BaseModel):
     weather_note: Optional[str] = None
     road_note: Optional[str] = None
     safety_note: Optional[str] = None
+    # New structured fields for the trip detail page
+    stay_type: Optional[str] = None  # "Hotel" | "Guesthouse" | "Camping" | "Lodge"
+    altitude_m: Optional[int] = None
+    weather: Optional[DayWeatherCard] = None
+    road_risk: Optional[RoadRiskCard] = None
 
 
 class DayByDayPlan(BaseModel):
@@ -198,6 +233,84 @@ class DayByDayPlan(BaseModel):
     candidate_id: str
     days: List[DayPlan] = Field(default_factory=list)
     total_cost: int = 0
+
+
+# ---------------------------------------------------------------------------
+# Safety + Experience structured layers — surfaced to the trip detail page
+# ---------------------------------------------------------------------------
+
+
+class AltitudePoint(BaseModel):
+    """One point on the altitude progression chart."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    day: int
+    destination_id: str
+    destination_name: str
+    altitude_m: int
+
+
+class FacilityProximity(BaseModel):
+    """Hospital or police post near a destination."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    destination_id: str
+    name: str
+    distance_km: float
+    level: str = ""  # hospital level or police type
+
+
+class SafetyAnalysis(BaseModel):
+    """Structured safety data for the trip detail page."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    altitude_progression: List[AltitudePoint] = Field(default_factory=list)
+    road_risk_cards: List[RoadRiskCard] = Field(default_factory=list)
+    hospital_proximity: List[FacilityProximity] = Field(default_factory=list)
+    police_stations: List[FacilityProximity] = Field(default_factory=list)
+    emergency_contacts: List[Dict[str, str]] = Field(default_factory=list)
+    max_altitude_m: int = 0
+    applied_threshold_m: int = 0
+    threshold_label: str = ""
+
+
+class ExperienceSpot(BaseModel):
+    """A single hidden spot / food / viewpoint / photo location."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    destination_id: str = ""
+    category: str = ""  # "hidden_spot" | "local_food" | "sunrise_point" | "photo_spot"
+    description: str = ""
+    source: str = ""
+
+
+class ExperienceLayer(BaseModel):
+    """Structured local-experience data for the trip detail page."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    hidden_spots: List[ExperienceSpot] = Field(default_factory=list)
+    local_foods: List[ExperienceSpot] = Field(default_factory=list)
+    sunrise_points: List[ExperienceSpot] = Field(default_factory=list)
+    photo_spots: List[ExperienceSpot] = Field(default_factory=list)
+
+
+class CostBreakdownDetailed(BaseModel):
+    """Budget breakdown for the trip detail accordion."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    transport: int = 0
+    lodging: int = 0
+    food: int = 0
+    activities: int = 0
+    buffer: int = 0
+    total: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +339,10 @@ class DebateResult(BaseModel):
     orchestrator_reasoning: str = ""
     all_blocked: bool = False  # True when every candidate had a hard blocker
     debate_trace: Optional[DebateTrace] = None
+    # New structured layers for the trip detail page
+    safety_analysis: Optional[SafetyAnalysis] = None
+    experience_layer: Optional[ExperienceLayer] = None
+    cost_breakdown: Optional[CostBreakdownDetailed] = None
 
 
 # ---------------------------------------------------------------------------
@@ -443,6 +560,9 @@ class CaseBaseEntry(BaseModel):
     rating: float = Field(ge=1.0, le=5.0)
     feedback_tags: List[str] = Field(default_factory=list)
     is_synthetic: bool = True
+    # New: accuracy scores from the redesigned feedback page
+    accuracy_scores: Dict[str, float] = Field(default_factory=dict)
+    # e.g. {"budget_accuracy": 4.0, "safety_accuracy": 5.0, "experience_quality": 3.5}
 
 
 # ---------------------------------------------------------------------------
@@ -501,8 +621,16 @@ __all__ = [
     "RouteCandidate",
     "AgentArgument",
     "DayStop",
+    "DayWeatherCard",
+    "RoadRiskCard",
     "DayPlan",
     "DayByDayPlan",
+    "AltitudePoint",
+    "FacilityProximity",
+    "SafetyAnalysis",
+    "ExperienceSpot",
+    "ExperienceLayer",
+    "CostBreakdownDetailed",
     "DebateResult",
     "CaseBaseEntry",
     "WeatherData",

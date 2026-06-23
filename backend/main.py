@@ -11,11 +11,11 @@ import os
 import sys
 from pathlib import Path
 
-# Allow importing the local `manzil` package as a top-level module from inside
-# the backend directory. This keeps the backend self-contained for deployment.
-BACKEND_DIR = Path(__file__).resolve().parent
-if str(BACKEND_DIR) not in sys.path:
-    sys.path.insert(0, str(BACKEND_DIR))
+# Add the project root to sys.path so `backend` and `manzil` packages are
+# importable regardless of how uvicorn spawns the process (direct vs reloader).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -24,7 +24,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.routers import feedback, health, images, plan, replan
 
 # Load environment variables from project root .env file
-PROJECT_ROOT = BACKEND_DIR.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
 app = FastAPI(

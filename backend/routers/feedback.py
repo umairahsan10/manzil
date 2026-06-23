@@ -33,6 +33,15 @@ def submit_feedback_endpoint(request: FeedbackRequest):
 
     tags = [t for t in request.tags if t in VALID_TAGS]
 
+    # Collect accuracy scores from the redesigned feedback form
+    accuracy_scores = {}
+    if request.budget_accuracy is not None:
+        accuracy_scores["budget_accuracy"] = request.budget_accuracy
+    if request.safety_accuracy is not None:
+        accuracy_scores["safety_accuracy"] = request.safety_accuracy
+    if request.experience_quality is not None:
+        accuracy_scores["experience_quality"] = request.experience_quality
+
     try:
         entry = submit_feedback(
             query=query,
@@ -40,6 +49,7 @@ def submit_feedback_endpoint(request: FeedbackRequest):
             travel_modes=["road"],
             rating=request.rating,
             tags=tags,
+            accuracy_scores=accuracy_scores,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Feedback failed: {exc}") from exc

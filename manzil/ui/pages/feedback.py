@@ -105,7 +105,7 @@ if st.session_state.get("feedback_submitted"):
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Try a similar query now", use_container_width=True):
-            st.switch_page("ui/pages/plan.py")
+            st.switch_page("manzil/ui/pages/plan.py")
     with col2:
         if st.button("Clear and submit another", use_container_width=True):
             st.session_state["feedback_submitted"] = False

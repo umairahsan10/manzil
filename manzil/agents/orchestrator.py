@@ -22,20 +22,28 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from manzil.data_loader import load_destinations
+from manzil.data_loader import load_destinations, load_safety_knowledge
 from manzil.llm import Model
 from manzil.schemas import (
     AgentArgument,
     AgentScoreDetail,
+    AltitudePoint,
     CandidateAggregate,
+    CostBreakdownDetailed,
     DayByDayPlan,
     DayPlan,
     DayStop,
+    DayWeatherCard,
     DebateResult,
     DebateTrace,
     DissentTrace,
+    ExperienceLayer,
+    ExperienceSpot,
+    FacilityProximity,
     OrchestratorTrace,
+    RoadRiskCard,
     RouteCandidate,
+    SafetyAnalysis,
     TieBreakTrace,
     WhyNotTrace,
 )
@@ -106,6 +114,9 @@ class Orchestrator:
 
         reasoning = self._llm_synthesize(winner, arguments, dissent, why_not)
         full_plan = self._expand_plan(winner, arguments)
+        safety_analysis = self._build_safety_analysis(winner, arguments)
+        experience_layer = self._build_experience_layer(winner, arguments)
+        cost_breakdown = self._build_cost_breakdown(winner, arguments)
 
         return DebateResult(
             winner=winner,
@@ -121,6 +132,9 @@ class Orchestrator:
                 arguments=arguments,
                 orchestrator=orch_trace,
             ),
+            safety_analysis=safety_analysis,
+            experience_layer=experience_layer,
+            cost_breakdown=cost_breakdown,
         )
 
     # ------------------------------------------------------------------
@@ -525,6 +539,13 @@ class Orchestrator:
             days_per_dest = 1
             leftover = 0
 
+        # Extract per-destination structured data from agent raw_data
+        weather_by_dest = self._weather_data_by_dest(arguments, winner.candidate_id)
+        road_risk_by_dest = self._road_risk_by_dest(arguments, winner.candidate_id)
+        safety_raw = self._agent_raw(arguments, "SafetyAgent", winner.candidate_id)
+        budget_raw = self._agent_raw(arguments, "BudgetAgent", winner.candidate_id)
+        stay_tier = "high" if budget_raw and budget_raw.get("lodging_tier") == "high" else "mid"
+
         day_index = 1
         days: List[DayPlan] = []
 
@@ -541,6 +562,22 @@ class Orchestrator:
                 travel_mode = (
                     winner.travel_modes[i] if i < len(winner.travel_modes) else None
                 )
+                # Weather card from agent raw_data
+                w_data = weather_by_dest.get(dest_id, {})
+                weather_card = None
+                if w_data and not w_data.get("error"):
+                    weather_card = DayWeatherCard(
+                        destination_id=dest_id,
+                        temp_high_c=w_data.get("avg_high_c"),
+                        temp_low_c=w_data.get("avg_low_c"),
+                        precip_prob_pct=w_data.get("peak_precip_prob_pct"),
+                        precip_mm=w_data.get("total_precip_mm"),
+                        summary=w_data.get("summary", ""),
+                        condition=self._weather_condition(w_data),
+                    )
+                # Road risk card from road agent raw_data
+                road_card = road_risk_by_dest.get(dest_id)
+
                 day = DayPlan(
                     day_index=day_index,
                     stops=[stop],
@@ -550,6 +587,10 @@ class Orchestrator:
                     weather_note=self._note_for(arguments, "WeatherAgent", winner.candidate_id),
                     road_note=self._note_for(arguments, "RoadAgent", winner.candidate_id),
                     safety_note=self._note_for(arguments, "SafetyAgent", winner.candidate_id),
+                    stay_type=self._stay_type_for(stay_tier, dest, day_index, winner.days),
+                    altitude_m=dest.altitude_m if dest else None,
+                    weather=weather_card,
+                    road_risk=road_card,
                 )
                 days.append(day)
                 day_index += 1
@@ -575,6 +616,264 @@ class Orchestrator:
                     return arg.concerns[0]
                 return None
         return None
+
+    # ------------------------------------------------------------------
+    # Structured-layer builders — extract from agent raw_data
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _agent_raw(
+        arguments: List[AgentArgument], agent_name: str, candidate_id: str
+    ) -> Optional[dict]:
+        for arg in arguments:
+            if arg.agent_name == agent_name and arg.candidate_id == candidate_id:
+                return arg.raw_data if isinstance(arg.raw_data, dict) else {}
+        return None
+
+    @staticmethod
+    def _weather_data_by_dest(arguments: List[AgentArgument], candidate_id: str) -> dict:
+        raw = Orchestrator._agent_raw(arguments, "WeatherAgent", candidate_id)
+        if not raw:
+            return {}
+        return raw.get("per_destination", {}) if isinstance(raw.get("per_destination"), dict) else {}
+
+    @staticmethod
+    def _road_risk_by_dest(arguments: List[AgentArgument], candidate_id: str) -> dict:
+        raw = Orchestrator._agent_raw(arguments, "RoadAgent", candidate_id)
+        if not raw:
+            return {}
+        per_dest = raw.get("per_destination", [])
+        out = {}
+        if isinstance(per_dest, list):
+            for seg in per_dest:
+                if isinstance(seg, dict):
+                    dest_id = seg.get("destination_id") or seg.get("id", "")
+                    risk = seg.get("risk_level", "low")
+                    reasons = seg.get("risk_reasons", [])
+                    if dest_id:
+                        out[dest_id] = RoadRiskCard(
+                            segment=seg.get("segment", ""),
+                            risk_level=risk,
+                            reasons=reasons if isinstance(reasons, list) else [],
+                        )
+        return out
+
+    @staticmethod
+    def _weather_condition(w_data: dict) -> str:
+        precip = w_data.get("peak_precip_prob_pct", 0) or 0
+        if precip >= 70:
+            return "Poor"
+        if precip >= 40:
+            return "Fair"
+        if precip >= 20:
+            return "Good"
+        return "Excellent"
+
+    @staticmethod
+    def _stay_type_for(tier: str, dest, day_index: int, total_days: int) -> str:
+        if dest is None:
+            return "Hotel"
+        if tier == "high":
+            return "Hotel"
+        # Mid/low tier: vary by destination type
+        tags = getattr(dest, "terrain_tags", [])
+        if "alpine" in tags or "meadow" in tags:
+            return "Camping" if tier == "low" else "Lodge"
+        return "Guesthouse" if tier == "low" else "Hotel"
+
+    def _build_safety_analysis(
+        self, winner: RouteCandidate, arguments: List[AgentArgument]
+    ) -> SafetyAnalysis:
+        destinations_by_id = load_destinations()
+        safety_raw = self._agent_raw(arguments, "SafetyAgent", winner.candidate_id)
+
+        altitude_points: List[AltitudePoint] = []
+        hospitals: List[FacilityProximity] = []
+        police: List[FacilityProximity] = []
+        road_risks: List[RoadRiskCard] = []
+        max_alt = 0
+        threshold_m = 0
+        threshold_label = ""
+
+        # Altitude progression from destinations
+        day = 1
+        for dest_id in winner.destinations:
+            dest = destinations_by_id.get(dest_id)
+            if dest:
+                altitude_points.append(
+                    AltitudePoint(
+                        day=day,
+                        destination_id=dest_id,
+                        destination_name=dest.name,
+                        altitude_m=dest.altitude_m,
+                    )
+                )
+                if dest.altitude_m > max_alt:
+                    max_alt = dest.altitude_m
+                day += 1
+
+        # Hospital/police from safety agent raw_data
+        if safety_raw:
+            threshold_m = safety_raw.get("applied_threshold_m", 0)
+            threshold_label = safety_raw.get("applied_threshold_key", "")
+            per_dest = safety_raw.get("per_destination", [])
+            if isinstance(per_dest, list):
+                for d in per_dest:
+                    if not isinstance(d, dict):
+                        continue
+                    dest_id = d.get("id", "")
+                    hosp_name = d.get("hospital_name", "unknown")
+                    hosp_dist = d.get("hospital_distance_km", 0)
+                    if hosp_name and hosp_name != "unknown":
+                        hospitals.append(
+                            FacilityProximity(
+                                destination_id=dest_id,
+                                name=hosp_name,
+                                distance_km=hosp_dist,
+                                level=d.get("hospital_level", ""),
+                            )
+                        )
+                    police_name = d.get("police_name", "unknown")
+                    police_dist = d.get("police_distance_km", 0)
+                    if police_name and police_name != "unknown":
+                        police.append(
+                            FacilityProximity(
+                                destination_id=dest_id,
+                                name=police_name,
+                                distance_km=police_dist,
+                            )
+                        )
+
+        # Road risk cards from road agent
+        road_raw = self._agent_raw(arguments, "RoadAgent", winner.candidate_id)
+        if road_raw:
+            per_dest = road_raw.get("per_destination", [])
+            if isinstance(per_dest, list):
+                for seg in per_dest:
+                    if isinstance(seg, dict):
+                        road_risks.append(
+                            RoadRiskCard(
+                                segment=seg.get("segment", seg.get("id", "")),
+                                risk_level=seg.get("risk_level", "low"),
+                                reasons=seg.get("risk_reasons", []) if isinstance(seg.get("risk_reasons"), list) else [],
+                            )
+                        )
+
+        # Generic emergency contacts
+        emergency_contacts = [
+            {"label": "Emergency Services", "number": "15"},
+            {"label": "Rescue 1122", "number": "1122"},
+            {"label": "Edhi Foundation", "number": "115"},
+        ]
+
+        return SafetyAnalysis(
+            altitude_progression=altitude_points,
+            road_risk_cards=road_risks,
+            hospital_proximity=hospitals,
+            police_stations=police,
+            emergency_contacts=emergency_contacts,
+            max_altitude_m=max_alt,
+            applied_threshold_m=threshold_m,
+            threshold_label=threshold_label,
+        )
+
+    def _build_experience_layer(
+        self, winner: RouteCandidate, arguments: List[AgentArgument]
+    ) -> ExperienceLayer:
+        local_raw = self._agent_raw(arguments, "LocalAgent", winner.candidate_id)
+        hidden_spots: List[ExperienceSpot] = []
+        local_foods: List[ExperienceSpot] = []
+        sunrise_points: List[ExperienceSpot] = []
+        photo_spots: List[ExperienceSpot] = []
+
+        if local_raw:
+            per_dest = local_raw.get("per_destination", [])
+            if isinstance(per_dest, list):
+                for d in per_dest:
+                    if not isinstance(d, dict):
+                        continue
+                    dest_id = d.get("id", "")
+                    chunks = d.get("chunks", [])
+                    if not isinstance(chunks, list):
+                        continue
+                    for chunk in chunks:
+                        if not isinstance(chunk, dict):
+                            continue
+                        text = chunk.get("text", "")
+                        source = chunk.get("source", "")
+                        lower = text.lower()
+                        # Classify chunk by keyword heuristics
+                        if any(kw in lower for kw in ["food", "eat", "restaurant", "cuisine", "dish"]):
+                            local_foods.append(
+                                ExperienceSpot(
+                                    name=text[:60].split(".")[0].strip() or "Local food",
+                                    destination_id=dest_id,
+                                    category="local_food",
+                                    description=text[:200],
+                                    source=source,
+                                )
+                            )
+                        elif any(kw in lower for kw in ["sunrise", "sunset", "dawn", "dusk", "golden hour"]):
+                            sunrise_points.append(
+                                ExperienceSpot(
+                                    name=text[:60].split(".")[0].strip() or "Sunrise point",
+                                    destination_id=dest_id,
+                                    category="sunrise_point",
+                                    description=text[:200],
+                                    source=source,
+                                )
+                            )
+                        elif any(kw in lower for kw in ["photo", "viewpoint", "view point", "camera", "scenic", "overlook"]):
+                            photo_spots.append(
+                                ExperienceSpot(
+                                    name=text[:60].split(".")[0].strip() or "Photo spot",
+                                    destination_id=dest_id,
+                                    category="photo_spot",
+                                    description=text[:200],
+                                    source=source,
+                                )
+                            )
+                        else:
+                            hidden_spots.append(
+                                ExperienceSpot(
+                                    name=text[:60].split(".")[0].strip() or "Hidden spot",
+                                    destination_id=dest_id,
+                                    category="hidden_spot",
+                                    description=text[:200],
+                                    source=source,
+                                )
+                            )
+
+        return ExperienceLayer(
+            hidden_spots=hidden_spots[:10],
+            local_foods=local_foods[:10],
+            sunrise_points=sunrise_points[:5],
+            photo_spots=photo_spots[:10],
+        )
+
+    def _build_cost_breakdown(
+        self, winner: RouteCandidate, arguments: List[AgentArgument]
+    ) -> CostBreakdownDetailed:
+        budget_raw = self._agent_raw(arguments, "BudgetAgent", winner.candidate_id)
+        if budget_raw:
+            return CostBreakdownDetailed(
+                transport=budget_raw.get("transport", 0),
+                lodging=budget_raw.get("lodging", 0),
+                food=budget_raw.get("food", 0),
+                activities=budget_raw.get("activities", 0),
+                buffer=budget_raw.get("buffer", 0),
+                total=budget_raw.get("total", winner.estimated_cost),
+            )
+        # Fallback: even split
+        per_day = int(winner.estimated_cost / max(1, winner.days))
+        return CostBreakdownDetailed(
+            transport=int(per_day * 0.35),
+            lodging=int(per_day * 0.30),
+            food=int(per_day * 0.15),
+            activities=int(per_day * 0.10),
+            buffer=int(per_day * 0.10),
+            total=winner.estimated_cost,
+        )
 
 
 __all__ = ["Orchestrator", "DEFAULT_WEIGHTS"]

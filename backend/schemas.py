@@ -45,6 +45,9 @@ class ReplanResponse(BaseModel):
 class FeedbackRequest(BaseModel):
     trip_id: str
     rating: float = Field(..., ge=1.0, le=5.0)
+    budget_accuracy: Optional[float] = Field(default=None, ge=1.0, le=5.0)
+    safety_accuracy: Optional[float] = Field(default=None, ge=1.0, le=5.0)
+    experience_quality: Optional[float] = Field(default=None, ge=1.0, le=5.0)
     tags: List[str] = Field(default_factory=list)
     comment: Optional[str] = None
 

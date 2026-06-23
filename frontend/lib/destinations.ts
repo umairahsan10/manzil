@@ -123,6 +123,14 @@ export const DESTINATIONS: Record<string, DestinationMeta> = {
     coords: [71.7833, 35.85],
     imageQuery: "Chitral Pakistan mountains",
   },
+  khunjerab: {
+    id: "khunjerab",
+    name: "Khunjerab Pass",
+    shortName: "Khunjerab",
+    region: "Gilgit-Baltistan",
+    coords: [75.42, 36.85],
+    imageQuery: "Khunjerab Pass Karakoram Highway Pakistan",
+  },
 };
 
 export function getDestination(id: string): DestinationMeta | undefined {
@@ -159,4 +167,67 @@ export function getRouteStops(ids: string[]) {
     coords: [number, number];
     index: number;
   }[];
+}
+
+// --- Derived helpers for the results + trip detail pages ---
+
+/**
+ * Derive a fatigue score from total drive hours and days.
+ * Returns "Low" | "Moderate" | "High"
+ */
+export function deriveFatigue(
+  totalDriveHours: number | undefined,
+  days: number
+): string {
+  if (!totalDriveHours || days === 0) return "Low";
+  const hoursPerDay = totalDriveHours / days;
+  if (hoursPerDay > 7) return "High";
+  if (hoursPerDay > 4) return "Moderate";
+  return "Low";
+}
+
+/**
+ * Derive badges for a trip card from the candidate + query.
+ */
+export function deriveBadges(
+  candidate: {
+    estimated_cost?: number;
+    total_cost_pkr?: number;
+    destinations?: string[];
+    days?: number;
+  },
+  query: {
+    group_composition: string;
+    budget_pkr: number;
+    style_tags: string[];
+  }
+): string[] {
+  const badges: string[] = [];
+  const cost = candidate.estimated_cost ?? candidate.total_cost_pkr ?? 0;
+
+  if (query.group_composition === "family") badges.push("Family Friendly");
+  if (query.style_tags.includes("photography")) badges.push("Photography Optimized");
+  if (cost > 0 && cost <= query.budget_pkr) badges.push("Budget Fit");
+  if (query.style_tags.includes("adventure")) badges.push("Adventure Packed");
+  if (query.style_tags.includes("luxury")) badges.push("Premium Stays");
+  if (query.style_tags.includes("relaxing")) badges.push("Relaxation");
+
+  return badges.slice(0, 3);
+}
+
+/**
+ * Generate a catchy trip name from route destinations.
+ */
+export function deriveTripName(candidate: {
+  label?: string;
+  destinations?: string[];
+}): string {
+  if (candidate.label && candidate.label.length < 40) return candidate.label;
+  const dests = candidate.destinations || [];
+  if (dests.length === 0) return "Custom Trip";
+  const first = getDestinationShortName(dests[0]);
+  const last = getDestinationShortName(dests[dests.length - 1]);
+  if (dests.length === 1) return `${first} Getaway`;
+  if (dests.length === 2) return `${first} → ${last} Journey`;
+  return `${first} Explorer`;
 }

@@ -269,9 +269,12 @@ class SafetyAgent(BaseAgent):
 
     @staticmethod
     def _threshold_for_query(query: UserQuery, thresholds: Dict[str, int]):
+        # altitude_sensitive overrides everything with the lowest threshold
+        if query.altitude_sensitive:
+            return ("altitude_sensitive", thresholds.get("elderly_over_60", 3500))
         if query.elderly_in_group:
             return ("elderly_over_60", thresholds.get("elderly_over_60", 3500))
-        if query.group_composition == GroupType.FAMILY:
+        if query.kids_in_group or query.group_composition == GroupType.FAMILY:
             return ("kids_under_10", thresholds.get("kids_under_10", 3000))
         if query.group_composition == GroupType.MIXED:
             return ("kids_10_to_18", thresholds.get("kids_10_to_18", 4000))

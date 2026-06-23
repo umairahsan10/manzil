@@ -34,7 +34,7 @@ def _region_for_destination(dest_id: str) -> str:
     """Map destination id to cost region."""
     gb = {
         "hunza-karimabad", "skardu", "fairy-meadows", "gilgit",
-        "passu", "attabad", "khaplu", "deosai",
+        "passu", "attabad", "khaplu", "deosai", "khunjerab",
     }
     kpk = {"naran", "swat-kalam", "shogran", "chitral"}
     ajk = {"neelum"}
@@ -76,8 +76,12 @@ def estimate_cost(
 
     # Determine quality tier from budget if not provided
     if quality_tier is None:
-        per_day = query.budget_pkr / max(1, query.days)
-        quality_tier = _quality_tier(per_day)
+        # luxury_stays_needed forces the highest tier regardless of budget
+        if getattr(query, "luxury_stays_needed", False):
+            quality_tier = "high"
+        else:
+            per_day = query.budget_pkr / max(1, query.days)
+            quality_tier = _quality_tier(per_day)
 
     # --- Transport ---------------------------------------------------------
     transport_total = 0

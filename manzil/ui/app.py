@@ -3,11 +3,11 @@ Manzil — Streamlit entrypoint.
 
 Run from the project root:
 
-    streamlit run ui/app.py
+    streamlit run manzil/ui/app.py
 
 This file is the landing page (env state + 3 healthchecks). The Plan page is
-auto-discovered from `ui/pages/plan.py` by Streamlit's multipage system and
-appears in the sidebar.
+auto-discovered from `manzil/ui/pages/plan.py` by Streamlit's multipage system
+and appears in the sidebar.
 """
 
 from __future__ import annotations
@@ -16,8 +16,8 @@ import os
 import sys
 from pathlib import Path
 
-# Make the project root importable when Streamlit runs `ui/app.py` directly.
-_ROOT = Path(__file__).resolve().parents[1]
+# Make the project root importable when Streamlit runs `manzil/ui/app.py` directly.
+_ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 

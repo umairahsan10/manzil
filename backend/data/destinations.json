@@ -222,5 +222,21 @@
     "accessible": false,
     "noc_required_for_foreigners": false,
     "description": "Western Hindu Kush. Tirich Mir (7,708 m), the Kalash valleys (Bumburet, Rumbur, Birir), and the polo festival at Shandur Pass in summer."
+  },
+  {
+    "id": "khunjerab",
+    "name": "Khunjerab Pass",
+    "region": "Gilgit-Baltistan",
+    "coords": [36.8500, 75.4200],
+    "altitude_m": 4693,
+    "terrain_tags": ["mountain", "pass", "alpine"],
+    "activity_tags": ["photography", "adventure", "cultural"],
+    "difficulty": 5,
+    "cost_per_day": {"low": 5000, "mid": 9000, "high": 18000},
+    "season_open": [false, false, false, false, false, true, true, true, true, true, false, false],
+    "group_suitability": ["couple", "friends", "mixed"],
+    "accessible": false,
+    "noc_required_for_foreigners": true,
+    "description": "The Pakistan-China border at 4,693 m — highest paved international crossing in the world. On the Karakoram Highway past Sost, the pass is open May–October. Spectacular high-altitude scenery; requires acclimatization and an NOC for foreign travellers."
   }
 ]

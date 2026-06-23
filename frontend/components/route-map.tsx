@@ -15,6 +15,8 @@ interface RouteMapProps {
   height?: string;
   className?: string;
   highlightedStopId?: string | null;
+  variant?: "primary" | "alt" | "dashed";
+  animated?: boolean;
 }
 
 export function RouteMap({
@@ -22,6 +24,8 @@ export function RouteMap({
   height = "400px",
   className = "",
   highlightedStopId,
+  variant = "primary",
+  animated = true,
 }: RouteMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
@@ -45,9 +49,9 @@ export function RouteMap({
             "raster-tiles": {
               type: "raster",
               tiles: [
-                "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
-                "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
-                "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+                "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+                "https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+                "https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
               ],
               tileSize: 256,
               attribution:
@@ -58,7 +62,7 @@ export function RouteMap({
             {
               id: "background",
               type: "background",
-              paint: { "background-color": "#f8fafc" },
+              paint: { "background-color": "#F8F7F4" },
             },
             {
               id: "tiles",
@@ -100,8 +104,10 @@ export function RouteMap({
       }
 
       const coords = stops.map((s) => s.coords);
+      const sourceId = `route-${variant}`;
+      const layerId = `route-line-${variant}`;
 
-      currentMap.addSource("route", {
+      currentMap.addSource(sourceId, {
         type: "geojson",
         data: {
           type: "Feature",
@@ -113,28 +119,64 @@ export function RouteMap({
         },
       });
 
+      const isPrimary = variant === "primary";
+      const lineColor = isPrimary ? "#15803D" : "#D97706";
+      const lineWidth = isPrimary ? 5 : 4;
+      const lineOpacity = isPrimary ? 0.9 : 0.7;
+      const dashPattern = variant === "dashed" ? [2, 2] : undefined;
+
       currentMap.addLayer({
-        id: "route-line",
+        id: layerId,
         type: "line",
-        source: "route",
-        layout: { "line-join": "round", "line-cap": "round" },
+        source: sourceId,
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+          ...(dashPattern ? { "line-dasharray": dashPattern } : {}),
+        },
         paint: {
-          "line-color": "#0d9488",
-          "line-width": 4,
-          "line-opacity": 0.85,
+          "line-color": lineColor,
+          "line-width": lineWidth,
+          "line-opacity": lineOpacity,
         },
       });
 
-      routeLayer.current = { source: "route", layer: "route-line" };
+      // Animated draw effect via dasharray
+      if (animated && currentMap.getLayer(layerId)) {
+        const steps = 60;
+        let frame = 0;
+        const dashSeq = [0, 4, 2, 4, 4, 4, 8, 4, 16, 4, 32, 4, 64, 4, 128, 4, 256, 4];
+        const animate = () => {
+          const idx = Math.min(Math.floor((frame / steps) * (dashSeq.length - 1)), dashSeq.length - 2);
+          try {
+            currentMap.setPaintProperty(layerId, "line-dasharray", [
+              dashSeq[idx],
+              dashSeq[idx + 1],
+            ]);
+          } catch {
+            // ignore
+          }
+          frame++;
+          if (frame <= steps) {
+            requestAnimationFrame(animate);
+          }
+        };
+        requestAnimationFrame(animate);
+      }
+
+      routeLayer.current = { source: sourceId, layer: layerId };
 
       stops.forEach((stop, idx) => {
         const isHighlighted = highlightedStopId === stop.id;
         const el = document.createElement("div");
+        const bg = isPrimary ? "#15803D" : "#D97706";
         el.className = isHighlighted
-          ? "flex items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold shadow-lg ring-2 ring-background"
-          : "flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-md border-2 border-background";
+          ? "flex items-center justify-center rounded-full text-xs font-bold shadow-lg ring-2 ring-white"
+          : "flex items-center justify-center rounded-full text-xs font-bold shadow-md border-2 border-white";
         el.style.width = isHighlighted ? "34px" : "28px";
         el.style.height = isHighlighted ? "34px" : "28px";
+        el.style.background = bg;
+        el.style.color = "#FFFFFF";
         el.style.transition = "all 0.2s ease";
         el.textContent = String(idx + 1);
 
@@ -150,7 +192,7 @@ export function RouteMap({
         markers.current.push(marker);
       });
 
-      currentMap.fitBounds(bounds, { padding: 80, maxZoom: 10, duration: 1000 });
+      currentMap.fitBounds(bounds, { padding: 80, maxZoom: 10, duration: 1200 });
     };
 
     if (currentMap.loaded()) {
@@ -163,7 +205,7 @@ export function RouteMap({
       markers.current.forEach((m) => m.remove());
       markers.current = [];
     };
-  }, [stops, highlightedStopId]);
+  }, [stops, highlightedStopId, variant, animated]);
 
   return (
     <div

@@ -28,17 +28,15 @@ export function Navbar() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        scrolled
-          ? "bg-background/80 backdrop-blur-2xl shadow-sm"
-          : "bg-transparent"
+        scrolled ? "glass shadow-sm" : "bg-transparent"
       )}
     >
       <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
             <Mountain className="h-5 w-5" />
           </div>
-          <span className="font-extrabold text-xl tracking-tight">Manzil</span>
+          <span className="font-display font-bold text-xl tracking-tight">Manzil</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -66,7 +64,7 @@ export function Navbar() {
 
         <div className="hidden md:block">
           <Button
-            className="rounded-full px-6 h-10 bg-foreground text-background hover:bg-foreground/90 shadow-lg"
+            className="rounded-full px-6 h-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
             asChild
           >
             <Link href="/plan">Start Planning</Link>
@@ -74,7 +72,7 @@ export function Navbar() {
         </div>
 
         <button
-          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition-colors"
+          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
@@ -83,7 +81,7 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden bg-background/95 backdrop-blur-2xl border-t border-border animate-reveal-fade">
+        <nav className="md:hidden glass-strong border-t border-border animate-reveal-fade">
           <div className="container py-4 space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
